@@ -27,7 +27,7 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
 
 	Init();
-
+	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
 
 	Allocate(128);
 
@@ -456,7 +456,7 @@ void SE::Core::RenderableManager::Init()
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.console);
 
-	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
+	
 	initInfo.eventManager->RegisterToToggleVisible({ this, &RenderableManager::ToggleRenderableObject });
 	initInfo.eventManager->RegisterToToggleShadow({ this, &RenderableManager::ToggleShadow });
 

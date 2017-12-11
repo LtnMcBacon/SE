@@ -158,6 +158,7 @@
     <ClInclude Include="..\includes\Utilz\Sofa.h" />
     <ClInclude Include="..\includes\Utilz\StackAllocator.h" />
     <ClInclude Include="..\includes\Utilz\ThreadPool.h" />
+    <ClInclude Include="..\includes\Utilz\ThreadSafeMap.h" />
     <ClInclude Include="..\includes\Utilz\TimeCluster.h" />
     <ClInclude Include="..\includes\Utilz\Timer.h" />
     <ClInclude Include="..\includes\Utilz\Tools.h" />

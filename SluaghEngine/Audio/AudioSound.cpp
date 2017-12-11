@@ -79,7 +79,7 @@ namespace SE {
 			return 0;
 		}
 
-		size_t AudioSound::LoadSound(AudioFile* sound)
+		int AudioSound::LoadSound(AudioFile* sound)
 		{
 			StartProfile;
 			SF_VIRTUAL_IO sfvirtual;
@@ -105,9 +105,34 @@ namespace SE {
 			tempAS->info = info;
 			tempAS->samples = sampleData;
 
-			soundSample.push_back(tempAS);
-			delete sound;
-			ProfileReturn(soundSample.size() - 1);
+			if (freeSample.size() == 0)
+			{
+				soundSample.push_back(tempAS);
+				delete sound;
+				ProfileReturn(soundSample.size() - 1);
+			}
+			else 
+			{
+				int temp = freeSample.top();
+				freeSample.pop();
+				soundSample[temp] = tempAS;			
+				delete sound;
+				ProfileReturn(temp);
+			}
+		}
+
+		int AudioSound::UnloadSound(int soundHandle)
+		{
+			StartProfile;
+			if (soundSample.size() > soundHandle)
+			{
+				delete soundSample[soundHandle]->samples;
+				delete soundSample[soundHandle];
+				soundSample[soundHandle] = nullptr;
+				freeSample.push(soundHandle);
+				ProfileReturn(0);
+			}
+			ProfileReturn(-1);
 		}
 
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
@@ -203,8 +228,11 @@ namespace SE {
 			StartProfile;
 			for (auto& sound : soundSample)
 			{
-				delete sound->samples;
-				delete sound;
+				if (sound != nullptr)
+				{
+					delete sound->samples;
+					delete sound;
+				}
 			}
 			soundSample.clear();
 			StopProfile;

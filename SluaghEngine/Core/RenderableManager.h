@@ -86,6 +86,7 @@ namespace SE
 			* @brief	Remove an enitity
 			*/
 			void Destroy(const Entity& entity)override;
+			void UpdateRenderableObject(const Entity& entity);
 		private:
 			int LoadModel(const Utilz::GUID& meshGUID, void* data, size_t size, size_t& vertexCount);
 			std::function<ResourceHandler::LoadReturn(const Utilz::GUID&, void*, size_t, void**, size_t*)> loadCallback;
@@ -98,7 +99,7 @@ namespace SE
 			*/
 			void Allocate(size_t size);
 			void Init();
-			void UpdateRenderableObject(const Entity& entity);
+			
 			void CreateShadowRenderObjectInfo(size_t index, Graphics::RenderJob* info);
 			void SetDirty(const Entity& entity, size_t index);
 

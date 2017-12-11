@@ -668,24 +668,39 @@ bool SE::Gameplay::Room::ProjectileAgainstEnemies(Projectile & projectile)
 	CollisionData cData;
 	int enemyCollidedWith = -1;
 
-	if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY, projectile)) != -1) //check if front left corner of projectile is in a blocked square
+	for (int i = 0; i < enemyUnits.size(); i++)
 	{
-		collidedLeft = true;
-		cData.type = CollisionType::ENEMY;
-	}
-	else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY, projectile)) != -1) //check if front right corner of projectile is in a blocked square
-	{
-		collidedRight = true;
-		cData.type = CollisionType::ENEMY;
+		float distance = sqrt((projectile.GetXPosition() - enemyUnits[i]->GetXPosition()) * (projectile.GetXPosition() - enemyUnits[i]->GetXPosition()) + (projectile.GetYPosition() - enemyUnits[i]->GetYPosition()) * (projectile.GetYPosition() - enemyUnits[i]->GetYPosition()));
+		float tempVal = projectile.GetBoundingRect().radius;
+		if (!projectile.CheckIfAlreadyHit(enemyUnits[i]) && projectile.GetBoundingRect().radius != 0.0f && distance < (projectile.GetBoundingRect().radius + sqrt(enemyUnits[i]->GetExtent() * enemyUnits[i]->GetExtent() * 2)))
+		{
+			enemyUnits[i]->AddDamageEvent(projectile.GetProjectileDamageEvent());
+			enemyUnits[i]->AddHealingEvent(projectile.GetProjectileHealingEvent());
+			enemyUnits[i]->AddConditionEvent(projectile.GetProjectileConditionEvent());
+			cData.type = CollisionType::ENEMY;
+			cData.hitUnit = enemyUnits[i]->GetSharedPtr();
+			projectile.AddToHit(enemyUnits[i]);
+		}
 	}
 
-	if (enemyCollidedWith != -1)
-	{
-		enemyUnits[enemyCollidedWith]->AddDamageEvent(projectile.GetProjectileDamageEvent());
-		enemyUnits[enemyCollidedWith]->AddHealingEvent(projectile.GetProjectileHealingEvent());
-		enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
-		cData.hitUnit = enemyUnits[enemyCollidedWith]->GetSharedPtr();
-	}
+	//if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperLeftX, r.upperLeftY, projectile)) != -1) //check if front left corner of projectile is in a blocked square
+	//{
+	//	collidedLeft = true;
+	//	cData.type = CollisionType::ENEMY;
+	//}
+	//else if ((enemyCollidedWith = PointCollisionWithEnemy(r.upperRightX, r.upperRightY, projectile)) != -1) //check if front right corner of projectile is in a blocked square
+	//{
+	//	collidedRight = true;
+	//	cData.type = CollisionType::ENEMY;
+	//}
+
+	//if (enemyCollidedWith != -1)
+	//{
+	//	enemyUnits[enemyCollidedWith]->AddDamageEvent(projectile.GetProjectileDamageEvent());
+	//	enemyUnits[enemyCollidedWith]->AddHealingEvent(projectile.GetProjectileHealingEvent());
+	//	enemyUnits[enemyCollidedWith]->AddConditionEvent(projectile.GetProjectileConditionEvent());
+	//	cData.hitUnit = enemyUnits[enemyCollidedWith]->GetSharedPtr();
+	//}
 
 	if (cData.type != CollisionType::NONE)
 	{
@@ -1282,8 +1297,11 @@ Room::Room(Utilz::GUID fileName)
 	Meshes[Meshes::Potatobag_set1] = { "Potatobag_set1.mesh" };
 	Meshes[Meshes::PotFloorTorch_set1] = { "PotFloorTorch_set1.mesh" };
 
-
-
+	Meshes[Meshes::BagPipeTable_set1] = { "BagPipeTable_set1.mesh" };
+	Meshes[Meshes::DinnerTable_set1] = { "DinnerTable_set1.mesh" };
+	Meshes[Meshes::Smalltable_crossbowAndBat_set1] = { "Smalltable_crossbowAndBat_set1.mesh" };
+	Meshes[Meshes::Smalltable_weapons_set1] = { "Smalltable_weapons_set1.mesh" };
+	Meshes[Meshes::statue] = { "statue.mesh" };
 
 
 	// Materials
@@ -1309,12 +1327,16 @@ Room::Room(Utilz::GUID fileName)
 	Materials[Materials::PotatosackOpen] = { "Potato_Sack_Open.mat" };
 	Materials[Materials::PotatosackClosed] = { "Potato_Sack_Closed.mat" };
 	Materials[Materials::Well] = { "well.mat" }; 
-
 	Materials[Materials::Fireplace_set1] = { "Fireplace_set1.mat" };
 	Materials[Materials::Fireplace_set2] = { "Fireplace_set2.mat" };
 	Materials[Materials::MiniTable_set1] = { "MiniTable_set1.mat" };
 	Materials[Materials::Potatobag_set1] = { "Potatobag_set1.mat" };
 	Materials[Materials::PotFloorTorch_set1] = { "PotFloorTorch_set1.mat" };
+	Materials[Materials::BagPipeTable_set1]              = { "BagPipeTable_set1.mat"};
+	Materials[Materials::DinnerTable_set1]               = { "DinnerTable_set1.mat"};
+	Materials[Materials::Smalltable_crossbowAndBat_set1] = { "Smalltable_crossbowAndBat_set1.mat" };
+	Materials[Materials::Smalltable_weapons_set1]        = { "Smalltable_weapons_set1.mat"};
+	Materials[Materials::statue]                         = { "statue.mat"};
 
 
 #pragma endregion
@@ -1404,6 +1426,28 @@ Room::Room(Utilz::GUID fileName)
 	PotFloorTorch_set1.guid = Meshes[Meshes::PotFloorTorch_set1];
 	PotFloorTorch_set1.matGuid = Materials[Materials::PotFloorTorch_set1];
 
+
+	Prop BagPipeTable_set1;
+	BagPipeTable_set1.guid = Meshes[Meshes::BagPipeTable_set1];
+	BagPipeTable_set1.matGuid = Materials[Materials::BagPipeTable_set1];
+
+	Prop DinnerTable_set1;
+	DinnerTable_set1.guid = Meshes[Meshes::DinnerTable_set1];
+	DinnerTable_set1.matGuid = Materials[Materials::DinnerTable_set1];
+
+	Prop Smalltable_crossbowAndBat_set1;
+	Smalltable_crossbowAndBat_set1.guid = Meshes[Meshes::Smalltable_crossbowAndBat_set1];
+	Smalltable_crossbowAndBat_set1.matGuid = Materials[Materials::Smalltable_crossbowAndBat_set1];
+
+	Prop Smalltable_weapons_set1;
+	Smalltable_weapons_set1.guid = Meshes[Meshes::Smalltable_weapons_set1];
+	Smalltable_weapons_set1.matGuid = Materials[Materials::Smalltable_weapons_set1];
+
+	Prop statue;
+	statue.guid = Meshes[Meshes::statue];
+	statue.matGuid = Materials[Materials::Stone];
+
+
 #pragma endregion
 
 
@@ -1411,7 +1455,7 @@ Room::Room(Utilz::GUID fileName)
 	// 4x4 tile props - add more here
 	propVectors[PropTypes::BIGPROPS] = { TableGroup1 };
 	propVectors[PropTypes::TABLES]   = { Table_small, Table_round };
-	propVectors[PropTypes::MEDIUM]   = { Table_long, Table_long, Table_long,  CandleStick_tri, CandleStick_tri,  Fireplace, FireplaceOpen, Fireplace_set1, Fireplace_set2 };
+	propVectors[PropTypes::MEDIUM]   = { Table_long, Table_long, Table_long,  CandleStick_tri, CandleStick_tri,  Fireplace, FireplaceOpen, Fireplace_set1, Fireplace_set2, DinnerTable_set1, DinnerTable_set1 };
 	propVectors[PropTypes::BUSHES]   = { Bush };
 
 	// 1x1 tile props // Add more props here
@@ -1424,8 +1468,11 @@ Room::Room(Utilz::GUID fileName)
 		FloorTorch,
 		MiniTable_set1,
 		Potatobag_set1,
-		PotFloorTorch_set1
-		
+		PotFloorTorch_set1,
+		BagPipeTable_set1,
+		Smalltable_crossbowAndBat_set1,
+		Smalltable_weapons_set1,
+		statue
 	};
 
 	propItemToFunction[id_Bush] = [this](CreationArguments &args) {
@@ -1765,7 +1812,9 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			propId = (rand % nrOfProps);
 
 			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
-				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_set1] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_set2]) {
 				if (CheckPropAgainstWall(x, y, propId, "y", rot))
 				{
 					propCheck = true;
@@ -1798,7 +1847,9 @@ SE::Gameplay::Room::Prop Room::GenerateRandomProp(int x, int y, CreationArgument
 			rot = 1.5708;
 
 			if (propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace] ||
-				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open]) {
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_open] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_set1] ||
+				propVectors[PropTypes::MEDIUM][propId].guid == Meshes[Meshes::Fireplace_set2]) {
 				if (CheckPropAgainstWall(x, y, propId, "x", rot))
 				{
 					propCheck = true;
@@ -2115,6 +2166,13 @@ void SE::Gameplay::Room::CreateProp(CreationArguments &args)
 
 
 	CreateFloor(args);
+
+	if (prop.guid == Meshes[Meshes::statue])
+	{
+		float dummyX, dummyY;
+		CoreInit::managers.transformManager->Create(args.ent);
+		CoreInit::managers.transformManager->SetRotation(args.ent, 0.0f, WallCheck(args.x, args.y, dummyX, dummyY), 0.0f);
+	}
 
 	if (tileValues[i + 1][j] == id_Props && tileValues[i][j + 1] != id_Props)
 	{
