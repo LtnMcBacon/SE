@@ -91,7 +91,7 @@ void SE::Gameplay::Sluagh::InitializeSluagh()
 	else
 	{
 		/*Copy the current player*/
-		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr, 15, 15, roomMap);
+		theSluagh = new PlayerUnit(&thePlayer->GetAllSkills()[0], nullptr,nullptr, 15, 15, roomMap);
 		theSluagh->ToggleAsSluagh(true);
 		auto playerItems = thePlayer->GetAllItems();
 		for(int i = 0; i < 5; i++)
@@ -159,7 +159,7 @@ float SE::Gameplay::Sluagh::UtilityForUsingACertainSkill(float dt, Skill & skill
 	if (skillToCheck.atkType == DamageSources::DAMAGE_SOURCE_MELEE && distanceToPlayer < 2.f)
 		ProfileReturnConst(0.f);
 
-	float utilityValue = CalculateSkillDamageAfterResistances(thePlayer, skillToCheck)*2.5f/skillToCheck.cooldown;
+	float utilityValue = CalculateSkillDamageAfterResistances(thePlayer, skillToCheck)*20.5f/skillToCheck.cooldown;
 	
 	ProfileReturnConst(utilityValue);
 }

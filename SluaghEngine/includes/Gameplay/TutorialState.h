@@ -66,6 +66,8 @@ namespace SE::Gameplay
 
 		void(TutorialState::*scriptToRun)(float);
 
+		Core::Entity sounds;
+		Utilz::GUID currentSound = "";
 
 		Room* room;
 		PlayerUnit* player;

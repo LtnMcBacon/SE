@@ -340,9 +340,40 @@ namespace SE
 			**/
 			std::function<bool(Projectile* projectile, float dt)> SetPositionToMouseBehaviour(std::vector<BehaviourParameter> parameters); // 
 
+			/**
+			* @brief	Adds a condition based on if the projectiles LifeTime is larger than the minimum
+			**/
+			std::function<bool(Projectile* projectile, float dt)> MinimumLifeTimeConditionBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			/**
+			* @brief	Adds a behaviour to set the projectiles collision height
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetHeightBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			/**
+			* @brief	Adds a behaviour to set the projectiles collision width
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetWidthBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			/**
+			* @brief	Adds a behaviour to target the owner of the projectile
+			**/
+			std::function<bool(Projectile* projectile, float dt)> TargetOwnerBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a condition to check if the projectile has collided with the owner
+			**/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters); //
+
+			/**
+			* @brief	Adds a behaviour to lock the position to the same as the owners
+			**/
+			std::function<bool(Projectile* projectile, float dt)> LockToOwnerBehaviour(std::vector<BehaviourParameter> parameters); //
+
+			/**
+			* @brief	Adds a behaviour to increase the extents of a projectile with a set amount per second
+			**/
+			std::function<bool(Projectile* projectile, float dt)> IncreaseExtentsDynamicallyBehaviour(std::vector<BehaviourParameter> parameters); // f
 
 		public:
 

@@ -143,14 +143,15 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			SkillFactory sf;
 			float attrArray[8];
 			sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
+			//sf.readAttributesFromFile(9, chosenSkills[i].projectileFileGUID, attrArray);
 
-			infoToPass->skills[i].skillName				= chosenSkills.at(i).skillName;
-			infoToPass->skills[i].atkType				= chosenSkills.at(i).atkType;
-			infoToPass->skills[i].damageType			= chosenSkills.at(i).damageType;
-			infoToPass->skills[i].boon					= chosenSkills.at(i).boon;
-			infoToPass->skills[i].bane					= chosenSkills.at(i).bane;
-			infoToPass->skills[i].animation				= chosenSkills.at(i).animation;
-			infoToPass->skills[i].particle				= chosenSkills.at(i).particle;
+			infoToPass->skills[i].skillName		= chosenSkills.at(i).skillName;
+			infoToPass->skills[i].atkType		= chosenSkills.at(i).atkType;
+			infoToPass->skills[i].damageType	= chosenSkills.at(i).damageType;
+			infoToPass->skills[i].boon			= chosenSkills.at(i).boon;
+			infoToPass->skills[i].bane			= chosenSkills.at(i).bane;
+			infoToPass->skills[i].animation		= chosenSkills.at(i).animation;
+			infoToPass->skills[i].particle		= chosenSkills.at(i).particle;
 			
 			infoToPass->skills[i].projectileFileGUID	= chosenSkills[i].projectileFileGUID;
 			infoToPass->skills[i].skillDamage			= attrArray[0];
@@ -163,13 +164,15 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].cooldown				= attrArray[7];
 		}
 
+		Perk exportPerks[2];
+		Perk tempPerk;
+
 		for (auto& perk: chosenPerks)
 		{
 			Pfactory.PickedPerks.push_back(perk);
+			
 		}
 		Pfactory.iteratePerks();
-		Perk exportPerks[3];
-		Perk tempPerk;
 
 		for (size_t i = 0; i < Pfactory.PickedPerks.size(); i++)
 		{
@@ -178,10 +181,11 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			
 			exportPerks[i] = tempPerk;
 			infoToPass->perks[i] = exportPerks[i];
+			infoToPass->perksForSlaughSave[i] = chosenPerks[i];
 		}
 
 		
-		
+		//Pfactory.ReadPerksForSlaugh("Bumling");
 
 
 		passableInfo = infoToPass;

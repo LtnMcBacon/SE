@@ -457,12 +457,13 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 	job2.get();
 	job3.get();*/
 	
-
 	for (int i = 0; i < data.used; ++i)
 	{
 		if (data.flags[i] & TransformFlags::DIRTY)
 		{
-			SetDirty(data.entities[i], i);
+			if (initInfo.entityManager->Alive(data.entities[i]))
+				SetDirty(data.entities[i], i);
+
 			data.flags[i] &= ~TransformFlags::DIRTY;
 		}
 	}
