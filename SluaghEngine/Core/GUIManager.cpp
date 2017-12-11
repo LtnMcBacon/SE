@@ -195,7 +195,7 @@ namespace SE {
 		{
 			StartProfile;
 			uint32_t alive_in_row = 0;
-			while (textureInfo.size() > 0 && alive_in_row < 4U)
+			while (textureInfo.size() > 0 && alive_in_row < 40U)
 			{
 				std::uniform_int_distribution<uint32_t> distribution(0U, textureInfo.size() - 1U);
 				uint32_t i = distribution(generator);
