@@ -53,7 +53,7 @@ float startPos[3] = { 0, 0, 0 };
 float endPos[3] = { 0, 0, 0 };
 bool RandVelocity = false;
 bool imported = false;
-
+int textureSlot = 0;
 Utilz::GUID importedTexture;
 struct ParticleDataStruct {
 	float vel[3];
@@ -258,8 +258,10 @@ int main()
 	RPP.GSStage.shader = "ParticleGS.hlsl";
 	RPP.PSStage.shader = "ParticlePS.hlsl";
 	RPP.PSStage.textures[0] = "galaxy_texture.sei";
+	RPP.PSStage.textures[1] = NULL;
 	RPP.PSStage.textureBindings[0] = "particleTex";
-	RPP.PSStage.textureCount = 1;
+	RPP.PSStage.textureBindings[1] = "particleTex2";
+	RPP.PSStage.textureCount = 2;
 	RPP.PSStage.samplers[0] = "ParticleSampler";
 	RPP.PSStage.samplerCount = 1;
 	RPP.OMStage.blendState = "ParticleBlend";
@@ -336,7 +338,7 @@ int main()
 					pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
 					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
-				renderParticleJob.pipeline.PSStage.textures[0] = tempText;
+				renderParticleJob.pipeline.PSStage.textures[textureSlot] = tempText;
 				texName = tempText;
 
 			}
@@ -350,7 +352,7 @@ int main()
 					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
 				texName = importedTexture;
-				renderParticleJob.pipeline.PSStage.textures[0] = importedTexture;
+				renderParticleJob.pipeline.PSStage.textures[textureSlot] = importedTexture;
 				imported = false;
 			}
 			//renderParticleJob.pipeline.PSStage.textures[0] = Utilz::GUID(21045996);
@@ -456,6 +458,11 @@ int main()
 			int a = 0;
 		}
 		ImGui::InputText("Texture file", tempText, 100);
+		//ImGui::Value("Texture Slot: ", textureSlot);
+		//if (ImGui::Button("Change Texture Slot")) textureSlot ^= 1;
+		
+
+		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
 		if (ImGui::Button("Reset Sliders"))
 		{
 			movBuffer.radialValue = 0;
@@ -465,9 +472,6 @@ int main()
 				movBuffer.gravity[i] = 0.0f;
 			}
 		}
-		
-
-		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
 		
 		if (ImGui::Button("Export/Import Settings")) exportWindow ^= 1;
 		ImGui::End();

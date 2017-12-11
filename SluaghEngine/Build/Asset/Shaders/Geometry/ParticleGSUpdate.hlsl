@@ -68,8 +68,7 @@ bool equal(float3 start, float3 end)
 [maxvertexcount(2)]
 void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStream)
 {
-	input[0].age += dt;
-	
+	input[0].age += dt;	
 	if	(input[0].type == P_EMITTER)
 	{
 		input[0].pos = emitPos;	
@@ -89,7 +88,6 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			particle.pad2 = 0;
 			particle.pad4 = 0;
 			particle.pad5 = 0;
-		
 			ptStream.Append(particle);
 			ptStream.RestartStrip();
 			input[0].age = 0.0f;
@@ -107,9 +105,8 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			float3 lookAt = eyePos - input[0].startEmitPos;
 			lookAt = normalize(lookAt);
 			float3 tanVector = cross(radialVector, lookAt);
-			
-
-			
+			tanVector = normalize(tanVector);
+		
 			input[0].opacity = 1 - input[0].age/ lifeTime;
 			if(circular == 1)
 			{
@@ -142,7 +139,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 				{
 					input[0].velocity = float3(0, 0, 0);
 				}
-
+	
 				input[0].opacity = 1 - input[0].age/ lifeTime;
 	
 				input[0].pos += input[0].velocity * dt * speed;
@@ -152,8 +149,5 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			}
 
 		}
-		
-		
 	}
-	
 }

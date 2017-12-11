@@ -1933,6 +1933,32 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 	roomEntities[x][y].push_back(entFire);
 
 }
+bool SE::Gameplay::Room::TorchOnWall(int x, int y)
+{
+	StartProfile;
+	
+	bool torchFound = false;
+
+	if (x - 1 >= 0 && tileValues[x - 1][y] == id_Torch ) {
+		
+		torchFound = true;
+	}
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == id_Torch) {
+		
+		torchFound = true;
+	}
+	else if (y + 1 < 25 && tileValues[x][y + 1] == id_Torch) {
+		
+		torchFound = true;
+	}
+	else if (x + 1 < 25 && tileValues[x + 1][y] == id_Torch) {
+		
+		torchFound = true;
+	}
+
+	
+	ProfileReturnConst(torchFound);
+}
 void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
 {
 	int x = args.x;
@@ -2218,7 +2244,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 	auto rand = CoreInit::subSystems.window->GetRand();
 	int randValue = (rand % 500); // 2% chance a wall will have painting
 
-	if (0 < randValue && randValue <= 10)
+	if ((0 < randValue && randValue <= 10) && !TorchOnWall(args.x, args.y))
 	{
 		const auto PaintingEnt = CoreInit::managers.entityManager->Create();
 		Core::IMaterialManager::CreateInfo matInfoPainting;
