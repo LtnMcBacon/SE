@@ -178,7 +178,6 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	ConditionEventVector.clear();
 	HealingEventVector.clear();
 
-	this->newStat.damage = 1000.f;
 
 	ProfileReturnVoid;
 
