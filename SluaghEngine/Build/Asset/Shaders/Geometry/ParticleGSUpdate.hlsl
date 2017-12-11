@@ -68,8 +68,7 @@ bool equal(float3 start, float3 end)
 [maxvertexcount(2)]
 void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStream)
 {
-	input[0].age += dt;
-	
+	input[0].age += dt;	
 	if	(input[0].type == P_EMITTER)
 	{
 		input[0].pos = emitPos;	
@@ -89,7 +88,6 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			particle.pad2 = 0;
 			particle.pad4 = 0;
 			particle.pad5 = 0;
-		
 			ptStream.Append(particle);
 			ptStream.RestartStrip();
 			input[0].age = 0.0f;
@@ -151,8 +149,5 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			}
 
 		}
-		
-		
 	}
-	
 }
