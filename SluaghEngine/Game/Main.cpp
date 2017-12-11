@@ -249,9 +249,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	auto s = engine->GetSubsystems();
 	auto m = engine->GetManagers();
-	//result = InitBloom(s,m );
-	//if (result < 0)
-	//	return result;
+	result = InitBloom(s,m );
+	if (result < 0)
+		return result;
 
 
 	game.Initiate(engine);
