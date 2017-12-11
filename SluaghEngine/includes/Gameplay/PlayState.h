@@ -72,6 +72,7 @@ namespace SE
 
 				Room* room = nullptr;
 				Core::Entity symbol;
+				bool visited = false;
 			};
 
 			void InitializeRooms();

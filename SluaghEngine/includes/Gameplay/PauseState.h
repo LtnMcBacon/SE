@@ -2,6 +2,7 @@
 #define _SE_GAMEPLAY_PAUS_STATE_H
 #include "IGameState.h"
 #include <Gameplay\HUD_Parsing.h>
+#include <Gameplay\HUD_Functionality.h>
 
 namespace SE
 {
@@ -23,7 +24,7 @@ namespace SE
 
 		public:
 			PauseState();
-			PauseState(Window::IWindow* Input);
+			PauseState(Window::IWindow* Input, SE::Gameplay::IGameState::State currentState);
 			~PauseState();
 			/**
 			* @brief	The update loop for the pause menu process.
@@ -39,6 +40,9 @@ namespace SE
 			*/
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
+			IGameState::State CurrentState;
+			bool tutorialState;
+
 
 		private:
 		protected:
