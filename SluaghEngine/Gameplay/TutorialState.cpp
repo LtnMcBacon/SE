@@ -479,7 +479,7 @@ void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
 	Core::ITextManager::CreateInfo gti;
 	gti.font = "Knights.spritefont";
 	gti.info.text = L"BRA JOBBAT!\nFORTSÄTT HÅLLA IN SHIFT\nOCH DUBBEL KLICKA PÅ 1 FÖR ATT PLOCKA UPP FÖREMÅLET";
-	gti.info.screenAnchor = { 0.5f,0.6f };
+	gti.info.screenAnchor = { 0.5f,0.7f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
 	gti.info.layerDepth = 0.9;
