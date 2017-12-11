@@ -66,16 +66,19 @@ SE::Gameplay::WinState::WinState()
 	textci.font = "Knights.spritefont";
 	textci.info.text = L"        DU HAR BESEGRAT DEN ONDE SLUAGHEN\nMÅ HEDER OCH ÄRA SKÖLJA ÖVER DIG I STORA MÅTT";
 	textci.info.scale = { 0.5f, 0.5f };
+	textci.info.anchor = { 0.5f, 0.5f };
+	textci.info.screenAnchor = { 0.5f, 0.8f };
 	man.textManager->Create(victoryText, textci);
-	man.textManager->SetTextPos(victoryText, sys.window->Width() / 2 - 505, sys.window->Height() / 2 + 200);
 	man.textManager->ToggleRenderableText(victoryText, true);
 
 	infoText = man.entityManager->Create();
 	textci.info.text = L"TRYCK PÅ RETUR FÖR ATT GÅ TILLBAKA TILL MENYN";
 	textci.info.scale = { 0.25f, 0.25f };
 	textci.info.colour = { 0.2f,0.8f,0.2f,1.0f };
+	textci.info.anchor = { 0.5f, 0.5f };
+	textci.info.screenAnchor = { 0.5f, 0.9f };
+
 	man.textManager->Create(infoText, textci);
-	man.textManager->SetTextPos(infoText, sys.window->Width() / 2 - 250, sys.window->Height() / 2 + 320);
 	man.textManager->ToggleRenderableText(infoText, true);
 
 	sys.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
