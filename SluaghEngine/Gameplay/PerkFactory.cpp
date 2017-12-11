@@ -1123,18 +1123,18 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer = duration;
 			}
+			
+			if (timer > 0)
+			{
+				
+				timer -= deltaTime;
+				natureLock = true;
+			}
 			else
 			{
-				if (timer > 0)
-				{
-					timer -= deltaTime;
-					natureLock = true;
-				}
-				else
-				{
-					natureLock = false;
-				}
+				natureLock = false;
 			}
+			
 
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> NatureLockFunc = NatureLock;
 		return NatureLockFunc;
