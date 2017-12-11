@@ -69,10 +69,10 @@ bool equal(float3 start, float3 end)
 void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStream)
 {
 	input[0].age += dt;
-	
-	if	(input[0].type == P_EMITTER)
+
+	if (input[0].type == P_EMITTER)
 	{
-		input[0].pos = emitPos;	
+		input[0].pos = emitPos;
 		input[0].pos = mul(float4(input[0].pos, 1.0f), World).xyz;
 		if (input[0].age > emitRate && emit == 1)
 		{
@@ -89,7 +89,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			particle.pad2 = 0;
 			particle.pad4 = 0;
 			particle.pad5 = 0;
-		
+
 			ptStream.Append(particle);
 			ptStream.RestartStrip();
 			input[0].age = 0.0f;
@@ -107,11 +107,10 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			float3 lookAt = eyePos - input[0].startEmitPos;
 			lookAt = normalize(lookAt);
 			float3 tanVector = cross(radialVector, lookAt);
-			
 
-			
-			input[0].opacity = 1 - input[0].age/ lifeTime;
-			if(circular == 1)
+
+			input[0].opacity = 1 - input[0].age / lifeTime;
+			if (circular == 1)
 			{
 				if (!equal(input[0].pos, emitPos))
 					input[0].pos += ((radialVector * radialValue) + (tanVector * tangentialValue)) * dt;
@@ -125,35 +124,34 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			if (gravityCheck)
 			{
 				input[0].pos += gravity * gravityValue * dt * speed;
-			}	
+			}
 			ptStream.Append(input[0]);
 			ptStream.RestartStrip();
 		}
 		else if (particlePath == 1)
 		{
-			if(!equal(input[0].pos, endPos))
+			if (!equal(input[0].pos, endPos))
 			{
-				if(locked)
+				if (locked)
 				{
 					float3 finalDirection = endPos - input[0].pos;
 					input[0].velocity = finalDirection;
 				}
-				else	
+				else
 				{
 					input[0].velocity = float3(0, 0, 0);
 				}
 
-				input[0].opacity = 1 - input[0].age/ lifeTime;
-	
+				input[0].opacity = 1 - input[0].age / lifeTime;
+
 				input[0].pos += input[0].velocity * dt * speed;
-			
+
 				ptStream.Append(input[0]);
 				ptStream.RestartStrip();
 			}
 
 		}
-		
-		
+
+
 	}
-	
 }
