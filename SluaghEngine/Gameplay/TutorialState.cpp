@@ -244,7 +244,7 @@ SE::Gameplay::IGameState::State SE::Gameplay::TutorialState::Update(void *& pass
 
 	(*this.*scriptToRun)(dt);
 
-	return scriptToRun == &TutorialState::EndTutorialScript ? State::TUTORIAL_STATE : State::TUTORIAL_STATE;
+	return scriptToRun == &TutorialState::EndTutorialScript ? State::MAIN_MENU_STATE : State::TUTORIAL_STATE;
 }
 
 void SE::Gameplay::TutorialState::NothingScript(float dt)
