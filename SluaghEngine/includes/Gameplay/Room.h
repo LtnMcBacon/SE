@@ -692,6 +692,8 @@ namespace SE
 
 			void CreateFire(int x, int y);
 
+			bool TorchOnWall(int x, int y);
+
 			void CreateWindows(CreationArguments &args);
 			/**
 			* @brief set Room door pointer to values
