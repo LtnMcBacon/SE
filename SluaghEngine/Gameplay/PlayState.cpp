@@ -1079,7 +1079,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	aimDecal = CoreInit::managers.entityManager->Create();
 	DirectX::XMFLOAT4X4 dectrans;
 	DirectX::XMStoreFloat4x4(&dectrans,DirectX::XMMatrixScaling(0.5f, 0.5f, 0.05f) * DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PIDIV2, 0.0f, 0.0f));
-	CoreInit::managers.decalManager->Create(aimDecal, { "AimDecal.png", 0.5f});
+	CoreInit::managers.decalManager->Create(aimDecal, { "AimDecal.png", 0.5f, 1.0f});
 	CoreInit::managers.decalManager->SetLocalTransform(aimDecal, (float*)&dectrans);
 	CoreInit::managers.decalManager->ToggleVisible(aimDecal, true);
 	

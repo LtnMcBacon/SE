@@ -2059,6 +2059,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 
 			Core::DecalCreateInfo decalFloorInfo;
 			decalFloorInfo.opacity = 1.0f;
+			decalFloorInfo.ambiance = 0.1f;
 			decalFloorInfo.textureName = carpetTextures[carpetToUse];
 
 			const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
