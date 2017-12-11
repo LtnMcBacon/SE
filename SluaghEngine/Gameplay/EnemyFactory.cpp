@@ -174,6 +174,34 @@ EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVar
 		createdEnemy->SetBaseWhisdom(baseWisdom);
 
 		createdEnemy->SetBaseMaxHealth(enemyHealth);
+		createdEnemy->SetDamageType(DamageType(CoreInit::subSystems.window->GetRand() % int(DamageType::NUM_TYPES)));
+
+
+		switch(createdEnemy->GetDamageType())
+		{
+		case DamageType::RANGED: /*Fall through*/
+		case DamageType::PHYSICAL: 
+			createdEnemy->AddBasePhysicalResistance(0.15f);
+			createdEnemy->RemoveBaseMagicResistance(0.15f);
+			break;
+		case DamageType::FIRE:
+			createdEnemy->AddBaseFireResistance(0.15f);
+			createdEnemy->RemoveBaseWaterResistance(0.15f); break;
+		case DamageType::WATER:
+			createdEnemy->AddBaseWaterResistance(0.15f);
+			createdEnemy->RemoveBaseNatureResistance(0.15f); break;
+		case DamageType::NATURE:
+			createdEnemy->AddBaseNatureResistance(0.15f);
+			createdEnemy->RemoveBaseFireResistance(0.15f); break;
+		case DamageType::MAGIC:
+			createdEnemy->AddBaseMagicResistance(0.15f);
+			createdEnemy->RemoveBasePhysicalResistance(0.15f); break;
+		default: ;
+		}
+
+		if(type == EnemyType::ENEMY_TYPE_NUCKELAVEE)
+			createdEnemy->SetBaseNatureResistance(information.natureResistance);
+
 
 		EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
 
