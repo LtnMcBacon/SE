@@ -142,8 +142,8 @@ EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVar
 		int enemyHealth = information.baseHealth;
 		if (useVariation)
 		{
-			int healthVariation = information.baseHealthVariation;
-			enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
+			
+			enemyHealth += CoreInit::subSystems.window->GetRand() % (information.baseHealthVariation * 2 + 1) - information.baseHealthVariation;
 		}
 	
 
@@ -161,11 +161,13 @@ EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVar
 		int baseAgility = information.baseAgility;
 		int baseWisdom = information.baseWisdom;
 
+		float damage = information.baseDamage;
 		if(useVariation)
 		{
-			baseStrength += information.baseStrengthVariation;
-			baseAgility += information.baseAgilityVariation;
-			baseWisdom += information.baseWisdomVariation;
+			baseStrength += CoreInit::subSystems.window->GetRand() % (information.baseStrengthVariation * 2 + 1) - information.baseStrengthVariation;
+			baseAgility += CoreInit::subSystems.window->GetRand() % (information.baseAgilityVariation * 2 + 1) - information.baseAgilityVariation;
+			baseWisdom += CoreInit::subSystems.window->GetRand() % (information.baseWisdomVariation * 2 + 1) - information.baseWisdomVariation;
+			damage += CoreInit::subSystems.window->GetRand() % (information.baseDamageVariation * 2 + 1) - information.baseDamageVariation;
 
 		}
 
@@ -174,6 +176,8 @@ EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVar
 		createdEnemy->SetBaseWhisdom(baseWisdom);
 
 		createdEnemy->SetBaseMaxHealth(enemyHealth);
+
+		createdEnemy->SetBaseDamage(damage);
 		createdEnemy->SetDamageType(DamageType(CoreInit::subSystems.window->GetRand() % int(DamageType::NUM_TYPES)));
 
 
@@ -206,9 +210,6 @@ EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVar
 		EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
 
 		createdEnemy->SetEnemyBlackboard(enemyBlackboard);
-
-
-
 
 		ProfileReturnConst(createdEnemy);
 	}
