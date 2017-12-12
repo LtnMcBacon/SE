@@ -13,7 +13,8 @@ struct DecalInfo
 {
 	float opacity;
 	float ambiance;
-	float2 padding;
+	float padding;
+	float padding2;
 };
 
 cbuffer DecalOpacity : register(b2)
