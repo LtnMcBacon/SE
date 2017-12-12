@@ -1,7 +1,16 @@
+static const float FOG_SPEED = 0.3;
+
+
 cbuffer OncePerFrame : register(b0)
 {
     float4x4 viewMatrix;
     float4x4 viewProjectionMatrix;
+};
+
+
+cbuffer fog_timeBuffer : register(b1)
+{
+    float time;
 };
 
 
@@ -24,9 +33,14 @@ VS_OUT VS_main(VS_IN input)
 {
     VS_OUT output;
 
+
     output.position = mul(float4(input.position, 1), viewProjectionMatrix);
-    output.uv = input.uv;
+
+    output.uv[0] = input.uv[0];
+    output.uv[1] = input.uv[1] + FOG_SPEED * time;
+
     output.opacity = input.opacity;
+
 
     return output;
 }
