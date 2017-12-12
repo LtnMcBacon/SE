@@ -1546,7 +1546,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	if(sluaghDoorsOpen)
 	{
 		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY)->get().room);
-		if(sluaghRoom)
+		if(sluaghRoom && player->GetHealth() > 0.f)
 		{
 			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
 			{
