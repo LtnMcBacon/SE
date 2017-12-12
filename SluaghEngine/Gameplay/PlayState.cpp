@@ -1190,7 +1190,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
 
-		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
 			return false;
 
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
