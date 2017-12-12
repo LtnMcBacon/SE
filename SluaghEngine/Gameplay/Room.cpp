@@ -133,7 +133,7 @@ void Room::Update(float dt, float playerX, float playerY)
 	}
 
 	time += dt;
-	CoreInit::subSystems.renderer->GetPipelineHandler()->UpdateConstantBuffer("timeBuffer", &time, sizeof(float));
+	CoreInit::subSystems.renderer->GetPipelineHandler()->UpdateConstantBuffer("fog_timeBuffer", &time, sizeof(float));
 
 	StopProfile;
 }

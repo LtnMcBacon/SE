@@ -29,5 +29,5 @@ float4 PS_main(PS_IN input) : SV_TARGET
     float diffuseFactor = dot(float3(0, 0, 1), normalColor);
 
 
-    return float4(diffuseFactor * albedoColor, /*diffuseFactor * */input.opacity);
+    return float4(diffuseFactor * albedoColor, input.opacity);
 }

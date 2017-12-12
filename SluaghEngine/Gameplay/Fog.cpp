@@ -506,18 +506,14 @@ void SE::Gameplay::Fog::Enable(bool status)
 {
 	if (status && !rjEnabled && rjInitialized)
 	{
-		topPlaneRjHandles[0] = CoreInit::subSystems.renderer->AddRenderJob(topPlaneRjs[0], topPlane_renderGroup);
-		topPlaneRjHandles[1] = CoreInit::subSystems.renderer->AddRenderJob(topPlaneRjs[1], topPlane_renderGroup);
-
+		topPlaneRjHandle = CoreInit::subSystems.renderer->AddRenderJob(topPlaneRj, topPlane_renderGroup);
 		bottomPlaneRjHandle = CoreInit::subSystems.renderer->AddRenderJob(bottomPlaneRj, bottomPlane_renderGroup);
 
 		rjEnabled = true;
 	}
-	else if (!status && rjEnabled && topPlaneRjHandles[0] != -1)
+	else if (!status && rjEnabled && topPlaneRjHandle != -1)
 	{
-		CoreInit::subSystems.renderer->RemoveRenderJob(topPlaneRjHandles[0]);
-		CoreInit::subSystems.renderer->RemoveRenderJob(topPlaneRjHandles[1]);
-
+		CoreInit::subSystems.renderer->RemoveRenderJob(topPlaneRjHandle);
 		CoreInit::subSystems.renderer->RemoveRenderJob(bottomPlaneRjHandle);
 
 		rjEnabled = false;
@@ -763,40 +759,32 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 		CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer(topPlaneVbName, topPlaneVertexBuffer, topPlaneVertexCount, sizeof(Vertex));
 
 
-		topPlaneRjs[0].pipeline.OMStage.renderTargets[0] = "backbuffer";
-		topPlaneRjs[0].pipeline.OMStage.renderTargetCount = 1;
+		topPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
+		topPlaneRj.pipeline.OMStage.renderTargetCount = 1;
 
-		topPlaneRjs[0].pipeline.VSStage.shader = "FogVS.hlsl";
-		topPlaneRjs[0].pipeline.PSStage.shader = "FogTopPS.hlsl";
+		topPlaneRj.pipeline.VSStage.shader = "FogTopVS.hlsl";
+		topPlaneRj.pipeline.GSStage.shader = "FogTopGS.hlsl";
+		topPlaneRj.pipeline.PSStage.shader = "FogTopPS.hlsl";
 
-		topPlaneRjs[0].pipeline.PSStage.samplers[0] = "FogSs";
-		topPlaneRjs[0].pipeline.PSStage.samplerCount = 1;
+		topPlaneRj.pipeline.PSStage.samplers[0] = "FogSs";
+		topPlaneRj.pipeline.PSStage.samplerCount = 1;
 
-		topPlaneRjs[0].pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
-		topPlaneRjs[0].pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
-		topPlaneRjs[0].pipeline.PSStage.textureCount = 2;
-		topPlaneRjs[0].pipeline.PSStage.textureBindings[0] = "albedoTexture";
-		topPlaneRjs[0].pipeline.PSStage.textureBindings[1] = "normalTexture";
+		topPlaneRj.pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
+		topPlaneRj.pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
+		topPlaneRj.pipeline.PSStage.textureCount = 2;
+		topPlaneRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
+		topPlaneRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
 
-		topPlaneRjs[0].pipeline.IAStage.inputLayout = "FogVS.hlsl";
-		topPlaneRjs[0].pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
-		topPlaneRjs[0].pipeline.IAStage.vertexBuffer = topPlaneVbName;
+		topPlaneRj.pipeline.IAStage.inputLayout = "FogTopVS.hlsl";
+		topPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
+		topPlaneRj.pipeline.IAStage.vertexBuffer = topPlaneVbName;
 
-		topPlaneRjs[0].pipeline.OMStage.blendState = "FogBs";
-		topPlaneRjs[0].pipeline.OMStage.depthStencilState = "FogDss";
-		topPlaneRjs[0].pipeline.OMStage.depthStencilView = "backbuffer";
+		topPlaneRj.pipeline.OMStage.blendState = "FogBs";
+		topPlaneRj.pipeline.OMStage.depthStencilState = "FogDss";
+		topPlaneRj.pipeline.OMStage.depthStencilView = "backbuffer";
 
-		topPlaneRjs[0].vertexCount = topPlaneVertexCount;
-		topPlaneRjs[0].maxInstances = 1;
-
-
-		topPlaneRjs[1] = topPlaneRjs[0];
-
-		topPlaneRjs[1].mappingFunc.push_back([time](int a, int b)
-		{
-			float offsetTime = *time + 6;
-			CoreInit::subSystems.renderer->GetPipelineHandler()->UpdateConstantBuffer("timeBuffer", &offsetTime, sizeof(float));
-		});
+		topPlaneRj.vertexCount = topPlaneVertexCount;
+		topPlaneRj.maxInstances = 1;
 
 
 
@@ -815,7 +803,7 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 		bottomPlaneRj.pipeline.OMStage.renderTargets[0] = "backbuffer";
 		bottomPlaneRj.pipeline.OMStage.renderTargetCount = 1;
 
-		bottomPlaneRj.pipeline.VSStage.shader = "FogVS.hlsl";
+		bottomPlaneRj.pipeline.VSStage.shader = "FogBottomVS.hlsl";
 		bottomPlaneRj.pipeline.PSStage.shader = "FogBottomPS.hlsl";
 
 		bottomPlaneRj.pipeline.PSStage.samplers[0] = "FogSs";
@@ -827,7 +815,7 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 		bottomPlaneRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
 		bottomPlaneRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
 
-		bottomPlaneRj.pipeline.IAStage.inputLayout = "FogVS.hlsl";
+		bottomPlaneRj.pipeline.IAStage.inputLayout = "FogBottomVS.hlsl";
 		bottomPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 		bottomPlaneRj.pipeline.IAStage.vertexBuffer = bottomPlaneVbName;
 

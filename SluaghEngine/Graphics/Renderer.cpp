@@ -335,6 +335,9 @@ int SE::Graphics::Renderer::Render()
 		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
 
 	}
+
+	device->GetDeviceContext()->GSSetShader(nullptr, nullptr, 0);
+
 	{
 		ID3D11RenderTargetView* backbuf = device->GetRTV();
 		ID3D11DepthStencilView* depthsv = device->GetDepthStencil();

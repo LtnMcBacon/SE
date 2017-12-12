@@ -332,8 +332,8 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 	auto subSystem = engine->GetSubsystems();
 
 
-	ResourceHandler::Callbacks vertexShaderCallbacks;
-	vertexShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	ResourceHandler::Callbacks topVertexShaderCallbacks;
+	topVertexShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
 	{
 		*usize = size;
 		int res = subSystem.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
@@ -341,15 +341,57 @@ void SE::Gameplay::PlayState::InitializeFogDependencies()
 			return ResourceHandler::LoadReturn::FAIL;
 		return ResourceHandler::LoadReturn::SUCCESS;
 	};
-	vertexShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+	topVertexShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
 		return ResourceHandler::InvokeReturn::SUCCESS;
 	};
-	vertexShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+	topVertexShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
 
 	};
-	int res = subSystem.resourceHandler->LoadResource("FogVS.hlsl", vertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	int res = subSystem.resourceHandler->LoadResource("FogTopVS.hlsl", topVertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 		throw std::exception("Could not load fog vertex shader");
+
+
+
+	ResourceHandler::Callbacks bottomVertexShaderCallbacks;
+	bottomVertexShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	bottomVertexShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	bottomVertexShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogBottomVS.hlsl", bottomVertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+		throw std::exception("Could not load fog vertex shader");
+
+
+
+	ResourceHandler::Callbacks geometryShaderCallbacks;
+	geometryShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	geometryShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	geometryShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogTopGS.hlsl", geometryShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+		throw std::exception("Could not load fog geometry shader");
 
 
 

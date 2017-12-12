@@ -60,18 +60,18 @@ namespace SE
 			static const unsigned int maximumCenterOffsetRadius = 10;
 			static const unsigned int spaceCheckRotationIterationCount = 16;
 
-			static const Graphics::RenderGroup topPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_5;
-			static const Graphics::RenderGroup bottomPlane_renderGroup = Graphics::RenderGroup::RENDER_PASS_4;
+			static const Graphics::RenderGroup topPlane_renderGroup = Graphics::RenderGroup::POST_PASS_4;
+			static const Graphics::RenderGroup bottomPlane_renderGroup = Graphics::RenderGroup::POST_PASS_3;
 
 			char tileValues[25][25];
 
 			bool rjInitialized = false;
 			bool rjEnabled = false;
 
-			unsigned int topPlaneRjHandles[2] = { (unsigned int)-1, (unsigned int)-1 };
+			unsigned int topPlaneRjHandle = -1;
 			unsigned int bottomPlaneRjHandle = -1;
 
-			Graphics::RenderJob topPlaneRjs[2];
+			Graphics::RenderJob topPlaneRj;
 			Graphics::RenderJob bottomPlaneRj;
 
 			Plane *topPlane;
