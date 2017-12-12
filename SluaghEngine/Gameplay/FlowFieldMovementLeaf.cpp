@@ -152,19 +152,21 @@ Status FlowFieldMovementLeaf::Update()
 			flowField->SampleFromMap(myPos, xMovement, yMovement);
 			if(xMovement != 0.f || yMovement != 0.f)
 			{
-				xMovement = -2*xMovement;
-				yMovement = -2*yMovement;
+				xMovement = xPos - myPos.x;
+				yMovement = yPos - myPos.y;
 				break;
 			}
 		}
 	}
-	xMovementTot += xMovement;
-	yMovementTot += yMovement;
+	xMovementTot = xMovement;
+	yMovementTot = yMovement;
 
-	if (!sample)
-		SampleFromMap(yMovementTot, xMovementTot);
+
+	/*if (!sample)
+		SampleFromMap(yMovementTot, xMovementTot);*/
 
 	sample = (sample + 1) % sampleRate;
+
 	/*Check if we would collide in a wall
 	* See CorrectCollision for information
 	*/
@@ -182,7 +184,8 @@ Status FlowFieldMovementLeaf::Update()
 		myStatus = Status::BEHAVIOUR_FAILURE;
 	/*Move the entity in the normalized direction*/
 
-	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime, yMovementTot*gameBlackboard->deltaTime);
+	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime*enemyBlackboard->movementSpeedPercent, 
+		yMovementTot*gameBlackboard->deltaTime*enemyBlackboard->movementSpeedPercent);
 
 
 	/*Save the direction for next movement*/
@@ -207,7 +210,7 @@ bool FlowFieldMovementLeaf::CorrectCollision(float& xMov, float& yMov)
 	xMovementTot *= gameBlackboard->deltaTime;
 	yMovementTot *= gameBlackboard->deltaTime;
 
-	float localExtent = enemyBlackboard->extents + 0.15;
+	float localExtent = enemyBlackboard->extents + 0.25;
 
 	float xPos = enemyBlackboard->ownerPointer->GetXPosition();
 	float yPos = enemyBlackboard->ownerPointer->GetYPosition();

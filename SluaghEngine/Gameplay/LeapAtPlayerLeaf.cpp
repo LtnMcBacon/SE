@@ -158,7 +158,7 @@ SE::Gameplay::Status SE::Gameplay::LeapAtPlayerLeaf::Update()
 			newProjectile.startPosX = xTarget;
 			newProjectile.startPosY = yTarget;
 			newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE,
-				DamageType::NATURE, 10);
+				enemyBlackboard->ownerPointer->GetDamageType(), enemyBlackboard->ownerPointer->GetNewDamage());
 
 			gameBlackboard->enemyProjectiles.push_back(newProjectile);
 
