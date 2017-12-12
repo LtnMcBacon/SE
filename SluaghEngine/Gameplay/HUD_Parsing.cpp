@@ -11,6 +11,7 @@ namespace SE
 		HUDParser::HUDParser()
 		{
 			StartProfile;
+			std::wstring test2 = L"hej abc едц";
 			std::function<void()> test = std::bind(&HUDParser::InitiateTextures, this);
 			test();
 			this->InitiateTextures();

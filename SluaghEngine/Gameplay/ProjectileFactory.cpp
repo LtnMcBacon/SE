@@ -12,6 +12,7 @@ using namespace DirectX;
 void SE::Gameplay::ProjectileFactory::CreateNewProjectile(const ProjectileData& data)
 {
 	StartProfile;
+	
 
 	std::map<SE::Utilz::GUID, std::vector<LoadedProjectile>>::const_iterator got = loadedProjectiles.find(
 		data.fileNameGuid);

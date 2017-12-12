@@ -228,6 +228,11 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	LPSTR lpCmdLine,
 	int nCmdShow)
 {
+	setlocale(LC_ALL, " ");
+	std::string test = "hej abc едц";
+	std::wstring test2 = L"hej abc едц";
+	std::string test3 = "hej abc \x86\x84\x94";
+	std::wstring test4 = L"hej abc \x86\x84\x94";
 	SE::Gameplay::Game game;
 	auto engine = Core::CreateEngine();
 	Core::IEngine::InitializationInfo engineInit;
@@ -253,8 +258,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	//if (result < 0)
 	//	return result;
 
-
+	std::wstring test5 = L"hej abc едц";
 	game.Initiate(engine);
+	std::wstring test6 = L"hej abc едц";
 	game.Run();
 
 	game.Shutdown();

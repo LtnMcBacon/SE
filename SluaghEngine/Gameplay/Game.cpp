@@ -62,6 +62,7 @@ void SE::Gameplay::Game::Initiate(Core::IEngine* engine)
 void SE::Gameplay::Game::Run()
 {
 	StartProfile;
+	std::wstring test2 = L"hej abc едц";
 	void* data = nullptr;
 	//SE::Gameplay::IGameState::State currentState = SE::Gameplay::IGameState::State::PLAY_STATE;
 	SE::Gameplay::IGameState::State newState = state->PLAY_STATE;
@@ -199,6 +200,7 @@ void SE::Gameplay::Game::Run()
 		CoreInit::engine->EndFrame();
 
 	}
+
 	StopProfile;
 }
 

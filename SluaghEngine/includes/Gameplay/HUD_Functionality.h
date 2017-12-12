@@ -16,6 +16,8 @@ namespace SE
 			HUDButtons();
 			~HUDButtons();
 
+			std::wstring testIKLass = L"hej abc едц";
+
 			// struct for buttons
 			struct ButtonElement
 			{
