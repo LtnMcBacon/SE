@@ -75,15 +75,15 @@ namespace SE
 			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
-			std::string skillButtonFiles[18]
+			std::string skillButtonFiles[20]
 			{
-				"Bat_Minion.HuD",
-				"Heavy_Machine_Bow.HuD",
-				"voidRift.HuD",
-				"Bat_Swarm.HuD",
-				"Dagger_Rain.HuD",
-				"Doom_Ball.HuD",
-				"Fire_Pillars.HuD",
+				"Fladdermus_Kompanion.HuD",
+				"Drak_Torn.HuD",
+				"Intets_Klyfta.HuD",
+				"Fladdermus_Pack.HuD",
+				"Kniv_Regn.HuD",
+				"Ond_Skalle.HuD",
+				"Eld_Pelare.HuD",
 				"Gae_Bolg.HuD",
 				"Kasta_Sten.HuD",
 				"Blixt.HuD",
@@ -95,6 +95,8 @@ namespace SE
 				"Studs_Boll.HuD",
 				"Tidens_melodi.HuD",
 				"Vasst_blad.HuD",
+				"Magisk_Ande.HuD",
+				"Pilstorm.HuD"
 			};
 
 			std::string perkButtonFiles[19]
