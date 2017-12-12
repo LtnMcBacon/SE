@@ -48,6 +48,7 @@
 #include "HUDTest.h"
 #include "ThreadPoolTest.h"
 #include "ParticleTest.h"
+#include "DecalPerformanceTest.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "DevConsoleD.lib")
@@ -76,6 +77,7 @@ int main(int argc, char** argv)
 	//AddTest(ComputeTest);
 	AddTest(EntityManagerTest);
 	AddTest(ResourceHandlerTest);
+	AddTest(DecalPerformanceTest);
 	//AddTest(WindowTest);
 	////AddTest(ObjLoaderTest);
 	AddTest(RenderableManagerTest);
