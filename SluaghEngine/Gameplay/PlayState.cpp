@@ -655,6 +655,7 @@ void SE::Gameplay::PlayState::InitializeDeathSequence() {
 	deathInfo.info.anchor = { 0.5f, 0.5f };
 	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
 	deathInfo.font = "Knights.spritefont";
+	deathInfo.info.layerDepth = 0.01f;
 
 	CoreInit::managers.textManager->Create(deathText, deathInfo);
 
