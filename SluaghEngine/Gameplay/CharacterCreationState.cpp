@@ -17,7 +17,7 @@ CharacterCreationState::CharacterCreationState()
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
-	std::wstring test2 = L"hej abc едц";
+	
 	nrOfSkills = 2;
 	nrOfPerks = 2;
 	selectedSkills = 0;
