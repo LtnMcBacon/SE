@@ -76,7 +76,6 @@ namespace SE
 			};
 
 			void InitializeRooms();
-			void InitializeFogDependencies();
 			void InitializeEnemies();
 			void InitializePlayer(void* playerInfo);
 			void InitializeOther();

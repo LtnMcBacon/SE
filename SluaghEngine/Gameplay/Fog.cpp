@@ -498,6 +498,8 @@ SE::Gameplay::Fog::Fog()
 
 SE::Gameplay::Fog::~Fog()
 {
+	Enable(false);
+
 	delete topPlane;
 	delete bottomPlane;
 }

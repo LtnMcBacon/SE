@@ -221,6 +221,232 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 
 	return 0;
 }
+int InitializeFogDependencies(SE::Core::IEngine::Subsystems& subSystem)
+{
+	ResourceHandler::Callbacks topVertexShaderCallbacks;
+	topVertexShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	topVertexShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	topVertexShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	int res = subSystem.resourceHandler->LoadResource("FogTopVS.hlsl", topVertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+	{
+		throw std::exception("Could not load fog vertex shader");
+		return -1;
+	}
+
+
+
+	ResourceHandler::Callbacks bottomVertexShaderCallbacks;
+	bottomVertexShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreateVertexShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	bottomVertexShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	bottomVertexShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogBottomVS.hlsl", bottomVertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+	{
+		throw std::exception("Could not load fog vertex shader");
+		return -1;
+	}
+
+
+
+	ResourceHandler::Callbacks geometryShaderCallbacks;
+	geometryShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreateGeometryShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	geometryShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	geometryShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogTopGS.hlsl", geometryShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+	{
+		throw std::exception("Could not load fog geometry shader");
+		return -1;
+	}
+
+
+
+	ResourceHandler::Callbacks topPixelShaderCallbacks;
+	topPixelShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	topPixelShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	topPixelShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogTopPS.hlsl", topPixelShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+	{
+		throw std::exception("Could not load fog top pixel shader");
+		return -1;
+	}
+
+
+
+	ResourceHandler::Callbacks bottomPixelShaderCallbacks;
+	bottomPixelShaderCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		*usize = size;
+		int res = subSystem.renderer->GetPipelineHandler()->CreatePixelShader(guid, data, size);
+		if (res < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+	bottomPixelShaderCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	bottomPixelShaderCallbacks.destroyCallback = [](auto guid, auto data, auto size) {
+
+	};
+	res = subSystem.resourceHandler->LoadResource("FogBottomPS.hlsl", bottomPixelShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+	{
+		throw std::exception("Could not load fog bottom pixel shader");
+		return -1;
+	}
+
+
+
+	ResourceHandler::Callbacks albedoTextureCallbacks;
+	albedoTextureCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		Graphics::TextureDesc td;
+		memcpy(&td, data, sizeof(td));
+		*usize = size - sizeof(td);
+		// Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel
+		if (td.width * td.height * 4 != size - sizeof(td))
+			return ResourceHandler::LoadReturn::FAIL;
+
+		void* rawTextureData = ((char*)data) + sizeof(td);
+		auto result = subSystem.renderer->GetPipelineHandler()->CreateTexture(guid, rawTextureData, td.width, td.height);
+		if (result < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+
+	albedoTextureCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	albedoTextureCallbacks.destroyCallback = [subSystem](auto guid, auto data, auto size) {
+		subSystem.renderer->GetPipelineHandler()->DestroyTexture(guid);
+	};
+
+	res = subSystem.resourceHandler->LoadResource("Fog_AlbedoTexture.png", albedoTextureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+	{
+		throw std::exception("Could not load fog albedo texture");
+		return -1;
+	}
+
+
+	ResourceHandler::Callbacks normalTextureCallbacks;
+	normalTextureCallbacks.loadCallback = [subSystem](auto guid, auto data, auto size, auto udata, auto usize)
+	{
+		Graphics::TextureDesc td;
+		memcpy(&td, data, sizeof(td));
+		*usize = size - sizeof(td);
+		// Ensure the size of the raw pixel data is the same as the width x height x size_per_pixel
+		if (td.width * td.height * 4 != size - sizeof(td))
+			return ResourceHandler::LoadReturn::FAIL;
+
+		void* rawTextureData = ((char*)data) + sizeof(td);
+		auto result = subSystem.renderer->GetPipelineHandler()->CreateTexture(guid, rawTextureData, td.width, td.height);
+		if (result < 0)
+			return ResourceHandler::LoadReturn::FAIL;
+		return ResourceHandler::LoadReturn::SUCCESS;
+	};
+
+	normalTextureCallbacks.invokeCallback = [](auto guid, auto data, auto size) {
+		return ResourceHandler::InvokeReturn::SUCCESS;
+	};
+	normalTextureCallbacks.destroyCallback = [subSystem](auto guid, auto data, auto size) {
+		subSystem.renderer->GetPipelineHandler()->DestroyTexture(guid);
+	};
+
+	res = subSystem.resourceHandler->LoadResource("Fog_NormalTexture.png", normalTextureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
+	if (res)
+	{
+		throw std::exception("Could not load fog normal texture");
+		return -1;
+	}
+
+
+
+	Graphics::BlendState fogBlendState;
+
+	fogBlendState.enable = true;
+	fogBlendState.srcBlend = Graphics::Blend::SRC_ALPHA;
+	fogBlendState.srcBlendAlpha = Graphics::Blend::ONE;
+	fogBlendState.dstBlend = Graphics::Blend::INV_SRC_ALPHA;
+	fogBlendState.dstBlendAlpha = Graphics::Blend::ONE;
+	fogBlendState.blendOperation = Graphics::BlendOperation::ADD;
+	fogBlendState.blendOperationAlpha = Graphics::BlendOperation::ADD;
+
+	subSystem.renderer->GetPipelineHandler()->CreateBlendState("FogBs", fogBlendState);
+
+
+
+	Graphics::SamplerState fogSampler;
+
+	fogSampler.addressU = Graphics::AddressingMode::WRAP;
+	fogSampler.addressV = Graphics::AddressingMode::WRAP;
+	fogSampler.addressW = Graphics::AddressingMode::WRAP;
+
+	fogSampler.filter = Graphics::Filter::ANISOTROPIC;
+	fogSampler.maxAnisotropy = 4;
+
+	subSystem.renderer->GetPipelineHandler()->CreateSamplerState("FogSs", fogSampler);
+
+
+
+	Graphics::DepthStencilState fogDss;
+
+	fogDss.enableDepth = true;
+	fogDss.writeDepth = false;
+	fogDss.comparisonOperation = Graphics::ComparisonOperation::LESS_EQUAL;
+
+	subSystem.renderer->GetPipelineHandler()->CreateDepthStencilState("FogDss", fogDss);
+
+
+
+	return 0;
+}
 
 using namespace SE;
 int WINAPI WinMain(HINSTANCE hInstance,
@@ -251,6 +477,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	auto s = engine->GetSubsystems();
 	auto m = engine->GetManagers();
 	result = InitBloom(s, m);
+	if (result < 0)
+		return result;
+
+	result = InitializeFogDependencies(s);
 	if (result < 0)
 		return result;
 
