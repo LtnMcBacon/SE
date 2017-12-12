@@ -480,12 +480,11 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
 				// Set new room symbol to green
-				auto debug = newRoom->get().symbol;
 				CoreInit::managers.guiManager->SetTexture(newRoom->get().symbol, "InRoom.jpg");
 				CoreInit::managers.guiManager->ToggleRenderableTexture(newRoom->get().symbol, true);
 
 				// Grey out the symbol of the old room and set it to visitéd
-				auto oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
+				auto& oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
 				CoreInit::managers.guiManager->SetTexture(oldRoom.symbol, "VisitedRoom.jpg");
 				oldRoom.visited = true;
 
@@ -736,6 +735,7 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 					CoreInit::managers.guiManager->SetTexture(adjRoom->get().symbol, "EmptyRoom.jpg");
 					CoreInit::managers.guiManager->ToggleRenderableTexture(adjRoom->get().symbol, true);
 				}
+
 			}
 		}
 	}
