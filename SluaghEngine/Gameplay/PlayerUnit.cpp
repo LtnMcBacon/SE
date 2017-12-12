@@ -498,6 +498,9 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 	}
 
+	this->calcNewStrChanges();
+	this->calcNewAgiChanges();
+	this->calcNewWhiChanges();
 
 	this->newStat.str += weaponStats.str;
 	this->newStat.agi += weaponStats.agi;
@@ -508,10 +511,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	this->newStat.damageType = weaponStats.damageType;
 	this->newStat.weapon = weaponStats.weapon;
-
-	this->calcNewStrChanges();
-	this->calcNewAgiChanges();
-	this->calcNewWhiChanges();
 
 	int nrOfSKills = skills.size();
 

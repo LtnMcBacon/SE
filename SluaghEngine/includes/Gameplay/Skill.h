@@ -11,7 +11,7 @@ namespace SE
 		struct Skill
 		{
 			std::string skillName = "";
-			std::wstring skillDesc = L"";
+			std::string skillDesc = "";
 			DamageSources atkType = DamageSources::DAMAGE_SOURCE_MELEE;
 			DamageType damageType = DamageType::PHYSICAL;
 			Boons boon = Boons::CONDITIONAL_BOONS_NONE;

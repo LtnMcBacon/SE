@@ -24,7 +24,7 @@ unsigned int SE::Gameplay::SkillFactory::getRandomSkillIndex()
 {
 	return CoreInit::subSystems.window->GetRand() % this->skillAmounts;
 }
-void SE::Gameplay::SkillFactory::readSkillInfo(unsigned int index, std::string& name, std::wstring& desc, unsigned short int* typeList)
+void SE::Gameplay::SkillFactory::readSkillInfo(unsigned int index, std::string& name, std::string& desc, unsigned short int* typeList)
 {
 	StartProfile;
 	auto rm = CoreInit::subSystems.resourceHandler;
@@ -68,8 +68,8 @@ void SE::Gameplay::SkillFactory::readSkillInfo(unsigned int index, std::string& 
 
 		memcpy(&stringSize, (char*)filePointer + offset, uiSize);
 		offset += uiSize;
-		auto thing2 = ((wchar_t*)(filePointer)+offset);
-		tempSkill->description = ((std::wstring)(thing2)).substr(0, stringSize);
+		thing = ((char*)(filePointer)+offset);
+		tempSkill->description = ((std::string)(thing)).substr(0, stringSize);
 		offset += stringSize;
 
 		tempSkill->AtkType		= *((char*)(filePointer)+offset);

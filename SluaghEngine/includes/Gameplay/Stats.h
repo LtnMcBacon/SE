@@ -22,7 +22,7 @@ namespace SE
 			float health = 100.f;
 			static const int MAX_HEALTH = 100;
 			float damage = 1.f;
-			static const int MAX_DAMAGE = 100;
+			static const int MAX_DAMAGE = 10;
 			float meleeMultiplier = 1.f;
 			float physicalResistance = -1.f;
 

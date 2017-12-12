@@ -145,6 +145,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
 
 			infoToPass->skills[i].skillName		= chosenSkills.at(i).skillName;
+			infoToPass->skills[i].skillDesc     = chosenSkills.at(i).skillDesc;
 			infoToPass->skills[i].atkType		= chosenSkills.at(i).atkType;
 			infoToPass->skills[i].damageType	= chosenSkills.at(i).damageType;
 			infoToPass->skills[i].boon			= chosenSkills.at(i).boon;
@@ -161,7 +162,6 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			infoToPass->skills[i].baneRange				= attrArray[5];
 			infoToPass->skills[i].baneDuration			= attrArray[6];
 			infoToPass->skills[i].cooldown				= attrArray[7];
-
 		}
 
 		Perk exportPerks[2];
@@ -212,17 +212,15 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		int anchorY = 100;
 
 		std::string skillName;
-		std::wstring skillDesc;
+		std::string skillDesc;
 		unsigned short int skillInfo[8];
 		
 		unsigned int index = sf.getRandomSkillIndex();
 		sf.readSkillInfo(index, skillName, skillDesc, skillInfo);
 
-	
 		int count = 0;
 		int j = 0;
 		int p = 0;
-		
 		
 		if (nrOfOtherSkills > chosenSkillsIndex.size())
 		{
@@ -296,6 +294,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		OtherSkills.push_back(index);
 		nrOfOtherSkills++;
 		skill.skillName	 = skillName;
+		skill.skillDesc = skillDesc;
 		skill.atkType	 = static_cast<DamageSources>(skillInfo[0]);
 		skill.damageType = static_cast<DamageType>(skillInfo[1]);
 		skill.boon		 = static_cast<Boons>(1 << skillInfo[2]);
@@ -319,6 +318,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 			if (skillButton.rectName == skillName)
 			{
 				skillButton.skillName = skillName;
+				skillButton.skillDesc = skillDesc;
 				skillButton.skillIndex = index;
 				skillButton.bindButton = skillChoice;
 
@@ -330,6 +330,7 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 					0.5,
 					skillButton.rectName,
 					skillChoice,
+					skillDesc,
 					skillInfo,
 					skillName,
 					skillButton.textName,
