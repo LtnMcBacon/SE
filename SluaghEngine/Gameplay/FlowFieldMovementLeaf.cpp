@@ -152,14 +152,14 @@ Status FlowFieldMovementLeaf::Update()
 			flowField->SampleFromMap(myPos, xMovement, yMovement);
 			if(xMovement != 0.f || yMovement != 0.f)
 			{
-				xMovement = -2*xMovement;
-				yMovement = -2*yMovement;
+				xMovement = xPos - myPos.x;
+				yMovement = yPos - myPos.y;
 				break;
 			}
 		}
 	}
-	xMovementTot += xMovement;
-	yMovementTot += yMovement;
+	xMovementTot = xMovement;
+	yMovementTot = yMovement;
 
 
 	/*if (!sample)

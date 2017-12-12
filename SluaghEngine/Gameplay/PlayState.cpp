@@ -877,8 +877,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			EnemyCreationData data;
 			if (counter < 1 && timeWon < 2)
 			{
-				//data.type = ENEMY_TYPE_BODACH;
-				data.type = ENEMY_TYPE_NUCKELAVEE;
+				data.type = ENEMY_TYPE_BODACH;
 			}
 			else if(counter < 4)
 			{
