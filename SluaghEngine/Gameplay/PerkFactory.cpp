@@ -1,6 +1,8 @@
 #include <Gameplay\PerkFactory.h>
 #include <Gameplay\PlayerUnit.h>
 #include "CoreInit.h"
+#include <Gameplay\Items.h>
+#include <Profiler.h>
 using namespace SE;
 using namespace Gameplay;
 PerkFaktory::PerkFaktory()
@@ -13,6 +15,7 @@ PerkFaktory::~PerkFaktory()
 
 std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::ProjectileData>& newProjectiles, float dt, bool condition)> PerkFaktory::initiateFuncs(int value, int funcEnum)
 {
+	StartProfile;
 	float consecutiveValue = 0;
 	float timer = 0;
 	float duration = 5.f;
@@ -1006,6 +1009,28 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				meleeLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::PHYSICAL)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1029,6 +1054,27 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				rangeLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::RANGED)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+					}
+				}
 			}
 			else
 			{
@@ -1054,6 +1100,28 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				magicLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::MAGIC)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1079,6 +1147,28 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				waterLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::WATER)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1103,6 +1193,29 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer -= deltaTime;
 				fireLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::FIRE)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if(player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1129,6 +1242,28 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 				
 				timer -= deltaTime;
 				natureLock = true;
+
+				auto weapons = player->GetAllItems();
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1)));
+					auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "Item", -1));
+					auto damageType = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(weapons[i], "DamageType", -1));
+
+					if (isitem != -1 && itype == ItemType::WEAPON && DamageType(damageType) == DamageType::NATURE)
+					{
+						auto p = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+						p.y = 0;
+
+						if (player->GetCurrentItem() == weapons[i])
+							Item::Unequip(weapons[i], player->GetEntity());
+
+						Item::Drop(weapons[i], p);
+						player->AddItem(-1, i);
+
+					}
+				}
 			}
 			else
 			{
@@ -1238,5 +1373,6 @@ Perk PerkFaktory::ReadPerksForSlaugh(std::string perkName)
 	}
 	
 	
-	return slaughPerk;
+	ProfileReturnConst(slaughPerk);
+	
 }

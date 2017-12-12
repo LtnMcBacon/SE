@@ -25,7 +25,7 @@ SE::Gameplay::Status SE::Gameplay::BodachMeleeAttackLeaf::Update()
 	newProjectile.startPosX = gameBlackboard->playerPositionX;
 	newProjectile.startPosY = gameBlackboard->playerPositionY;
 	newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_RANGED,
-		DamageType::NATURE, 10);
+		enemyBlackboard->ownerPointer->GetDamageType(), enemyBlackboard->ownerPointer->GetNewDamage());
 
 	gameBlackboard->enemyProjectiles.push_back(newProjectile);
 

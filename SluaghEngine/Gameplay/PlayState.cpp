@@ -235,7 +235,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	{
 		float xPos = enemy->GetXPosition();
 		float yPos = enemy->GetYPosition();
-		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
+		enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 		enemy->PositionEntity(xPos, yPos);
 	}
 
@@ -480,12 +481,11 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
 				// Set new room symbol to green
-				auto debug = newRoom->get().symbol;
 				CoreInit::managers.guiManager->SetTexture(newRoom->get().symbol, "InRoom.jpg");
 				CoreInit::managers.guiManager->ToggleRenderableTexture(newRoom->get().symbol, true);
 
 				// Grey out the symbol of the old room and set it to visitéd
-				auto oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
+				auto& oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
 				CoreInit::managers.guiManager->SetTexture(oldRoom.symbol, "VisitedRoom.jpg");
 				oldRoom.visited = true;
 
@@ -729,13 +729,20 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 				(adjRoom)->get().room->Load();
 				auto enemiesInRoom = (adjRoom)->get().room->GetEnemiesInRoom();
 				for (auto enemy : enemiesInRoom)
-					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+				{
+					float xPos = enemy->GetXPosition();
+					float yPos = enemy->GetYPosition();
+					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
+					enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
+					enemy->PositionEntity(xPos, yPos);
+				}
 
 				if (adjRoom->get().visited == false && !(ax == sluaghRoomX && ay == sluaghRoomY)) {
 
 					CoreInit::managers.guiManager->SetTexture(adjRoom->get().symbol, "EmptyRoom.jpg");
 					CoreInit::managers.guiManager->ToggleRenderableTexture(adjRoom->get().symbol, true);
 				}
+
 			}
 		}
 	}
@@ -892,6 +899,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(data.type, &blackBoard, enemy->GetEnemyBlackboard()));
 			//enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(data.type));
 			enemy->PositionEntity(data.startX, data.startY);
+			enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 			room->AddEnemyToRoom(enemy);
 		}
 
@@ -1182,7 +1190,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
 
-		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
 			return false;
 
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);

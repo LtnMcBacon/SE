@@ -88,6 +88,14 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	{
 		finishedBehaviour = CreateStunnedConditionLeaf(dataArray, nodeID);
 	}
+	else if (dataArray[nodeID].Type == "SlowedCondition")
+	{
+		finishedBehaviour = CreateSlowedConditionLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "RootedCondition")
+	{
+		finishedBehaviour = CreateRootedConditionLeaf(dataArray, nodeID);
+	}
 	else if(dataArray[nodeID].Type == "InTheSameRoomAsThePlayerCondition")
 	{
 		finishedBehaviour = CreateInTheSameRoomAsThePlayerConditionLeaf(dataArray, nodeID);
@@ -207,6 +215,10 @@ IBehaviour* BehaviouralTreeFactory::CreateFromType(NodeData* dataArray, int node
 	else if(dataArray[nodeID].Type == "ResetTransistionTimerLeaf")
 	{
 		finishedBehaviour = CreateResetTransistionTimerLeaf(dataArray, nodeID);
+	}
+	else if (dataArray[nodeID].Type == "PoisonCloudLeaf")
+	{
+		finishedBehaviour = CreatePoisonCloudLeaf(dataArray, nodeID);
 	}
 		/*Check for Composites*/
 	else if (dataArray[nodeID].Type == "Sequence")
@@ -386,6 +398,18 @@ IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreateStunnedConditionLeaf(No
 {
 	StartProfile;
 	ProfileReturn( new StunnedCondition(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateSlowedConditionLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new SlowedCondition(nullptr, nullptr));
+}
+
+IBehaviour* BehaviouralTreeFactory::CreateRootedConditionLeaf(NodeData* dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new RootedCondition(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateObstacleOnPositionConditionLeaf(NodeData* dataArray, int nodeID)
@@ -572,6 +596,12 @@ IBehaviour* BehaviouralTreeFactory::CreateNuckelaveeNormalAttackLeaf(NodeData* d
 {
 	StartProfile;
 	ProfileReturn(new NuckelaveeNormalAttackLeaf(nullptr, nullptr));
+}
+
+IBehaviour * SE::Gameplay::BehaviouralTreeFactory::CreatePoisonCloudLeaf(NodeData * dataArray, int nodeID)
+{
+	StartProfile;
+	ProfileReturn(new PoisonCloudLeaf(nullptr, nullptr));
 }
 
 IBehaviour* BehaviouralTreeFactory::CreateSequence(NodeData* dataArray, int nodeID)

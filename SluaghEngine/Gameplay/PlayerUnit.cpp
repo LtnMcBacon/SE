@@ -413,6 +413,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	auto w = CoreInit::subSystems.window;
 	bool ci = false;
 	auto newItem = 0;
+	if (!isSluagh)
+	{
+		if (CoreInit::subSystems.window->ButtonUp(GameInput::SHOWINFO))
+			showingItem = currentItem;
+	}
 	if (input.one)
 	{
 		newItem = 0;
@@ -440,8 +445,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	if (ci && input.showInfo)
 	{
-		showingItem = newItem;
-		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		if (auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)); item != -1)
+		{
+
+				showingItem = newItem;
+				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);	
+		}
 	}
 	if (ci && attacking == false)
 	{
@@ -727,6 +736,7 @@ void SE::Gameplay::PlayerUnit::handlePerks(float deltaTime,PlayerUnit* player , 
 
 
 }
+
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
 	StartProfile;
@@ -780,171 +790,7 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 }
 
 
-void SE::Gameplay::PlayerUnit::calcBaseStrChanges()
-{
-	StartProfile;
-	if (newStat.str > 5)
-	{
-		int increment = newStat.str - 5;
-		newStat.health = newStat.health * (1.f + (0.05f * increment));
-		newStat.damage = newStat.damage * (1.f + (0.05f * increment));
-	}
-	else if (baseStat.str < 5)
-	{
-		newStat.health = baseStat.health * (1.f - (0.1f * baseStat.str));
-		newStat.damage = baseStat.damage * (1.f - (0.1f * baseStat.str));
 
-		if (baseStat.str <= 3)
-		{
-			newStat.armorCap = 2;
-		}
-		else if (baseStat.str == 1)
-		{
-			newStat.armorCap = 1;
-		}
-	}
-	else
-	{
-		newStat.health = baseStat.health;
-		newStat.damage = baseStat.damage;
-	}
-	StopProfile;
-}
-void SE::Gameplay::PlayerUnit::calcBaseAgiChanges()
-{
-	StartProfile;
-	if (baseStat.agi > 5)
-	{
-		int increment = baseStat.agi - 5;
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f + (0.05f * increment));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f + (0.05f * increment));
-	}
-	else if (baseStat.agi < 5)
-	{
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f - (0.05f * baseStat.agi));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f - (0.05f * baseStat.agi));
-	}
-	else
-	{
-		newStat.rangedDamage = baseStat.rangedDamage;
-		newStat.movementSpeed = baseStat.movementSpeed;
-	}
-	StopProfile;
-}
-void SE::Gameplay::PlayerUnit::calcBaseWhiChanges()
-{
-	StartProfile;
-	if (baseStat.whi > 5)
-	{
-		int increment = baseStat.whi - 5;
-		newStat.magicDamage = baseStat.magicDamage * (1.f + (0.05f * increment));
-		newStat.magicResistance = baseStat.magicResistance * (1.f + (0.025f * increment));
-		newStat.natureResistance = baseStat.natureResistance * (1.f + (0.025f * increment));
-		newStat.fireResistance = baseStat.fireResistance * (1.f + (0.025f * increment));
-		newStat.waterResistance = baseStat.waterResistance * (1.f + (0.025f * increment));
-	}
-	else if (baseStat.whi < 5)
-	{
-		newStat.magicDamage = baseStat.magicDamage * (1.f - (0.05f * baseStat.whi));
-		newStat.magicResistance = baseStat.magicResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.natureResistance = baseStat.natureResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.fireResistance = baseStat.fireResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.waterResistance = baseStat.waterResistance * (1.f - (0.05f * baseStat.whi));
-	}
-	else
-	{
-		newStat.magicDamage = baseStat.magicDamage;
-		newStat.magicResistance = baseStat.magicResistance;
-		newStat.natureResistance = baseStat.natureResistance;
-		newStat.fireResistance = baseStat.fireResistance;
-		newStat.waterResistance = baseStat.waterResistance;
-	}
-	StopProfile;
-}
-
-void SE::Gameplay::PlayerUnit::calcNewStrChanges()
-{
-	StartProfile;
-	if (newStat.str > 5)
-	{
-		int increment = newStat.str - 5;
-		newStat.health = baseStat.health * (1.f + (0.05f * increment));
-		newStat.damage = baseStat.damage * (1.f + (0.05f * increment));
-	}
-	else if (newStat.str < 5)
-	{
-		newStat.health = baseStat.health * (1.f - (0.1f * baseStat.str));
-		newStat.damage = baseStat.damage * (1.f - (0.1f * baseStat.str));
-
-		if (newStat.str <= 3)
-		{
-			newStat.armorCap = 2;
-		}
-		else if (newStat.str == 1)
-		{
-			newStat.armorCap = 1;
-		}
-	}
-	else
-	{
-		newStat.health = baseStat.health;
-		newStat.damage = baseStat.damage;
-	}
-	StopProfile;
-}
-
-void SE::Gameplay::PlayerUnit::calcNewAgiChanges()
-{
-	StartProfile;
-	if (newStat.agi > 5)
-	{
-		int increment = newStat.agi - 5;
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f + (0.05f * increment));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f + (0.05f * increment));
-	}
-	else if (newStat.agi < 5)
-	{
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f - (0.05f * baseStat.agi));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f - (0.05f * baseStat.agi));
-	}
-	else
-	{
-		newStat.rangedDamage = baseStat.rangedDamage;
-		newStat.movementSpeed = baseStat.movementSpeed;
-	}
-	StopProfile;
-}
-
-void SE::Gameplay::PlayerUnit::calcNewWhiChanges()
-{
-	StartProfile;
-	if (newStat.whi > 5)
-	{
-		int increment = newStat.whi - 5;
-		newStat.magicDamage = baseStat.magicDamage * (1.f + (0.05f * increment));
-		newStat.magicResistance = baseStat.magicResistance * (1.f + (0.025f * increment));
-		newStat.natureResistance = baseStat.natureResistance * (1.f + (0.025f * increment));
-		newStat.fireResistance = baseStat.fireResistance * (1.f + (0.025f * increment));
-		newStat.waterResistance = baseStat.waterResistance * (1.f + (0.025f * increment));
-	}
-	else if (newStat.whi < 5)
-	{
-		newStat.magicDamage = baseStat.magicDamage * (1.f - (0.05f * baseStat.whi));
-		newStat.magicResistance = baseStat.magicResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.natureResistance = baseStat.natureResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.fireResistance = baseStat.fireResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.waterResistance = baseStat.waterResistance * (1.f - (0.05f * baseStat.whi));
-	}
-	else
-	{
-		newStat.magicDamage = baseStat.magicDamage;
-		newStat.magicResistance = baseStat.magicResistance;
-		newStat.natureResistance = baseStat.natureResistance;
-		newStat.fireResistance = baseStat.fireResistance;
-		newStat.waterResistance = baseStat.waterResistance;
-	}
-	StopProfile;
-}
 
 void SE::Gameplay::PlayerUnit::changeArmorType(ArmourType armour)
 {
