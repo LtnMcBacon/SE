@@ -188,6 +188,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 	{
 		health += healing.amount;
 	}
+
+	if (this->health > this->GetMaxHealth())
+		this->health = this->GetMaxHealth();
+	else if (this->health < 0)
+		this->health = 0;
 	
 	ProfileReturnVoid;
 
@@ -294,9 +299,12 @@ void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
 	weaponStats.damage = std::get<int32_t>(dm->GetValue(cwe, "Damage", 0));
 	weaponStats.health = std::get<int32_t>(dm->GetValue(cwe, "Health", 0));
 
-	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
-	weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
-
+	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "DamageType", 0)));
+	auto type = Item::Weapon::Type(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
+	if (type == Item::Weapon::Type::SWORD)
+		weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
+	else
+		weaponStats.weapon = DamageSources::DAMAGE_SOURCE_RANGED;
 	auto an = std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(cwe, "AttAnim", false));
 	animationPlayInfos[PLAYER_ATTACK_ANIMATION][0] = Utilz::GUID(an);
 }
@@ -308,7 +316,7 @@ void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
 
 void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
 {
-	this->newStat.movementSpeed = speed;
+	this->baseStat.movementSpeed = speed;
 }
 
 void SE::Gameplay::PlayerUnit::Suicide()
@@ -405,6 +413,11 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	auto w = CoreInit::subSystems.window;
 	bool ci = false;
 	auto newItem = 0;
+	if (!isSluagh)
+	{
+		if (CoreInit::subSystems.window->ButtonUp(GameInput::SHOWINFO))
+			showingItem = currentItem;
+	}
 	if (input.one)
 	{
 		newItem = 0;
@@ -432,8 +445,14 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	}
 	if (ci && input.showInfo)
 	{
-		showingItem = newItem;
-		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+		if (auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)); item != -1)
+		{
+			if(ItemType(item) != ItemType::CONSUMABLE)
+			{
+				showingItem = newItem;
+				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
+			}		
+		}
 	}
 	if (ci && attacking == false)
 	{
@@ -719,6 +738,7 @@ void SE::Gameplay::PlayerUnit::handlePerks(float deltaTime,PlayerUnit* player , 
 
 
 }
+
 void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 {
 	StartProfile;
@@ -753,13 +773,21 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		Item::GodPickup(item);
 	}
 
-	items[slot] = item;
+	
 	if (itype == ItemType::WEAPON)
 	{
+		
+		if (auto isitem = ItemType( std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1))); isitem == ItemType::WEAPON)
+		{
+			Item::Unequip(items[currentItem], unitEntity);
+		}
+
 		currentItem = slot;
+		items[slot] = item;
 		Item::Equip(items[currentItem], unitEntity);
 		SetCurrentWeaponStats();
 	}
+	items[slot] = item;
 	StopProfile;
 }
 
@@ -844,7 +872,7 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPos, float yPos, char mapForRoom[25][25]) :
+SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, PerkData* slaughPerks,float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
@@ -869,6 +897,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPo
 
 		this->perks[0].myCondition = myCond;
 		this->perks[1].myCondition = secondCond;
+		this->perks[0].slaughPerk = slaughPerks[0];
+		this->perks[1].slaughPerk = slaughPerks[1];
+
 	}
 
 	Core::IAnimationManager::CreateInfo sai;

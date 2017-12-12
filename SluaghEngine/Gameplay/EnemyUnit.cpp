@@ -50,10 +50,6 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			CoreInit::managers.eventManager->SetLifetime(bs, 20);
 			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
-
-		//	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "voidParticle.pts" });
-			//CoreInit::managers.eventManager->SetLifetime(ent, 0.5f);
-			//CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 		}
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)

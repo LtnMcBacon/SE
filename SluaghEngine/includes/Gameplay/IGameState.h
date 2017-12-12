@@ -18,6 +18,8 @@ namespace SE
 		{
 			Skill skills[2];
 			Perk perks[2];
+
+			PerkData perksForSlaughSave[2];
 		};
 
 		/**
