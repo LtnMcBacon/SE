@@ -66,6 +66,11 @@ namespace SE
 
 			bool IsResourceLoaded(const Utilz::GUID& guid, ResourceType type) override;
 
+			bool Exist(const Utilz::GUID guid)override;
+
+			size_t GetMemoryUsed(ResourceType type)override;
+
+
 			/**
 			* @brief	Get the error messages that have accumulated. This will also clear the errors messages.
 			*
@@ -88,10 +93,13 @@ namespace SE
 				uint32_t ref;
 				std::function<void(const Utilz::GUID&, void*, size_t)> destroyCallback;
 				State state = State::DEAD;
+				std::chrono::high_resolution_clock::time_point loadedAt;
+				size_t timesLoaded = 0;
 			};
 
-			Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher> guidToRAMEntry;
-			Utilz::Concurrent_Unordered_Map< Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher> guidToVRAMEntry;
+			using entryMap = Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>;
+			entryMap guidToRAMEntry;
+			entryMap guidToVRAMEntry;
 
 			/****************	END Entires		*****************/
 
@@ -122,7 +130,7 @@ namespace SE
 				LoadJob& operator=(const LoadJob& other) { guid = other.guid; callbacks = other.callbacks; loadFlags = other.loadFlags; return*this; }
 			};
 
-			int Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, const EvictInfo& evictInfo, LoadJob job);
+			int Load(entryMap& map, const EvictInfo& evictInfo, LoadJob job);
 
 			
 			/****************	END Loading		*****************/
@@ -130,7 +138,7 @@ namespace SE
 
 			/****************	Unloading		*****************/
 
-			void EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed);
+			void EvictResources(entryMap& map, const std::vector<Utilz::GUID>& order, size_t needed);
 
 
 

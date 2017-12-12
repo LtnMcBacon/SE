@@ -23,7 +23,7 @@ namespace SE
 
 			virtual void Show() = 0;
 			virtual void Hide() = 0;
-
+			virtual bool IsVisible() = 0;
 			/*
 			* @brief Toggles the console on or off.
 			*/
@@ -84,7 +84,14 @@ namespace SE
 			* @endcode
 			*/
 			virtual int AddCommand(const DevConsole_Command& commandFunction, char* name, char* description) = 0;
-
+			
+			/* 
+			 * @brief Removes a previously added command.
+			 * @param[in] name Name of the command to remove
+			 * @retval 0 On success
+			 * @retval -1 On Failure
+			 */
+			virtual int RemoveCommand(const char* name) = 0;
 
 
 			virtual void* GetContext() = 0;

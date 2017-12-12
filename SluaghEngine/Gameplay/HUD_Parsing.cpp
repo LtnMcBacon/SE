@@ -11,6 +11,7 @@ namespace SE
 		HUDParser::HUDParser()
 		{
 			StartProfile;
+			
 			std::function<void()> test = std::bind(&HUDParser::InitiateTextures, this);
 			test();
 			this->InitiateTextures();
@@ -152,59 +153,7 @@ namespace SE
 					
 				}
 
-				// PARSE TEXTS
-				for (size_t l = 0; l < nrOfTexts; l++)
-				{
-
-					//	TEXT NAME LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT NAME
-					arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextName = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT CONTENT LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT CONTENT
-					char* arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextContent = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-					
-					//	TEXT HEIGHT
-					memcpy(&currentText.Height, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-
-					//	TEXT WIDTH
-					memcpy(&currentText.Width, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-
-					//	TEXT POS X
-					memcpy(&currentText.PosX, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-
-					//	TEXT POS Y
-					memcpy(&currentText.PosY, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					
-					this->MainMenuTextVec.push_back(currentText);
-				}
+				
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
@@ -218,12 +167,16 @@ namespace SE
 			for (auto& HUDElement : StaticGuiVec)
 			{
 				auto entity = CoreInit::managers.entityManager->Create();
-				
+				//ResolutionChange(HUDElement.Width, HUDElement.Height);
 				GuiManager.textureInfo.width = HUDElement.Width;
 				GuiManager.textureInfo.height = HUDElement.Height;
 				GuiManager.textureInfo.posX = HUDElement.PositionX;
 				GuiManager.textureInfo.posY = HUDElement.PositionY;
-
+				if (HUDElement.rectName != "Background" && HUDElement.rectName != "backGround")
+				{
+					GuiManager.textureInfo.absolute = true;
+				}
+				
 				GuiManager.textureInfo.layerDepth = 1.0f - HUDElement.layerDepth / 1000.0f;
 
 				GuiManager.texture = HUDElement.textName;
@@ -360,59 +313,7 @@ namespace SE
 
 				}
 
-				// PARSE TEXTS
-				for (size_t l = 0; l < nrOfTexts; l++)
-				{
-
-					//	TEXT NAME LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT NAME
-					arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextName = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT CONTENT LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT CONTENT
-					char* arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextContent = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT HEIGHT
-					memcpy(&currentText.Height, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT WIDTH
-					memcpy(&currentText.Width, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS X
-					memcpy(&currentText.PosX, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS Y
-					memcpy(&currentText.PosY, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-					this->skillTextVec.push_back(currentText);
-				}
+				
 
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
@@ -537,66 +438,12 @@ namespace SE
 
 				}
 
-				// PARSE TEXTS
-				for (size_t l = 0; l < nrOfTexts; l++)
-				{
-
-					//	TEXT NAME LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT NAME
-					arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextName = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT CONTENT LENGTH
-					memcpy(&strLength, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-					head += 1;
-
-					//	TEXT CONTENT
-					char* arr = new char[strLength + 1];
-					memcpy(arr, (char*)data + head, strLength);
-					arr[strLength] = '\0';
-					currentText.TextContent = arr;
-					head += strLength;
-					strLength = 0;
-					delete[] arr;
-
-					//	TEXT HEIGHT
-					memcpy(&currentText.Height, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT WIDTH
-					memcpy(&currentText.Width, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS X
-					memcpy(&currentText.PosX, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-
-					//	TEXT POS Y
-					memcpy(&currentText.PosY, (char*)data + head, sizeof(int));
-					head += sizeof(int);
-
-					this->perkTextVec.push_back(currentText);
-				}
-
 				return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 			});
 			ProfileReturnVoid;
 		}
 
-		void HUDParser::ParseOptionMenu(Utilz::GUID fileName)
+		void HUDParser::ParseOptionalButtons(Utilz::GUID fileName)
 		{
 
 			StartProfile;
@@ -712,12 +559,9 @@ namespace SE
 					head += sizeof(int);
 					if (CurrentElm.Btn)
 					{
-						optionButtons.push_back(CurrentElm);
+						OptionalButtons.push_back(CurrentElm);
 					}
-					else
-					{
-						optionsMenu.push_back(CurrentElm);
-					}
+					
 
 				}
 
@@ -779,6 +623,25 @@ namespace SE
 			});
 			ProfileReturnVoid;
 
+		}
+
+		void HUDParser::ResolutionChange(int& elementWidth, int& elementHeight)
+		{
+			size_t height = CoreInit::subSystems.window->Height();
+			size_t width = CoreInit::subSystems.window->Width();
+
+			size_t maxwidth = 1920;
+			size_t maxHeight = 1080;
+			size_t minWidth = 1280;
+			size_t minHeight = 720;
+			size_t widthDif = maxwidth - minWidth;
+			size_t heightDif = maxHeight - minHeight;
+
+			size_t scaledHeight = ((height - 720) * 1) / (1080 - 720);
+			size_t scaledWidth = ((width - 1280) * 1) / (1920 - 1280);
+
+			elementWidth += widthDif * scaledWidth;
+			elementHeight += heightDif * scaledHeight;
 		}
 		
 	}

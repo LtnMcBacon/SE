@@ -5,6 +5,7 @@
 #include <Gameplay\PerkImporter.h>
 #include <string>
 #include <vector>
+#include <Gameplay\PerkFactory.h>
 //#include <SkillFactory.h>
 //#include <PlayerUnit.h>
 #include <Gameplay\Skill.h>
@@ -33,7 +34,6 @@ namespace SE
 			CharacterCreationState(Window::IWindow* Input);
 			~CharacterCreationState();
 
-
 			/**
 			* @brief	The Update loop for the Character creation phase.
 			*
@@ -50,11 +50,16 @@ namespace SE
 			State Update(void* &passableInfo);
 			HUDParser fileParser;
 			PerkImporter perks;
+			PerkFaktory Pfactory;
 			/*void SkillBtns(int nrOfSkills);
 			void PerkBtns(int nrOfPerks);*/
 			void getSkills();
 			void getPerks();
+			std::string randomizePerk();
 			void importSkillButtons();
+			void importPerkButtons();
+
+			void interpretPerks(PerkData perk);
 
 			int selectedSkills;
 			int renewSkillList;
@@ -65,31 +70,81 @@ namespace SE
 			int nrOfPerks;
 			std::vector<int> chosenSkillsIndex;
 			std::vector<Skill> chosenSkills;
-			std::vector<int> chosenPerksIndex;
-			std::vector<Skill> chosenPerks;
+			std::vector<std::string> chosenPerkName;
+			std::vector<PerkData> chosenPerks;
 			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
-			std::string skillButtonFiles[9]
+			std::string skillButtonFiles[20]
 			{
-				"FireBallSkill.HuD",
-				"IceBallSkill.HuD",
-				"MagicBallSkill.HuD",
-				"NatureBallSkill.HuD",
-				"WaterBallSkill.HuD",
-				"PhysicalBallSkill.HuD",
-				"ArcaneBallSkill.HuD",
-				"MudBallSkill.HuD",
-				"FistingBallSkill.HuD"
+				"Fladdermus_Kompanion.HuD",
+				"Drak_Torn.HuD",
+				"Intets_Klyfta.HuD",
+				"Fladdermus_Pack.HuD",
+				"Kniv_Regn.HuD",
+				"Ond_Skalle.HuD",
+				"Eld_Pelare.HuD",
+				"Gae_Bolg.HuD",
+				"Kasta_Sten.HuD",
+				"Blixt.HuD",
+				"Eldens_Bolero.HuD",
+				"Kasta_korn.HuD",
+				"Sol_explosion.HuD",
+				"Spruta_Eld.HuD",
+				"Storm_melodin.HuD",
+				"Studs_Boll.HuD",
+				"Tidens_melodi.HuD",
+				"Vasst_blad.HuD",
+				"Magisk_Ande.HuD",
+				"Pilstorm.HuD"
 			};
 
-			std::string perkButtonFiles[2]
+			std::string perkButtonFiles[19]
 			{
-				"LifeStealPerk.HuD",
-				"VenomBladesPerk.HuD"
-			};
-
+				"Krigs_herre.HuD",
+				"Tom_i_skallen.HuD",
+				"Bokmal.HuD",
+				"Bumling.HuD",
+				"Eldig.HuD",
+				"Frostig.HuD",
+				"Trollformel_kastare.HuD",
+				"Heta_grejer.HuD",
+				"Mitt_i_prick.HuD",
+				"Dunkel_ande.HuD",
+				"Nulifiera.HuD",
+				"Oljad_blixt.HuD",
+				"Rocka_och_rulla.HuD",
+				"Som_fisken_i_vattnet.HuD",
+				"Veva_upp.HuD",
+				"Vulkan.HuD",
+				"Masochism.HuD",
+				"Tunga_slag.HuD",
+				"Utmattad.HuD"
 				
+			};
+
+			std::string Perkfiles[19]
+			{
+				 "Krigs_herre.prk",
+				 "Tom_i_skallen.prk",
+				 "Bokmal.prk",
+				 "Bumling.prk",
+				 "Eldig.prk",
+				 "Frostig.prk",
+				 "Trollformel_kastare.prk",
+				 "Heta_grejer.prk",
+				 "Mitt_i_prick.prk",
+				 "Dunkel_ande.prk",
+				 "Nulifiera.prk",
+				 "Oljad_blixt.prk",
+				 "Rocka_och_rulla.prk",
+				 "Som_fisken_i_vattnet.prk",
+				 "Veva_upp.prk",
+				 "Vulkan.prk",
+				 "Masochism.prk",
+				 "Tunga_slag.prk",
+				 "Utmattad.prk"
+			};
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;
 		private:

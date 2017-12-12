@@ -11,12 +11,13 @@ namespace SE
 			std::string name;
 			int checkSize;
 			int typeSize;
+			int condition;
 			std::vector<int>types;
 			std::vector<int>values;
 			std::vector<int>checks;
 		};
-	}
-}
+	}  
+} 
 
 
 #endif

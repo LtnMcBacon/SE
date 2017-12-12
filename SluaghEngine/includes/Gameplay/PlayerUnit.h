@@ -7,6 +7,7 @@
 #include <Gameplay\Skill.h>
 #include <map>
 #include "Core/IAnimationManager.h"
+#include <Gameplay\Perk.h>
 
 namespace SE
 {
@@ -42,7 +43,8 @@ namespace SE
 
 			void InitializeAnimationInfo();
 
-			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags);
+			bool AnimationUpdate(AvailableAnimations animationToRun, Core::AnimationFlags animationFlags, float playSpeed = 1.f);
+
 
 			/**
 			* @brief	Resolve the events that has been added this frame.
@@ -77,24 +79,37 @@ namespace SE
 			static const uint8_t MAX_ITEMS = 5;
 			Core::Entity items[MAX_ITEMS];
 			uint8_t currentItem = 0;
+			uint8_t showingItem = 0;
 			Core::Entity itemSelectedEntity;
 			Stats weaponStats;
+			bool displaying = false;
+			bool hideP = false;
+			bool godMode = false;
+			void SetCurrentWeaponStats();
 		public:
+			//Cheats
+			void SetGodMode(bool on);
+			void SetSpeed(float speed);
+			void Suicide();
 
+			std::vector<DamageEvent>& GetDamageEvents();
+			std::vector<HealingEvent>& GetHealingEvents();
+			std::vector<ConditionEvent>& GetConditionEvents();
 			struct MovementInput
 			{
 				bool upButton;
 				bool leftButton;
 				bool downButton;
 				bool rightButton;
-				
+
+
 				bool mouseRightDown;
 				float mousePosX;
 				float mousePosY;
 
 				MovementInput()
 				{
-					
+
 				}
 
 				MovementInput(bool up, bool left, bool down, bool right, bool mouseRD, float mouseX, float mouseY)
@@ -113,27 +128,26 @@ namespace SE
 
 			struct ActionInput
 			{
-				bool actionButton;
-				bool skill1Button;
-				bool skill2Button;
+				bool actionButton = false;
+				bool skill1Button = false;
+				bool skill2Button = false;
 
-				ActionInput()
-				{
+				bool one = false;
+				bool two = false;
+				bool three = false;
+				bool four = false;
+				bool five = false;
 
-				}
+				bool showInfo = false;
 
 				ActionInput(bool skill1 = false, bool skill2 = false, bool action = false)
 				{
 					skill1Button = skill1;
 					skill2Button = skill2;
 					actionButton = action;
+
 				}
 			};
-
-			/**
-			* @brief To be documented
-			*/
-			void AddForce(float force[2]);
 
 			/**
 			* @brief	Update the map
@@ -154,9 +168,12 @@ namespace SE
 
 			void Update(float dt, const MovementInput& mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput& aInput);
 
+			void handlePerks(float deltaTime, PlayerUnit* player, std::vector<ProjectileData>& newProjectiles);
+
+			
 			inline float GetMaxHealth()
 			{
-				return baseStat.health;
+				return newStat.health;
 			}
 
 
@@ -165,35 +182,10 @@ namespace SE
 			{
 				return items[currentItem];
 			}
-		private:
-			PlayerUnit() {};
-			PlayerUnit(const PlayerUnit& other) = delete;
-			PlayerUnit(const PlayerUnit&& other) = delete;
-			PlayerUnit& operator=(const PlayerUnit& rhs) = delete;
-
-			char map[25][25] = { {} };
-			float forcesToApply[2] = {};
-			float rotMov[2] = {};
-
-			/* Sound */
-			uint8_t nrAggroSounds = 6;
-			SE::Utilz::GUID playerAggroSounds[6];
-			uint8_t nrHealingSounds = 3;
-			SE::Utilz::GUID playerHealingSounds[3];
-			uint8_t nrAggroColdSounds = 3;
-			SE::Utilz::GUID playerAggroColdSounds[3];
-			uint8_t nrHealingColdSounds = 1;
-			SE::Utilz::GUID playerHealingColdSounds[1];
-			SE::Utilz::GUID currentSound;
-			
-			/**
-			* @brief	Sets the sounds for the player
-			*
-			*/
-			void PlayerSounds();
-
-
-
+			inline Core::Entity GetItemToCompareWith()const
+			{
+				return items[showingItem];
+			}
 			/**
 			* @brief	Update the players movement
 			*
@@ -207,6 +199,39 @@ namespace SE
 			*
 			*/
 			void UpdateMovement(float dt, const MovementInput& inputs);
+
+			void GetRotation(float &rotX, float &rotY) { rotX = rotMov[0]; rotY = rotMov[1]; };
+
+			Core::Entity* GetAllItems() { return items; };
+		private:
+
+			PlayerUnit() {};
+			PlayerUnit(const PlayerUnit& other) = delete;
+			PlayerUnit(const PlayerUnit&& other) = delete;
+			PlayerUnit& operator=(const PlayerUnit& rhs) = delete;
+
+			char map[25][25] = { {} };
+			float rotMov[2] = {};
+
+			/* Sound */
+			uint8_t nrAggroSounds = 6;
+			SE::Utilz::GUID playerAggroSounds[6];
+			uint8_t nrHealingSounds = 3;
+			SE::Utilz::GUID playerHealingSounds[3];
+			uint8_t nrAggroColdSounds = 3;
+			SE::Utilz::GUID playerAggroColdSounds[3];
+			uint8_t nrHealingColdSounds = 1;
+			SE::Utilz::GUID playerHealingColdSounds[1];
+			SE::Utilz::GUID currentSound;
+
+			/**
+			* @brief	Sets the sounds for the player
+			*
+			*/
+			void PlayerSounds();
+
+
+
 
 
 			/**
@@ -224,28 +249,6 @@ namespace SE
 			void UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input);
 
 		private:
-			/**
-			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcStrChanges();
-			/**
-			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcAgiChanges();
-			/**
-			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
-			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
-			*			by weapon types, perks, skills or elements.
-			**/
-			void calcWhiChanges();
-			/**
-			* @brief	  Changes the equipped armor type.
-			* @param [in] The new given armor type.
-			**/
 			void changeArmorType(ArmourType armoUr);
 			/**
 			* @brief	  Changes the equipped weapon type.
@@ -257,58 +260,116 @@ namespace SE
 			* @param [in] The new given element type.
 			**/
 			void changeElementType(DamageType element);
-		
+
 		public:
 			int getSkillVectorSize();
 
-			std::string getSkillName(int skillNumber);
-			DamageSources getAttackType(int skillNumber);
-			DamageType getDamageType(int skillNumber);
-			Boons getBoon(int skillNumber);
-			Banes getBanes(int skillNumber);
-			unsigned short int getAnimation(int skillNumber);
-			unsigned short int getParticle(int skillNumber);
+			//Skill Getters
+			inline std::string GetSkillName(int skillNumber) { return skills.at(skillNumber).skillName; };
+			inline DamageSources GetAttackType(int skillNumber) { return skills.at(skillNumber).atkType; };
+			inline DamageType GetDamageType(int skillNumber) { return skills.at(skillNumber).damageType; };
+			inline Boons GetBoon(int skillNumber) { return skills.at(skillNumber).boon; };
+			inline Banes GetBanes(int skillNumber) { return skills.at(skillNumber).bane; };
+			inline unsigned short int GetAnimation(int skillNumber){ return (unsigned short int)skills.at(skillNumber).animation; };
+			inline unsigned short int GetParticle(int skillNumber) { return (unsigned short int)skills.at(skillNumber).particle; };
 
-			Utilz::GUID getProjectileReferemce(int skillNumber);
-			float getSkillDamage(int skillNumber);
-			float getBoonEffectValue(int skillNumber);
-			float getBoonRange(int skillNumber);
-			float getBoonDuration(int skillNumber);
-			float getBaneEffetValue(int skillNumber);
-			float getBaneRange(int skillNumber);
-			float getBaneDuration(int skillNumber);
-			float getCooldown(int skillNumber);
-			float getCurrentCooldown(int skillNumber);
+			inline Utilz::GUID GetProjectileReference(int skillNumber) { return skills.at(skillNumber).projectileFileGUID; };
+			inline float GetSkillDamage(int skillNumber) { return skills.at(skillNumber).skillDamage; };
+			inline float GetBoonEffectValue(int skillNumber) { return skills.at(skillNumber).boonEffectValue; };
+			inline float GetBoonRange(int skillNumber) { return skills.at(skillNumber).boonRange; };
+			inline float GetBoonDuration(int skillNumber) { return skills.at(skillNumber).boonDuration; };
+			inline float GetBaneEffetValue(int skillNumber) { return skills.at(skillNumber).baneEffectValue; };
+			inline float GetBaneRange(int skillNumber) { return skills.at(skillNumber).baneRange; };
+			inline float GetBaneDuration(int skillNumber) { return skills.at(skillNumber).baneDuration; };
+			inline float GetCooldown(int skillNumber) { return skills.at(skillNumber).cooldown; };
+			inline float GetCurrentCooldown(int skillNumber) { return skills.at(skillNumber).currentCooldown; };
+			
+			//Skill Setters
+			inline void SetSkillName(int skillNumber, std::string skillName) { this->skills.at(skillNumber).skillName = skillName; };
+			inline void SetAttackType(int skillNumber, unsigned short int atkType) { this->skills.at(skillNumber).atkType = static_cast<DamageSources>(atkType); };
+			inline void SetDamageType(int skillNumber, unsigned short int damageType) { this->skills.at(skillNumber).damageType = static_cast<DamageType>(damageType); };
+			inline void SetBoon(int skillNumber, unsigned short int boon) { this->skills.at(skillNumber).boon = static_cast<Boons>(boon); };
+			inline void SetBanes(int skillNumber, unsigned short int bane) { this->skills.at(skillNumber).bane = static_cast<Banes>(bane); };
+			inline void SetAnimation(int skillNumber, unsigned short int animation) { this->skills.at(skillNumber).animation = animation; };
+			inline void SetParticle(int skillNumber, unsigned short int particle) { this->skills.at(skillNumber).particle = particle; };
+			
+			inline void  SetProjectileReference(int skillNumber, std::string projectileName) { this->skills.at(skillNumber).projectileFileGUID = projectileName; };
+			inline void  SetSkillDamage(int skillNumber, float skillDamage) { this->skills.at(skillNumber).skillDamage = skillDamage; };
+			inline void  SetBoonEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).boonEffectValue = effectValue; };
+			inline void  SetBoonRange(int skillNumber, float range) { this->skills.at(skillNumber).boonRange = range; };
+			inline void  SetBoonDuration(int skillNumber, float duration) { this->skills.at(skillNumber).boonDuration = duration; };
+			inline void  SetBaneEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).baneEffectValue = effectValue; };
+			inline void  SetBaneRange(int skillNumber, float range) { this->skills.at(skillNumber).baneRange = range; };
+			inline void  SetBaneDuration(int skillNumber, float duration) { this->skills.at(skillNumber).baneDuration = duration; };
+			inline void  SetCooldown(int skillNumber, float cooldown) { this->skills.at(skillNumber).cooldown = cooldown; };
+			inline void  SetCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown = currentCooldown; };
+			
+			//Skill adders
+			inline void  AddSkillDamage(int skillNumber, float skillDamage) { this->skills.at(skillNumber).skillDamage += skillDamage; };
+			inline void  AddBoonEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).boonEffectValue += effectValue; };
+			inline void  AddBoonRange(int skillNumber, float range) { this->skills.at(skillNumber).boonRange += range; };
+			inline void  AddBoonDuration(int skillNumber, float duration) { this->skills.at(skillNumber).boonDuration += duration; };
+			inline void  AddBaneEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).baneEffectValue += effectValue; };
+			inline void  AddBaneRange(int skillNumber, float range) { this->skills.at(skillNumber).baneRange += range; };
+			inline void  AddBaneDuration(int skillNumber, float duration) { this->skills.at(skillNumber).baneDuration += duration; };
+			inline void  AddCooldown(int skillNumber, float cooldown) { this->skills.at(skillNumber).cooldown += cooldown; };
+			inline void  AddCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown += currentCooldown; };
+			
+			//Skillremovers
+			inline void  RemoveSkillDamage(int skillNumber, float skillDamage) { this->skills.at(skillNumber).skillDamage -= skillDamage; };
+			inline void  RemoveBoonEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).boonEffectValue -= effectValue; };
+			inline void  RemoveBoonRange(int skillNumber, float range) { this->skills.at(skillNumber).boonRange -= range; };
+			inline void  RemoveBoonDuration(int skillNumber, float duration) { this->skills.at(skillNumber).boonDuration -= duration; };
+			inline void  RemoveBaneEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).baneEffectValue -= effectValue; };
+			inline void  RemoveBaneDuration(int skillNumber, float duration) { this->skills.at(skillNumber).baneDuration -= duration; };
+			inline void  RemoveCooldown(int skillNumber, float cooldown) { this->skills.at(skillNumber).cooldown -= cooldown; };
+			inline void  RemoveCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown -= currentCooldown; };
+			
+			inline std::vector<Skill> &GetAllSkills() { return skills; };
+
+			void ToggleAsSluagh(bool sluagh);
 
 
 
 
-
-
-		private:		
+		private:
 			std::vector<Skill> skills;
+			std::vector<Perk> perks;
 			
 			/**
 			* @brief		Removes all the skills from the list.
 			*
 			* @param[ín]	skills is the list that will be emptied.
 			**/
-			void flushSkills(std::vector<Skill> skills);
+			inline void flushSkills(std::vector<Skill> skills) { skills.clear(); };
 			//void addPlayerSkills();
 			//void movePlayerSkillsToAI();
 
 			SkillFactory SF;
+			
 
 			//void changeElementType(Gameplay::DamageTypes element);
-			
+
 			bool isStunned = false;
-			float attackSpeed = 1.0f;
-			float attackCooldown = 0.f;
+			bool attacking = false;
+			bool isSluagh = false;
 		public:
-			PlayerUnit(Skill* skills, void* perks, float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Skill* skills, Perk* importPerks ,PerkData* slaughPerks, float xPos, float yPos, char mapForRoom[25][25]);
+
+			PlayerUnit(std::ifstream &input, float xPos, float yPos, char mapForRoom[25][25]);
+
+
+
+
+
+
+
+
+			void SavePlayerToFile(std::ofstream &toSave);
 			~PlayerUnit();
 		};
 
 	}
 }
+
 #endif

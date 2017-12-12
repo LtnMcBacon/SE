@@ -106,7 +106,6 @@ void FlowField::SampleFromMap(const pos & enemyPos, float & xMagnitude, float & 
 		break;
 
 	}
-
 	StopProfile;
 }
 

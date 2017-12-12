@@ -51,8 +51,8 @@ int InitBloom(SE::Core::IEngine::Subsystems& subSystem, SE::Core::IEngine::Manag
 	});
 	if (res < 0)
 		return -2;
-
-	static float bloomP[4] = { 0.3f, 0.6f, 2.0f, 0.667f };
+	//static float bloomP[4] = { 0.3f, 0.6f, 2.0f, 0.667f };
+	static float bloomP[4] = { 0.45f, 0.3f, 0.75f, 0.75f };
 	subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomProperties", bloomP, sizeof(bloomP));
 
 	Graphics::BlendState bs;
@@ -228,13 +228,19 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	LPSTR lpCmdLine,
 	int nCmdShow)
 {
+	
 	SE::Gameplay::Game game;
 	auto engine = Core::CreateEngine();
+	Core::IEngine::InitializationInfo engineInit;
+	engineInit.subSystems.optionsHandler = Core::CreateOptionsHandler();
+	auto res = engineInit.subSystems.optionsHandler->Initialize("Config.ini");
+	if (res < 0)
+		throw std::exception("Could not initiate optionsHandler. Something went wrong with the Config.ini file");
+
 	Window::InitializationInfo initInfo;
 	initInfo.winState = Window::WindowState::Record;
 	//initInfo.winState = Window::WindowState::Playback;
-	initInfo.file = "Recordings/hej.bin";
-	Core::IEngine::InitializationInfo engineInit;
+	initInfo.file = "Recordings/RecordingTuesday Tue Dec 12 085104 2017.bin";
 	engineInit.subSystems.window = Window::CreateNewWindow();
 	engineInit.subSystems.window->Initialize(initInfo);
 	auto result= engine->Init(engineInit);
@@ -248,7 +254,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (result < 0)
 		return result;
 
-
+	
 	game.Initiate(engine);
 	game.Run();
 

@@ -62,7 +62,10 @@ namespace SE
 			*/
 			bool RegisterOnEventCallback(const OnEventCallback& callback) override;
 
-
+			/**
+			* @brief Toggles the cursor on/off
+			*/
+			void ToggleCursor(bool on) override;
 			/*
 			* @brief Returns the width of the window.
 			*/
@@ -87,7 +90,7 @@ namespace SE
 			*/
 			inline float GetDelta() const override
 			{
-				if (!playRecord.playback)
+				if (!playRecord.playback|| frame >= playRecord.playbackData.size())
 					return time.GetDelta<std::ratio<1, 1>>();
 				else
 					return playRecord.playbackData[frame].dTime;

@@ -177,6 +177,10 @@ namespace SE {
 			textureEnt[index] = last_entity;
 			textureInfo[index] = textureInfo[last];
 			textureGUID[entTextureID[entity].GUID].refCount--;
+			if(textureGUID[entTextureID[entity].GUID].refCount == 0)
+			{
+				initInfo.renderer->GetPipelineHandler()->DestroyTexture(entTextureID[entity].GUID);
+			}
 			entTextureID[last_entity].ID = entTextureID[entity].ID;
 
 			// Remove last spot 
@@ -191,7 +195,7 @@ namespace SE {
 		{
 			StartProfile;
 			uint32_t alive_in_row = 0;
-			while (textureInfo.size() > 0 && alive_in_row < 4U)
+			while (textureInfo.size() > 0 && alive_in_row < 40U)
 			{
 				std::uniform_int_distribution<uint32_t> distribution(0U, textureInfo.size() - 1U);
 				uint32_t i = distribution(generator);
@@ -223,6 +227,10 @@ namespace SE {
 				textureEnt[index] = last_entity;
 				textureInfo[index] = textureInfo[last];
 				textureGUID[entTextureID[currentEntity].GUID].refCount--;
+				if (textureGUID[entTextureID[entity].GUID].refCount == 0)
+				{
+					initInfo.renderer->GetPipelineHandler()->DestroyTexture(entTextureID[entity].GUID);
+				}
 				entTextureID[last_entity].ID = entTextureID[currentEntity].ID;
 
 				// Remove last spot 

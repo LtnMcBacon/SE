@@ -13,6 +13,7 @@
 #include <Graphics/IRenderer.h>
 #include <ResourceHandler/IResourceHandler.h>
 #include "ICameraManager.h"
+#include "IEventManager.h"
 
 namespace SE
 {
@@ -22,6 +23,7 @@ namespace SE
 		{
 			Utilz::GUID textureName = Utilz::GUID();
 			float opacity = 1.0f;
+			float ambiance = 0.2f;
 			float transform[16] = {1.0f, 0.0f,0.0f,0.0f,
 									0.0f,1.0f,0.0f,0.0f,
 									0.0f,0.0f,1.0f,0.0f,
@@ -35,6 +37,7 @@ namespace SE
 				IEntityManager* entityManager;
 				ITransformManager* transformManager;
 				ICameraManager* cameraManager;
+				IEventManager* eventManager;
 				Graphics::IRenderer* renderer;
 				ResourceHandler::IResourceHandler* resourceHandler;
 			};
@@ -79,6 +82,13 @@ namespace SE
 			 * @param[in] entity The entity to remove the decal component from.
 			 */
 			virtual int Remove(const Entity& entity) = 0;
+
+			/*
+			* @brief Toggles visibility of a decal
+			* @param[in] entity The entity to toggle the visibility of
+			* @param[in] visible true for on, false for off.
+			*/
+			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
 
 		private:
 

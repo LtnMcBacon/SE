@@ -77,6 +77,11 @@ namespace SE
 			* @brief Toggles the console on or off.
 			*/
 			void Toggle()override;
+
+			/*
+			* @brief Returns true of the console is visible. False otherwise
+			*/
+			bool IsVisible() override;
 			/*
 			* @brief Start the frame.
 			*/
@@ -102,9 +107,11 @@ namespace SE
 			**/
 			void AddFrameCallback(const std::function<void()>& frameCallback) override;
 
+			int RemoveCommand(const char* name) override;
+
 		private:
 			ImGuiTextFilter filter;
-			bool scrollToBottom = false;
+			bool scrollToBottom = true;
 
 			struct Message
 			{

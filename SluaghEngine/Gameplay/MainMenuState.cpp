@@ -13,7 +13,7 @@ MainMenuState::MainMenuState()
 
 MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shutDown)
 {
-	StartProfile;
+	/*StartProfile;
 	auto PausChange = [this]()->void
 	{
 		this->CurrentState = State::PAUSE_STATE;
@@ -31,11 +31,14 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 
 	auto options = [this]() ->void
 	{
-		//this->CurrentState = 
+		this->CurrentState = State::OPTION_STATE;
 	};
 
 	std::function<void()> func = PausChange;
 	std::function<void()> begin = startGame;
+	std::function<void()> option = options;
+
+	
 
 	fileParser.ParseFiles("MainMenu.HuD");
 	fileParser.InitiateTextures();
@@ -52,16 +55,18 @@ MainMenuState::MainMenuState(Window::IWindow * Input, std::function<void()> shut
 		}
 		else if (button.rectName == "optionsBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY + 40, button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
 		}
-		
 	}
+
+	
 	fileParser.GUIButtons.DrawButtons();
 
 	this->input = Input;
-	ProfileReturnVoid;
+	ProfileReturnVoid;*/
 	
 }
+
 MainMenuState::MainMenuState(Window::IWindow * Input)
 {
 	StartProfile;
@@ -74,19 +79,28 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	{
 		this->CurrentState = State::CHARACTER_CREATION_STATE;
 	};
-
-	auto quitGame = []()->bool
+	auto startTutorial = [this]()->void
 	{
-
+		this->CurrentState = State::TUTORIAL_STATE;
+	};
+	auto quitGame = [this]()->void
+	{
+		this->CurrentState = State::QUIT_GAME;
 	};
 
 	auto options = [this]() ->void
 	{
-		//this->CurrentState = 
+		this->CurrentState = State::OPTION_STATE;
 	};
 
 	std::function<void()> func = PausChange;
 	std::function<void()> begin = startGame;
+	std::function<void()> shutDown = quitGame;
+	std::function<void()> option = options;
+
+
+	bool perhaps = false;
+	bool fullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", perhaps);
 
 	fileParser.ParseFiles("MainMenu.HuD");
 	fileParser.InitiateTextures();
@@ -97,16 +111,22 @@ MainMenuState::MainMenuState(Window::IWindow * Input)
 	{
 		if (button.rectName == "startGameBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, begin, button.textName, button.hoverTex, button.PressTex);
+			
 		}
-		/*else if (button.rectName == "quitBtn")
+		else if (button.rectName == "quitBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex, "Quit Game");
-		}*/
-		/*else if (button.rectName == "optionsBtn")
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, 1, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex);
+		}
+		else if (button.rectName == "optionsBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, shutDown, button.textName, button.hoverTex, button.PressTex, "Options");
-		}*/
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY , button.Width, button.Height, button.layerDepth, button.rectName, option, button.textName, button.hoverTex, button.PressTex);
+		}
+		else if (button.rectName == "tutorialBtn")
+		{
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY , button.Width, button.Height, button.layerDepth, button.rectName, startTutorial, button.textName, button.hoverTex, button.PressTex);
+
+		}
 
 	}
 	fileParser.GUIButtons.DrawButtons();
@@ -133,23 +153,15 @@ IGameState::State MainMenuState::Update(void* &passableInfo)
 	input->GetMousePos(mousePosX, mousePosY);
 	fileParser.GUIButtons.ButtonHover(mousePosX, mousePosY, pressed, released);
 
-	
-
-
 	IGameState::State empty = State::MAIN_MENU_STATE;
-			
-	
+
 	if (input->ButtonPressed(0))
 	{
 			
 		CurrentState = State::PAUSE_STATE;
 	}
 
-
-	passableInfo = new int(10);
-
-	ProfileReturn(CurrentState);
-	
+	ProfileReturn(CurrentState);	
 }
 
 

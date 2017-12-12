@@ -35,6 +35,18 @@
 #include "PauseAnimationsLeaf.h"
 #include "ChangeRoomLeaf.h"
 #include "NuckelaveeNormalAttackLeaf.h"
+#include "SecondaryAttackCooldownZeroCondition.h"
+#include "ResetSecondaryAttackCooldownLeaf.h"
+#include "AddTimeToSecondaryAttackCooldownLeaf.h"
+#include "TickDownSecondaryAttackCooldownLeaf.h"
+#include "TransistionCountdownDoneCondition.h"
+#include "CalculateTimeToRoomTransistionLeaf.h"
+#include "ResetTransistionTimerLeaf.h"
+#include "TransistionToRoomLeaf.h"
+#include "CountdownRoomTransistionLeaf.h"
+#include "RootedCondition.h"
+#include "SlowedCondition.h"
+#include "PoisonCloudLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"

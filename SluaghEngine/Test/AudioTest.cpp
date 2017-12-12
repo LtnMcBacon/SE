@@ -126,15 +126,15 @@ namespace SE
 				auto entTexture = managers.entityManager->Create();
 				Graphics::GUITextureInfo guiTexture;
 				guiTexture.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
-				guiTexture.effect = Graphics::Effect::BothFlipEffect;
+				//guiTexture.effect = Graphics::Effect::BothFlipEffect;
 				guiTexture.layerDepth = 0;
 				guiTexture.posX = 0;
 				guiTexture.posY = 0;
 				guiTexture.rotation = 0;
-				guiTexture.width = 100;
-				guiTexture.height = 100;
+				guiTexture.width = 1280;
+				guiTexture.height = 720;
 				guiTexture.screenAnchor = { 0.5f ,0.5f };
-				guiTexture.anchor = { 1.0f, 0.5f };
+				guiTexture.anchor = { 0.5f, 0.5f };
 				guiTexture.scale = { 1.0f, 1.0f };
 				//guiTexture.rect = nullptr;	//not needed default nullptr
 
@@ -284,8 +284,8 @@ namespace SE
 					}
 					if (subSystems.window->ButtonPressed(12) == true)
 					{
-						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "height", 900);
-						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1440);
+						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "height", 1080);
+						subSystems.optionsHandler->SetOptionUnsignedInt("Window", "width", 1920);
 						subSystems.optionsHandler->Trigger();
 					}
 					if (subSystems.window->ButtonPressed(13) == true)

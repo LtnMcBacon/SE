@@ -59,75 +59,194 @@ void EnemyFactory::CreateEnemies(const EnemyCreationStruct &descriptions, GameBl
 		{
 			type = desc.type;
 		}
-		auto const enemyCreationData = enemyData.find(type);
-		if (enemyCreationData != enemyData.end())
-		{
-			EnemyUnit* createdEnemy = nullptr;
-			int enemyHealth = enemyCreationData->second.baseHealth;
-			if (desc.useVariation)
-			{
-				int healthVariation = enemyCreationData->second.baseHealthVariation;
-				enemyHealth += CoreInit::subSystems.window->GetRand() % (healthVariation * 2 + 1) - healthVariation;
-			}
-
-			createdEnemy = new EnemyUnit(nullptr, desc.startX, desc.startY, enemyHealth);
-			/*To do: Add the rest of the data here!*/
-
-			EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
-
-			createdEnemy->SetBehaviouralTree(SEBTFactory->BuildBehaviouralTree(
-				enemyCreationData->second.behaviouralTreeGUID,
-				gameBlackboard,
-				enemyBlackboard));
-
-			createdEnemy->SetEnemyBlackboard(enemyBlackboard);
-
-
-			/*Fix with managers*/
-			Core::IAnimationManager::CreateInfo cInfo;
-			cInfo.animationCount = 0;
-			cInfo.animations = nullptr;
-			cInfo.mesh = enemyCreationData->second.meshGUID;
-			cInfo.skeleton = enemyCreationData->second.skeletonGUID;
-			CoreInit::managers.animationManager->CreateAnimatedObject(createdEnemy->GetEntity(), cInfo);
-			CoreInit::managers.animationManager->ToggleVisible(createdEnemy->GetEntity(), true);
-
-			Core::IMaterialManager::CreateInfo enemyInfo;
-			enemyInfo.materialFile = enemyCreationData->second.materialGUID;
-			enemyInfo.shader = enemyCreationData->second.shaderGUID;
-			CoreInit::managers.materialManager->Create(createdEnemy->GetEntity(), enemyInfo);
-
-			createdEnemy->SetDeathAnimation(enemyCreationData->second.deathAnimationGUID);
-
-			if(type == ENEMY_TYPE_NUCKELAVEE)
-			{
-				//Move up
-				createdEnemy->SetZPosition(1.5f);
-				CoreInit::managers.transformManager->Move(createdEnemy->GetEntity(), DirectX::XMFLOAT3{ 0, 1.5f, 0 });
-
-				//Insert entity for sword here.
-				auto swordEntity = CoreInit::managers.entityManager->Create();
-
-				Core::IRenderableManager::CreateInfo swordInfo;
-				swordInfo.meshGUID = "Sword.mesh";
-				swordInfo.shadow = false;
-				swordInfo.transparent = false;
-
-				CoreInit::managers.transformManager->Create(swordEntity);
-				CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.07f, 0.15f, 0.5f });
-				CoreInit::managers.transformManager->Rotate(swordEntity, -0.25f, 0.2f, 1.5f);
-				CoreInit::managers.dataManager->SetValue(createdEnemy->GetEntity(), "Weapon", swordEntity);
-				CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
-				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
-
-				CoreInit::managers.animationManager->AttachToEntity(createdEnemy->GetEntity(), swordEntity, "LHand", 0);
-			}
-
-			unitArray[numberOfCreatedEnemies++] = createdEnemy;
-		}
+		auto newEnemy = CreateEnemyDataForEnemyType(type, desc.useVariation);
+		newEnemy->SetZPosition(1.5f);
+		newEnemy->PositionEntity(desc.startX, desc.startY);
+		newEnemy->SetBehaviouralTree(CreateBehaviouralTreeForEnemyType(type, gameBlackboard, newEnemy->GetEnemyBlackboard()));
+		newEnemy->SetEntity(CreateEntityDataForEnemyType(type, newEnemy->GetDamageType()));
+		unitArray[numberOfCreatedEnemies++] = newEnemy;
 	}
 	
 	StopProfile;
+}
+
+Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, DamageType damageType)
+{
+	StartProfile;
+	auto const enemyCreationData = enemyData.find(type);
+	auto newEntity = CoreInit::managers.entityManager->Create();
+
+	CoreInit::managers.transformManager->Create(newEntity);
+
+	if (enemyCreationData != enemyData.end())
+	{
+		
+		/*Fix with managers*/
+		Core::IAnimationManager::CreateInfo cInfo;
+		cInfo.animationCount = 0;
+		cInfo.animations = nullptr;
+		cInfo.mesh = enemyCreationData->second.meshGUID;
+		cInfo.skeleton = enemyCreationData->second.skeletonGUID;
+
+				CoreInit::managers.animationManager->CreateAnimatedObject(newEntity, cInfo);
+	//	CoreInit::managers.animationManager->ToggleVisible(newEntity, true);
+
+		Core::IMaterialManager::CreateInfo enemyInfo;
+		enemyInfo.materialFile = enemyCreationData->second.materialGUID;
+		enemyInfo.shader = enemyCreationData->second.shaderGUID;
+		CoreInit::managers.materialManager->Create(newEntity, enemyInfo);
+
+		CoreInit::managers.audioManager->Create(newEntity, { enemyCreationData->second.deathSoundGUID, SE::Audio::StereoVoiceSound });
+		CoreInit::managers.dataManager->SetValue(newEntity, SE::Utilz::GUID("deathSoundGUID"), static_cast<uint32_t>(enemyCreationData->second.deathSoundGUID.id));
+
+
+		if (type == ENEMY_TYPE_NUCKELAVEE)
+		{
+			//Move up
+			CoreInit::managers.transformManager->Move(newEntity, DirectX::XMFLOAT3{ 0, 0.8f, 0 });
+
+			//Insert entity for sword here.
+			auto swordEntity = CoreInit::managers.entityManager->Create();
+
+			Core::IRenderableManager::CreateInfo swordInfo;
+			swordInfo.meshGUID = "Sword.mesh";
+			//swordInfo.shadow = true;
+			swordInfo.transparent = false;
+
+			CoreInit::managers.transformManager->Create(swordEntity);
+			CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.2f, -0.1f, -0.5f });
+			CoreInit::managers.transformManager->Rotate(swordEntity, 3.0f, -0.4f, 1.3f);
+			CoreInit::managers.dataManager->SetValue(newEntity, "Weapon", swordEntity);
+			CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
+			CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+
+			CoreInit::managers.animationManager->AttachToEntity(newEntity, swordEntity, "LHand", 0);
+		}
+
+		switch(damageType)
+		{
+		case DamageType::FIRE:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "fireParticle.pts" });
+			break;
+		case DamageType::WATER:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "waterParticle.pts" });
+			break;
+		case DamageType::NATURE:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "natureParticle.pts" });
+			break;
+		case DamageType::MAGIC:
+			CoreInit::managers.particleSystemManager->CreateSystem(newEntity, { "magicParticle.pts" });
+			break;
+		default: ;
+		}
+
+		ProfileReturnConst( newEntity);
+	}
+
+	ProfileReturnConst(newEntity);
+}
+
+EnemyUnit* EnemyFactory::CreateEnemyDataForEnemyType(EnemyType type, bool useVariation)
+{
+	StartProfile;
+
+	auto const enemyCreationData = enemyData.find(type);
+
+	if (enemyCreationData != enemyData.end())
+	{
+		EnemyUnit* createdEnemy = nullptr;
+		auto const information = enemyCreationData->second;
+		int enemyHealth = information.baseHealth;
+		if (useVariation)
+		{
+			
+			enemyHealth += CoreInit::subSystems.window->GetRand() % (information.baseHealthVariation * 2 + 1) - information.baseHealthVariation;
+		}
+	
+
+		createdEnemy = new EnemyUnit(type, nullptr, 0.f, 0.f, enemyHealth);
+		createdEnemy->SetDeathAnimation(information.deathAnimationGUID);
+		/*To do: Add the rest of the data here!*/
+
+		createdEnemy->SetBasePhysicalResistance(information.physicalResistance);
+		createdEnemy->SetBaseMagicResistance(information.magicalResistance);
+		createdEnemy->SetBaseNatureResistance(information.natureResistance);
+		createdEnemy->SetBaseFireResistance(information.fireResistance);
+		createdEnemy->SetBaseWaterResistance(information.waterResistance);
+
+		int baseStrength = information.baseStrength;
+		int baseAgility = information.baseAgility;
+		int baseWisdom = information.baseWisdom;
+
+		float damage = information.baseDamage;
+		if(useVariation)
+		{
+			baseStrength += CoreInit::subSystems.window->GetRand() % (information.baseStrengthVariation * 2 + 1) - information.baseStrengthVariation;
+			baseAgility += CoreInit::subSystems.window->GetRand() % (information.baseAgilityVariation * 2 + 1) - information.baseAgilityVariation;
+			baseWisdom += CoreInit::subSystems.window->GetRand() % (information.baseWisdomVariation * 2 + 1) - information.baseWisdomVariation;
+			damage += CoreInit::subSystems.window->GetRand() % (information.baseDamageVariation * 2 + 1) - information.baseDamageVariation;
+
+		}
+
+		createdEnemy->SetBaseStrength(baseStrength);
+		createdEnemy->SetBaseAgility(baseAgility);
+		createdEnemy->SetBaseWhisdom(baseWisdom);
+
+		createdEnemy->SetBaseMaxHealth(enemyHealth);
+
+		createdEnemy->SetBaseDamage(damage);
+		createdEnemy->SetDamageType(DamageType(CoreInit::subSystems.window->GetRand() % int(DamageType::NUM_TYPES)));
+
+
+		switch(createdEnemy->GetDamageType())
+		{
+		case DamageType::RANGED: /*Fall through*/
+		case DamageType::PHYSICAL: 
+			createdEnemy->AddBasePhysicalResistance(0.15f);
+			createdEnemy->RemoveBaseMagicResistance(0.15f);
+			break;
+		case DamageType::FIRE:
+			createdEnemy->AddBaseFireResistance(0.15f);
+			createdEnemy->RemoveBaseWaterResistance(0.15f); break;
+		case DamageType::WATER:
+			createdEnemy->AddBaseWaterResistance(0.15f);
+			createdEnemy->RemoveBaseNatureResistance(0.15f); break;
+		case DamageType::NATURE:
+			createdEnemy->AddBaseNatureResistance(0.15f);
+			createdEnemy->RemoveBaseFireResistance(0.15f); break;
+		case DamageType::MAGIC:
+			createdEnemy->AddBaseMagicResistance(0.15f);
+			createdEnemy->RemoveBasePhysicalResistance(0.15f); break;
+		default: ;
+		}
+
+		if(type == EnemyType::ENEMY_TYPE_NUCKELAVEE)
+			createdEnemy->SetBaseNatureResistance(information.natureResistance);
+
+
+		EnemyBlackboard* enemyBlackboard = new EnemyBlackboard;
+
+		createdEnemy->SetEnemyBlackboard(enemyBlackboard);
+
+		ProfileReturnConst(createdEnemy);
+	}
+	ProfileReturnConst(nullptr);
+}
+
+BehaviouralTree* EnemyFactory::CreateBehaviouralTreeForEnemyType(EnemyType type, GameBlackboard* gameBlackboard,
+	EnemyBlackboard* enemyBlackboard)
+{
+	StartProfile;
+	auto const enemyCreationData = enemyData.find(type);
+
+	if (enemyCreationData != enemyData.end())
+	{
+		ProfileReturnConst(SEBTFactory->BuildBehaviouralTree(
+			enemyCreationData->second.behaviouralTreeGUID,
+			gameBlackboard,
+			enemyBlackboard));
+	}
+	ProfileReturnConst(nullptr);
 }
 
 EnemyFactory::EnemyFactory()
@@ -141,8 +260,8 @@ EnemyFactory::EnemyFactory()
 	this->LoadEnemyIntoMemory("Bodach.SEC");
 	this->LoadEnemyIntoMemory("Glaistig.SEC");
 	this->LoadEnemyIntoMemory("Nuckelavee.SEC");
-	this->LoadEnemyIntoMemory("PechMelee.SEC");
-	this->LoadEnemyIntoMemory("PechRanged.SEC");
+	/*this->LoadEnemyIntoMemory("PechMelee.SEC");
+	this->LoadEnemyIntoMemory("PechRanged.SEC");*/
 }
 
 EnemyFactory::~EnemyFactory()
@@ -190,6 +309,9 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		loadedEnemy.shaderGUID = Utilz::GUID(GetLineData(line));
 		++line;
 		line->pop_back();
+		loadedEnemy.deathSoundGUID = Utilz::GUID(GetLineData(line));
+		++line;
+		line->pop_back();
 		loadedEnemy.baseDamage = GetLineDataAsInt(line);
 		++line;
 		line->pop_back();
@@ -215,6 +337,24 @@ bool EnemyFactory::LoadEnemyIntoMemory(Utilz::GUID GUID)
 		++line;
 		line->pop_back();
 		loadedEnemy.waterResistance = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseStrength = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseStrengthVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseAgility = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseAgilityVariation = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseWisdom = GetLineDataAsInt(line);
+		++line;
+		line->pop_back();
+		loadedEnemy.baseWisdomVariation = GetLineDataAsInt(line);
 
 
 		if (!SEBTFactory->LoadTree(loadedEnemy.behaviouralTreeGUID))

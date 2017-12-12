@@ -53,7 +53,7 @@ namespace SE {
 						inSample); /*This is a pointer that will be passed to
 													 your callback*/
 				}
-				else if (soundType == BakgroundSound)
+				else if (soundType == BakgroundSound || soundType == VoiceSound)
 				{
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
@@ -72,12 +72,12 @@ namespace SE {
 						inSample); /*This is a pointer that will be passed to
 													 your callback*/
 				}
-				else if (soundType == StereoPanSound)
+				else if (soundType == StereoPanSound || soundType == StereoVoiceSound)
 				{
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
 						0,          /* no input channels */
-						inSample->sample->info.channels,          /* stereo output */
+						2,          /* stereo output */
 						paFloat32,  /* 32 bit floating point output */
 						inSample->sample->info.samplerate,
 						256,        /* frames per buffer, i.e. the number
@@ -96,7 +96,7 @@ namespace SE {
 					/* Open an audio I/O stream. */
 					err = Pa_OpenDefaultStream(&tempStream,
 						0,          /* no input channels */
-						inSample->sample->info.channels,          /* stereo output */
+						2,          /* stereo output */
 						paFloat32,  /* 32 bit floating point output */
 						inSample->sample->info.samplerate,
 						256,        /* frames per buffer, i.e. the number
@@ -124,10 +124,11 @@ namespace SE {
 					}
 					else
 					{
-						stream[freeStreamID.top()] = tempStream;
-						sampleOut[freeStreamID.top()] = inSample;
+						int temmpPos = freeStreamID.top();
+						stream[temmpPos] = tempStream;
+						sampleOut[temmpPos] = inSample;
 						freeStreamID.pop();
-						ProfileReturn(stream.size() - 1);
+						ProfileReturn(temmpPos);
 					}
 				}
 			}
@@ -178,8 +179,7 @@ namespace SE {
 		int AudioStream::UpdateStreamPos(int streamID, PanData panData)
 		{
 			StartProfile;
-			PaError err;
-			sampleOut[streamID]->panData = panData;
+				sampleOut[streamID]->panData = panData;
 			ProfileReturnConst(0);
 		}
 

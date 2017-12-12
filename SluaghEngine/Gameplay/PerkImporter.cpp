@@ -14,19 +14,13 @@ SE::Gameplay::PerkImporter::~PerkImporter()
 {
 }
 
-void SE::Gameplay::PerkImporter::loadPerkData(string fileNames[], int perkCount)
+void SE::Gameplay::PerkImporter::loadPerkData(string fileName)
 {
+		
+	
 
-
-	for (size_t i = 0; i < perkCount; i++)
-	{
-		
-	//	file[fileNames[i].length()] = 0;
-		
-		string fileString = fileNames[i];
-		
-		
-		auto res = CoreInit::subSystems.resourceHandler->LoadResource((Utilz::GUID)fileString, [this](auto guid, auto data, auto size) {
+		auto res = CoreInit::subSystems.resourceHandler->LoadResource((Utilz::GUID)fileName, [this](auto guid, auto data, auto size)
+		{
 			PerkData tempData;
 			size_t head = 0;
 			int nameSize;
@@ -46,14 +40,19 @@ void SE::Gameplay::PerkImporter::loadPerkData(string fileNames[], int perkCount)
 			memcpy(&tempData.typeSize, (char*)data + head, sizeof(int));
 			head += sizeof(int);
 
+			memcpy(&tempData.condition, (char*)data + head, sizeof(int));
+			head += sizeof(int);
+
 			for (size_t i = 0; i < tempData.typeSize; i++)
 			{
 				int type = -1;
 				int value = -1;
 				memcpy(&type, (char*)data + head, sizeof(int));
 				head += sizeof(int);
+
 				memcpy(&value, (char*)data + head, sizeof(int));
 				head += sizeof(int);
+			
 
 				tempData.types.push_back(type);
 				tempData.values.push_back(value);
@@ -66,7 +65,7 @@ void SE::Gameplay::PerkImporter::loadPerkData(string fileNames[], int perkCount)
 				tempData.checks.push_back(check);
 			}
 
-			perks.push_back(tempData);
+			perkVec.push_back(tempData);
 			delete[] tempName;
 			return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 		});
@@ -76,7 +75,7 @@ void SE::Gameplay::PerkImporter::loadPerkData(string fileNames[], int perkCount)
 		}
 		
 		
-	}
-	
-	
 }
+	
+	
+

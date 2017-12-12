@@ -60,6 +60,11 @@ void SE::DevConsole::CMDConsole::Hide()
 	FreeConsole();
 }
 
+bool SE::DevConsole::CMDConsole::IsVisible()
+{
+	return false;
+}
+
 void SE::DevConsole::CMDConsole::Toggle()
 {
 }
@@ -132,6 +137,11 @@ size_t SE::DevConsole::CMDConsole::Getline(const char * buffer, size_t size)
 int SE::DevConsole::CMDConsole::AddCommand(const DevConsole_Command & commandFunction, char * name, char * description)
 {
 	return commands.AddCommand(commandFunction, name, description);
+}
+
+int SE::DevConsole::CMDConsole::RemoveCommand(const char* name)
+{
+	return 0;
 }
 
 void SE::DevConsole::CMDConsole::AddFrameCallback(const std::function<void()>& frameCallback)

@@ -1,11 +1,12 @@
 #pragma once
-#include <string>
 #include <Windows.h>
+#include <string>
 #include <vector>
 #include <Utilz\GUID.h>
 #include <Core\IGUIManager.h>
 #include <functional>
 #include <Gameplay\HUD_Functionality.h>
+
 
 namespace SE
 {
@@ -34,7 +35,9 @@ namespace SE
 				std::string PressTex;
 				int layerDepth;
 				int skillIndex;
-
+				std::string perkName;
+				std::string skillName;
+				PerkData perk;
 				std::function<void()> bindButton;
 			};
 
@@ -51,24 +54,26 @@ namespace SE
 			std::vector<SE::Core::Entity> texEntityVec;
 
 			std::vector <HUDElement> ButtonVector;
-			std::vector<HUDText> MainMenuTextVec;
+			
 
 			std::vector<HUDElement> skillButtonVec;
-			std::vector<HUDText> skillTextVec;
+			
 
 			std::vector<HUDElement> perkButtonVec;
-			std::vector<HUDText> perkTextVec;
+			
 
-			std::vector<HUDElement> optionsMenu;
-			std::vector<HUDElement> optionButtons;
+			std::vector<HUDElement> OptionalButtons;
+
+			
 
 			HUDParser();
 			~HUDParser();
 			void ParseFiles(Utilz::GUID fileName);
 			void ParseSkillButtons(Utilz::GUID fileName);
 			void ParsePerks(Utilz::GUID fileName);
-			void ParseOptionMenu(Utilz::GUID fileName);
+			void ParseOptionalButtons(Utilz::GUID fileName);
 			void InitiateTextures();
+			void ResolutionChange(int& elementWidth, int& elementHeight);
 			
 			
 			

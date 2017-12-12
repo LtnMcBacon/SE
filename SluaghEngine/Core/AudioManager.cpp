@@ -53,12 +53,13 @@ namespace SE {
 				if (res)
 				{
 					initInfo.console->PrintChannel("Resources", "Could not load sound. GUID: %u, Error: %d",  createInfo.soundFile, res);
+					guidToSound.erase(createInfo.soundFile);
 					ProfileReturnVoid;
 				}
 			}
 
 			int handle;
-			if (createInfo.soundType != Audio::StereoPanSound && createInfo.soundType != Audio::StereoPanLoopSound)
+			if (createInfo.soundType != Audio::StereoPanSound && createInfo.soundType != Audio::StereoPanLoopSound && createInfo.soundType != Audio::StereoVoiceSound)
 				handle = audioHandler->CreateStream(sound.handle, createInfo.soundType);
 			else
 			{
@@ -103,7 +104,7 @@ namespace SE {
 				if (findS != findE->second.guidToStream.end())
 				{
 					audioHandler->StopSound(findS->second.stream);
-					findS->second.playState = true;
+					findS->second.playState = false;
 				}
 			}
 		}
@@ -115,19 +116,32 @@ namespace SE {
 				auto findS = findE->second.guidToStream.find(soundFile);
 				if (findS != findE->second.guidToStream.end())
 				{
-					findE->second.guidToStream.erase(soundFile);
-					guidToSound[soundFile].refCount--;
-					if (guidToSound[soundFile].refCount == 0)
-					{
-						auto res = audioHandler->RemoveSound(guidToSound[soundFile].handle);
-						if (res)
-						{
-							initInfo.console->PrintChannel("Warning", "Could not remove sound. GUID: %u, Error: %d",  soundFile, res);
-						}
-					}
-						
+					audioHandler->RemoveSound(findS->second.stream);
+					entToSounds[entity].guidToStream.erase(soundFile);
+					UnloadSound(soundFile);
 				}
 			}
+		}
+		void AudioManager::UnloadSound(const Utilz::GUID & soundFile)
+		{
+			auto findE = guidToSound.find(soundFile);
+			if (findE != guidToSound.end())
+			{
+				findE->second.refCount--;
+				if (findE->second.refCount == 0)
+				{
+					auto res = audioHandler->UnloadSound(guidToSound[soundFile].handle);
+					if (res)
+					{
+						initInfo.console->PrintChannel("Warning", "Could not remove sound. GUID: %u, Error: %d", soundFile, res);
+					}
+					else
+					{
+						guidToSound.erase(soundFile);
+					}
+				}
+			}
+
 		}
 		void AudioManager::SetSoundVol(const SE::Audio::SoundVolType & volType, size_t newVol)
 		{
@@ -176,6 +190,7 @@ namespace SE {
 			for (auto& s : entToSounds[soundEntity[index]].guidToStream)
 			{
 				audioHandler->RemoveSound(s.second.stream);
+				UnloadSound(s.first);
 			}
 			entToSounds.erase(soundEntity[index]);
 			soundEntity[index] = soundEntity[soundEntity.size() - 1];
@@ -192,9 +207,14 @@ namespace SE {
 		{
 			if (entity == cameraEnt)
 			{
+				dirtyEntites.push_back({ index, entity });
 				cameraMove = true;
 			}
-			dirtyEntites.push_back({ index, entity });
+			auto& findE = entToSounds.find(entity);
+			if (findE != entToSounds.end())
+			{
+				dirtyEntites.push_back({ index, entity });
+			}
 		}
 
 		void SE::Core::AudioManager::UpdateDirtyTransforms()
@@ -210,12 +230,16 @@ namespace SE {
 			{
 				for (auto& ent : soundEntity)
 				{
+					// Check if the entity is alive
+					if (!initInfo.entityManager->Alive(ent))
+						ProfileReturnVoid;
+
 					auto& findE = entToSounds.find(ent);
 					if (findE != entToSounds.end())
 					{
 						for (auto& sounds : findE->second.guidToStream)
 						{
-							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound || sounds.second.soundType == Audio::StereoVoiceSound))
 							{
 								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
 								audioHandler->UpdateStreamPos(sounds.second.stream, panData);
@@ -229,12 +253,16 @@ namespace SE {
 			{
 				for (auto& dirty : dirtyEntites)
 				{
+					// Check if the entity is alive
+					if (!initInfo.entityManager->Alive(dirty.entity))
+						ProfileReturnVoid;
+
 					auto& findE = entToSounds.find(dirty.entity);
 					if (findE != entToSounds.end())
 					{
 						for (auto& sounds : findE->second.guidToStream)
 						{
-							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound))
+							if (sounds.second.playState == true && (sounds.second.soundType == Audio::StereoPanSound || sounds.second.soundType == Audio::StereoPanLoopSound || sounds.second.soundType == Audio::StereoVoiceSound))
 							{
 								panData.soundPos = initInfo.transformManager->GetPosition(findE->first);
 								audioHandler->UpdateStreamPos(sounds.second.stream, panData);

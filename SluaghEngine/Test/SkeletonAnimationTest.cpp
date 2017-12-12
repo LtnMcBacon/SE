@@ -73,15 +73,21 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	sword.meshGUID = "Sword.mesh";
 	managers.renderableManager->CreateRenderableObject(attachable, sword);
 	managers.renderableManager->ToggleRenderableObject(attachable, true);
-	managers.transformManager->SetScale(attachable, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
-	managers.transformManager->SetPosition(attachable, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	float scale[3] = { 0.15f, 0.15f, 0.15f };
+	float pos[3] = { 0,0,0};
+	float arot[3] = { 0,0,0 };
+
+
+	managers.transformManager->SetScale(attachable, DirectX::XMFLOAT3(scale));
+	managers.transformManager->SetPosition(attachable, DirectX::XMFLOAT3(pos));
+	managers.transformManager->SetRotation(attachable, arot[0], arot[1], arot[2]);
 
 	managers.transformManager->SetPosition(mainC, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC, 0.0f, 3.14f, 0.0f);
 
 	managers.transformManager->SetPosition(mainC2, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	managers.transformManager->SetRotation(mainC2, 0.0f, 3.14f, 0.0f);
-	//managers.transformManager->SetScale(mainC2, DirectX::XMFLOAT3(0.25f, 0.25f, 0.25f));
 	
 	Core::ICameraManager::CreateInfo cInfo;
 	cInfo.aspectRatio = (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "height", 640) / (float)subSystem.optionsHandler->GetOptionUnsignedInt("Window", "width", 800);
@@ -118,8 +124,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC2, info);
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "MCModell.mesh";
-	sai.skeleton = "MCModell.skel";
+	sai.mesh = "Pech.mesh";
+	sai.skeleton = "Pech.skel";
 	sai.animationCount = 4;
 	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopSwordAttackAnim_MCModell.anim" };
 	sai.animations = anims;
@@ -131,8 +137,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.animationManager->AttachToEntity(mainC, attachable, "LHand", 0);
 
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "Bodach.mesh");
-	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Bodach.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "Pech.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Pech.mesh");
 
 	Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
 	managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);
@@ -179,8 +185,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		timer.Tick();
 		float dt = timer.GetDelta();
 
-		rot += 0.001;
-		managers.transformManager->SetRotation(mainC, 0.0f, rot, 0.0f);
+	//	rot += 0.001;
+		//managers.transformManager->SetRotation(mainC, 0.0f, rot, 0.0f);
 	
 		if (subSystem.window->ButtonDown(ActionButton::Up))
 			managers.transformManager->Move(managers.cameraManager->GetActive(), DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.01f*dt });
@@ -198,6 +204,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 		engine->BeginFrame();
 	
 		ImGui::Begin("Animation Stuff");
+	
+		ImGui::SliderFloat("Rot", &rot, -3.14f, 3.14f);
 
 		if(ImGui::SliderFloat("C1 Keyframe ", &keyframe, 0.0f, 60.0f)){
 			managers.animationManager->SetKeyFrame(mainC, keyframe);
@@ -220,16 +228,23 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 		if (ImGui::Button("BlendToAndBack")) {
 
-			Utilz::GUID deathAnim = "DeathAnim_MCModell.anim";
+			Utilz::GUID deathAnim = "TopSwordAttackAnim_MCModell.anim";
 			managers.animationManager->Start(mainC, &deathAnim, 1, 2.0f, Core::AnimationFlags::BLENDTOANDBACK);
 		}
 
 		
-		if (ImGui::SliderFloat3("Object Local Transform", localRot, 0.0f, 6.28f)) {
+		if (ImGui::SliderFloat3("Object Local Rot", arot, -1.8f, 1.8f)) {
 
-			managers.transformManager->SetRotation(attachable, localRot[0], localRot[1], localRot[2]);
+			managers.transformManager->SetRotation(attachable, arot[0], arot[1], arot[2]);
 		}
+		if (ImGui::SliderFloat3("Object Local Scale", scale, 0.0f, 1.0f)) {
 
+			managers.transformManager->SetScale(attachable, DirectX::XMFLOAT3(scale));
+		}
+		if (ImGui::SliderFloat3("Object Local Pos", pos, -1, 1)) {
+
+			managers.transformManager->SetPosition(attachable, DirectX::XMFLOAT3(pos));
+		}
 		if (ImGui::Button("C1 Start")){
 
 			managers.animationManager->Start(mainC, true);

@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <Utilz\CircularFiFo.h>
+#include <Utilz\Timer.h>
 #include <unordered_map>
 #include <random>
 #include <Particle_Editor\ParticleEmitter.h>
@@ -31,6 +32,11 @@ namespace SE
 			void CreateSystem(const Entity& entity, const CreateInfo& info)override;
 
 			/**
+			 * @brief Update the start and end positions of a system.
+			 */
+			void UpdateSystemEndPosition(const Entity& entity, float endPos[3]) override;
+
+			/**
 			* @brief	Hide/Show a particle system.
 			* @param [in] entity The entity to bind system to.
 			* @param [in] visible If the resource should be streamed.
@@ -49,7 +55,7 @@ namespace SE
 		private:
 			InitializationInfo initInfo;
 			Graphics::Pipeline updatePipeline;
-
+			Utilz::Timer time;
 			/**
 			* @brief	Remove an enitity entry
 			*/
@@ -77,6 +83,10 @@ namespace SE
 				float pad5;
 				float gravity[3];
 				float pad4;
+				float startPos[3];
+				float pad6;
+				float endPos[3];
+				float pad7;
 				float speed;
 				float emitRate;
 				float lifeTime;
@@ -84,13 +94,17 @@ namespace SE
 				float radialValue;
 				float gravityValue;
 				float pSize;
+				float dt;
 				unsigned int circular;
 				unsigned int gravityCheck;
 				unsigned int emit;
+				unsigned int particlePath;
+				unsigned int bloomCheck;
 			};
 			struct ParticleSystemData
 			{
 				bool firstRun;
+				bool locked;
 				DirectX::XMFLOAT4X4 transform;
 				uint8_t visible;
 				uint8_t loaded;
@@ -105,10 +119,12 @@ namespace SE
 				DirectX::XMFLOAT2 velocityRange[3]; 
 				DirectX::XMFLOAT2 emitRange[3];
 			};
+
 			struct DirtyEntityInfo {
 				size_t transformIndex;
 				Entity entity;
 			};
+			
 			std::vector<DirtyEntityInfo> dirtyEntites;
 			std::vector<ParticleSystemData> particleSystemData;
 			std::vector<Entity> indexToEntity;

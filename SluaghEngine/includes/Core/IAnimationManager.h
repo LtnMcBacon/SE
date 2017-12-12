@@ -106,6 +106,7 @@ namespace SE
 
 			virtual void ToggleVisible(const Entity& entity, bool visible) = 0;
 			virtual void ToggleShadow(const Entity& entity, bool on) = 0;
+			virtual void ToggleTransparency(const Entity& entity, bool on) = 0;
 
 		protected:
 			IAnimationManager() {};

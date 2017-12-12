@@ -6,11 +6,6 @@
 
 using namespace std::chrono_literals;
 
-void Push_(std::mutex& lock, const std::string&& msg)
-{
-	lock.lock();
-}
-
 SE::ResourceHandler::ResourceHandler::ResourceHandler() : diskLoader(nullptr), stop(false)
 {
 	
@@ -26,18 +21,6 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 	StartProfile;
 	this->initInfo = initInfo;
 
-	//guidToResourceInfo.
-
-	/*switch (initInfo.RAM_UnloadingStrategy)
-	{
-	case EvictPolicy::Linear:
-		Unload = &ResourceHandler::LinearUnload;
-		break;
-	default:
-		Unload = &ResourceHandler::LinearUnload;
-		break;
-	}
-*/
 	diskLoader = new RawLoader;
 	auto res = diskLoader->Initialize();
 	if (res < 0)
@@ -171,7 +154,11 @@ static const auto invoke = [](auto& map, auto& guid, auto data, auto& callback, 
 		errors.Push_Back("Resource failed in InvokeCallback, GUID: " + std::to_string(guid.id));
 		return -1;
 	}
-
+	if (iresult & SE::ResourceHandler::InvokeReturn::SEMI_FAIL)
+	{
+		errors.Push_Back("Resource semi-failed in InvokeCallback, GUID: " + std::to_string(guid.id));
+		return -2;
+	}
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_RAM)
 		SE::Utilz::OperateSingle(map, guid, decRef);
 	if (iresult & SE::ResourceHandler::InvokeReturn::DEC_VRAM)
@@ -193,6 +180,7 @@ int SE::ResourceHandler::ResourceHandler::LoadResource(const Utilz::GUID & guid,
 		Utilz::OperateSingle(map, guid, setupInfo, guid, load, error, errors, loadFlags);
 		if (error)
 			return -1;
+
 
 		if (load)
 		{
@@ -266,6 +254,40 @@ bool SE::ResourceHandler::ResourceHandler::IsResourceLoaded(const Utilz::GUID & 
 	return found;
 }
 
+bool SE::ResourceHandler::ResourceHandler::Exist(const Utilz::GUID guid)
+{
+	return diskLoader->Exist(guid, nullptr);
+}
+
+size_t SE::ResourceHandler::ResourceHandler::GetMemoryUsed(ResourceType type)
+{
+	if (type & ResourceType::RAM)
+	{
+		size_t ramTot = 0;
+		Utilz::Operate(guidToRAMEntry, [&ramTot](auto& map) {
+			for (auto& r : map)
+			{
+				if (r.second.state & State::LOADED)
+					ramTot += r.second.data.size;
+			}
+		});
+		return ramTot;
+	}
+	else if (type & ResourceType::VRAM)
+	{
+		size_t vramTot = 0;
+		Utilz::Operate(guidToVRAMEntry, [&vramTot](auto& map) {
+			for (auto& r : map)
+			{
+				if (r.second.state & State::LOADED)
+					vramTot += r.second.data.size;
+			}
+		});
+		return vramTot;
+	}
+	return 0;
+}
+
 static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& errors)
 {
 	if (r.state & SE::ResourceHandler::State::DEAD)
@@ -277,8 +299,73 @@ static const auto checkStillLoad = [](auto& r, auto& guid, bool& error, auto& er
 	if (!(r.state & SE::ResourceHandler::State::LOADING))
 		error = false;
 };
+static const auto linearEvict = [](auto& map, auto& out)
+{
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			out.push_back(resource.first);
+		}
+	}
+};
 
-int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, const EvictInfo& evictInfo, LoadJob job)
+template<class COMP, class KEY, class VAL>
+void insert(std::vector<KEY> &sortArray, KEY key, std::vector<VAL> &valueArray, VAL value) {
+	std::vector<KEY>::iterator it = std::lower_bound(sortArray.begin(), sortArray.end(), key, COMP()); // find proper position in descending order
+	it = sortArray.insert(it, key); // insert before iterator it
+	auto pos = it - sortArray.begin();
+	valueArray.insert(valueArray.begin() + pos, value); // insert before iterator it
+}
+
+static const auto fifoEvict = [](auto& map, auto& out)
+{
+	std::vector<std::chrono::high_resolution_clock::time_point> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::less<std::chrono::high_resolution_clock::time_point>>(sortArr, resource.second.loadedAt, out, resource.first);
+		}
+	}
+};
+
+static const auto lifoEvict = [](auto& map, auto& out)
+{
+	std::vector<std::chrono::high_resolution_clock::time_point> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::greater<std::chrono::high_resolution_clock::time_point>>(sortArr, resource.second.loadedAt, out, resource.first);
+		}
+	}
+};
+
+static const auto randomEvict = [](auto& map, auto& out)
+{
+	linearEvict(map, out);
+	std::random_shuffle(out.begin(), out.end());
+};
+
+static const auto lufoEvict = [](auto& map, auto& out)
+{
+	std::vector<size_t> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::less<size_t>>(sortArr, resource.second.timesLoaded, out, resource.first);
+		}
+	}
+};
+static const auto mufoEvict = [](auto& map, auto& out)
+{
+	std::vector<size_t> sortArr;
+	for (auto& resource : map) {
+		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) && resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
+		{
+			insert<std::greater<size_t>>(sortArr, resource.second.timesLoaded, out, resource.first);
+		}
+	}
+};
+int SE::ResourceHandler::ResourceHandler::Load(entryMap& map, const EvictInfo& evictInfo, LoadJob job)
 {
 
 	// Do some checks
@@ -307,8 +394,25 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	auto total = mem + rawData.size;
 	if (total >= limit)
 	{
+		errors.Push_Back("Unloading stuff. Limit: " + std::to_string(toMB(limit)) + "mb, Current: " + std::to_string(toMB(total))+ "mb");
 		auto needed = total - limit;
-		EvictResources(map, rawData.size, needed);
+
+		std::vector<Utilz::GUID> order;
+		if(evictInfo.nloadingStrategy == EvictPolicy::LINEAR)
+			Utilz::Operate(map, linearEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::FIFO)
+			Utilz::Operate(map, fifoEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::LIFO)
+			Utilz::Operate(map, lifoEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::RANDOM)
+			Utilz::Operate(map, randomEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::LEST_USED)
+			Utilz::Operate(map, lufoEvict, order);
+		else if (evictInfo.nloadingStrategy == EvictPolicy::MOST_USED)
+			Utilz::Operate(map, mufoEvict, order);
+
+		EvictResources(map, order, needed);
+		errors.Push_Back("Current after: " + std::to_string(toMB(evictInfo.getCurrentMemoryUsage())));
 	}
 
 	auto result = diskLoader->LoadResource(job.guid, &rawData.data);
@@ -343,6 +447,7 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 
 				error = true;
 			}
+			
 		});
 		if (error)
 		{
@@ -354,10 +459,13 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 	{
 		data = rawData;
 	}
+	
 	}
 	{
 		Utilz::OperateSingle(map, job.guid, [&job, data](auto& resource)
 		{
+			resource.loadedAt = std::chrono::high_resolution_clock::now();
+			resource.timesLoaded++;
 			resource.state = resource.state ^ State::LOADING | State::LOADED;
 			if (!job.callbacks.destroyCallback)
 				resource.state |= State::RAW;
@@ -378,26 +486,22 @@ int SE::ResourceHandler::ResourceHandler::Load(Utilz::Concurrent_Unordered_Map<U
 		return -1;
 	}
 
+#include <Utilz\Memory.h>
+	errors.Push_Back("RH IN MEM: RAM: " + std::to_string(toMB(GetMemoryUsed(ResourceType::RAM))) + "mb VRAM: " + std::to_string(toMB(GetMemoryUsed(ResourceType::VRAM))) + "mb");
+
 	return 0;
 }
-static const auto linearEvict = [](auto& map, auto& out)
-{
-	for (auto& resource : map) {
-		if (!(resource.second.state & SE::ResourceHandler::State::IMMUTABLE) &&  resource.second.state & SE::ResourceHandler::State::DEAD && resource.second.state & SE::ResourceHandler::State::LOADED && resource.second.ref == 0)
-		{
-			out.push_back(resource.first);
-		}
-	}
-};
 
-static const auto evictResources = [](auto& map, auto& order, size_t needed)
+
+
+static const auto evictResources = [](auto& map, auto& order, size_t needed, size_t& total, size_t& count)
 {
-	size_t total = 0;
 	for (auto& r : order)
 	{
 		auto& re = map[r];
 		if (!(re.state & SE::ResourceHandler::State::IMMUTABLE) && re.state & SE::ResourceHandler::State::DEAD && re.state & SE::ResourceHandler::State::LOADED && re.ref == 0)
 		{
+			count++;
 			total += re.data.size;
 			re.state = re.state ^ SE::ResourceHandler::State::LOADED;
 			if (re.state & SE::ResourceHandler::State::RAW)
@@ -409,21 +513,23 @@ static const auto evictResources = [](auto& map, auto& order, size_t needed)
 			else	
 				re.destroyCallback(r, re.data.data, re.data.size);
 			
+			if (total >= needed)
+				break;
 		}
 	}
+
 };
 
-void SE::ResourceHandler::ResourceHandler::EvictResources(Utilz::Concurrent_Unordered_Map<Utilz::GUID, Resource_Entry, Utilz::GUID::Hasher>& map, size_t sizeToAdd, size_t needed)
+void SE::ResourceHandler::ResourceHandler::EvictResources(entryMap& map,
+	const std::vector<Utilz::GUID>& order, size_t needed)
 {
-	int i = 0;
-	std::vector<Utilz::GUID> order;
-	Utilz::Operate(map, linearEvict, order);
-
-	if(order.size())
-		Utilz::Operate(map, evictResources, order, needed);
-
-
-
+	if (order.size())
+	{
+		size_t count = 0;
+		size_t total = 0;
+		Utilz::Operate(map, evictResources, order, needed, total, count);
+		errors.Push_Back("Unloaded " + std::to_string(count) + " resources, " + std::to_string(toMB( total)) + "mb");
+	}
 }
 //
 //void SE::ResourceHandler::ResourceHandler::LinearUnload(size_t addedSize)

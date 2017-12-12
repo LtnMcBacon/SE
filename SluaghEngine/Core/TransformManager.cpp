@@ -371,7 +371,61 @@ uint32_t SE::Core::TransformManager::ActiveTransforms() const
 	return data.used;
 }
 
+void SE::Core::TransformManager::UnbindChild(const Entity & child)
+{
+	_ASSERT(child.Index() < lookUpTableSize);
 
+	// The entity index of what we want to remove
+	const int32_t toRemove = lookUpTable[child.Index()];
+
+	_ASSERT(toRemove >= 0);
+
+	// Parent index to the entity we want to remove
+	const int32_t parent = data.parentIndex[toRemove];
+
+	// If there is no parent, just return
+	if (parent == -1) {
+
+		return;
+	}
+
+	// Get the first child of the parent
+	const int32_t firstChild = data.childIndex[parent];
+
+	// If the first child is the same to be removed, the new first child for this parent is the child's sibling
+	if (firstChild == toRemove)
+	{
+		// Get the sibling of the first child
+		int32_t firstChildSibling = data.siblingIndex[firstChild];
+
+		// The new first child of the parent will now be the sibling of the previous first child
+		data.childIndex[parent] = firstChildSibling;
+	}
+
+	// If this is not the first child, we must go through each child before it
+	else{
+
+	// Get the first child of the parent of the entity to remove
+	int32_t sibling = data.childIndex[parent];
+	
+	// Continously look at each sibling's sibling if it is the entity we want to remove.
+	// If it isn't, we must update which sibling we're currently looking from
+	while (data.siblingIndex[sibling] != toRemove) {
+		
+		// Will yield the next sibling in the linked list
+		sibling = data.siblingIndex[sibling];
+
+	}
+
+	// The sibling index of the child will now become the sibling of the entity to remove
+	data.siblingIndex[sibling] = data.siblingIndex[toRemove];
+
+	}
+
+	// The parent index of the entity to remove and the sibling index must be set to -1
+	data.parentIndex[toRemove] = -1;
+	data.siblingIndex[toRemove] = -1;
+}
 
 void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 {
@@ -403,12 +457,13 @@ void SE::Core::TransformManager::Frame(Utilz::TimeCluster* timer)
 	job2.get();
 	job3.get();*/
 	
-
 	for (int i = 0; i < data.used; ++i)
 	{
 		if (data.flags[i] & TransformFlags::DIRTY)
 		{
-			SetDirty(data.entities[i], i);
+			if (initInfo.entityManager->Alive(data.entities[i]))
+				SetDirty(data.entities[i], i);
+
 			data.flags[i] &= ~TransformFlags::DIRTY;
 		}
 	}

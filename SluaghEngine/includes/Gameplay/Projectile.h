@@ -184,6 +184,7 @@ namespace SE
 			bool active = true;
 
 			uint64_t generation;
+			std::weak_ptr<GameUnit*> projectileOwner;
 
 			ValidTarget target; // what type of unit the enemy can hit
 
@@ -230,6 +231,11 @@ namespace SE
 				targetsHit.clear();
 			};
 
+			inline std::vector<GameUnit*> GetUnitsHit()
+			{
+				return targetsHit;
+			}
+
 			inline void SetRotation(float projectileRotation)
 			{
 				rotation = projectileRotation;
@@ -273,6 +279,16 @@ namespace SE
 			inline void SetLifeTime(float value)
 			{
 				lifeTime = value;
+			}
+
+			inline void SetExtentX(float value)
+			{
+				extentX = value;
+			}
+
+			inline void SetExtentY(float value)
+			{
+				extentY = value;
 			}
 
 			inline DamageEvent GetDamageEvent()
@@ -333,6 +349,11 @@ namespace SE
 			inline ValidTarget GetValidTarget()
 			{
 				return target;
+			}
+
+			inline std::weak_ptr<GameUnit*> GetOwnerPtr()
+			{
+				return projectileOwner;
 			}
 
 		};

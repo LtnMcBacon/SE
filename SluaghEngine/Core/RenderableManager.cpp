@@ -27,7 +27,7 @@ SE::Core::RenderableManager::RenderableManager(const InitializationInfo& initInf
 	shadowInstancing = new RenderableManagerInstancing(initInfo.renderer);
 
 	Init();
-
+	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
 
 	Allocate(128);
 
@@ -159,6 +159,10 @@ void SE::Core::RenderableManager::ToggleRenderableObject(const Entity & entity, 
 		else
 		{
 			rmInstancing->RemoveEntity(entity);
+			if(shadowInstancing)
+			{
+				shadowInstancing->RemoveEntity(entity);
+			}
 		}
 
 	}
@@ -421,6 +425,8 @@ void SE::Core::RenderableManager::Destroy(size_t index)
 
 	if (renderableObjectInfo.visible[index])
 		rmInstancing->RemoveEntity(entity);
+	if (renderableObjectInfo.shadow[index] && shadowInstancing)
+		shadowInstancing->RemoveEntity(entity);
 
 	initInfo.resourceHandler->UnloadResource(renderableObjectInfo.mesh[index].mesh, ResourceHandler::ResourceType::VRAM);
 
@@ -450,7 +456,7 @@ void SE::Core::RenderableManager::Init()
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.console);
 
-	initInfo.eventManager->RegisterToUpdateRenderableObject({ this, &RenderableManager::UpdateRenderableObject });
+	
 	initInfo.eventManager->RegisterToToggleVisible({ this, &RenderableManager::ToggleRenderableObject });
 	initInfo.eventManager->RegisterToToggleShadow({ this, &RenderableManager::ToggleShadow });
 

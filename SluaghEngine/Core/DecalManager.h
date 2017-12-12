@@ -38,6 +38,11 @@ namespace SE
 			*/
 			int Remove(const Entity& entity) override;
 
+			/*
+			* @brief See IDecalManager
+			*/
+			void ToggleVisible(const Entity& entity, bool visible)override;
+
 			void Destroy(const Entity& entity) override;
 
 		private:
@@ -54,13 +59,20 @@ namespace SE
 			Utilz::GUID rasterizerState;
 			/**<The base pipeline, entities will have different textures but the rest is the same*/
 			Graphics::Pipeline defaultPipeline;
+			struct DecalInfo
+			{
+				float opacity;
+				float ambiance;
+				float padding1;
+				float padding2;
+			};
 			struct DecalTransforms
 			{
 				std::vector<DirectX::XMFLOAT4X4> localTransform;
 				std::vector<DirectX::XMFLOAT4X4> world;
 				std::vector<DirectX::XMFLOAT4X4> inverseWorld;
 				std::vector<Entity> owners;
-				std::vector<float> opacity;
+				std::vector<DecalInfo> decalInfos;
 			};
 			DirectX::XMMATRIX cachedViewProj;
 			std::unordered_map<Entity, Utilz::GUID, EntityHasher> entityToTextureGuid;

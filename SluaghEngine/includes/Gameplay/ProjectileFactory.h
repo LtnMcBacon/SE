@@ -54,7 +54,9 @@ namespace SE
 				bool boundToOwner;
 				Utilz::GUID meshName;
 				float meshScale;
-				std::string particleEffect;
+				Utilz::GUID particleEffect;
+				Utilz::GUID materialName;
+				Utilz::GUID soundName;
 				int nrOfBehaviours;
 				std::vector<std::string> behaviours;
 			};
@@ -253,6 +255,125 @@ namespace SE
 			*/
 			std::function<bool(Projectile* projectile, float dt)> SetActualDamageBehaviour(std::vector<BehaviourParameter> parameters); // f
 
+			/**
+			 * @brief	Adds a behaviour to create particles between the projectile and the owner
+			 */
+			std::function<bool(Projectile* projectile, float dt)> CreateParticlesBetweenProjectileAndOwnerBehaviour(std::vector<BehaviourParameter> parameters); // o
+
+			/**
+			* @brief	Adds a behaviour to knockback hit enemies
+			* */
+			std::function<bool(Projectile* projectile, float dt)> KnockbackBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a condition based on the distance between the projectile and its owner
+			* */
+			std::function<bool(Projectile* projectile, float dt)> RangeToOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters); // o, f
+
+			/**
+			* @brief	Adds a condition based on if the owner is alive or not
+			**/
+			std::function<bool(Projectile* projectile, float dt)> OwnerIsAliveConditionBehaviour(std::vector<BehaviourParameter> parameters); // o
+
+			/**
+			* @brief	Adds a behaviour to set the original amount of damage in a projectile
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOriginalDamageBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to set the original amount of healing a projectile does
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOriginalHealingBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to set what type of unit a projectile can hit (p = player, e = enemy, anything else will be set to everyone)
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetValidTargetBehaviour(std::vector<BehaviourParameter> parameters); // s
+
+			/**
+			* @brief	Adds a decal to the projectile
+			**/
+			std::function<bool(Projectile* projectile, float dt)> CreateDecalBehaviour(std::vector<BehaviourParameter> parameters); // s, f, p
+
+			/**
+			* @brief	Adds a behaviour to set the opacity of the decal
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to change the opacity of the decal per second
+			**/
+			std::function<bool(Projectile* projectile, float dt)> ModifyDecalOpacityBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerStaticBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount per second if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerDynamicBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount of their max health if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerPercentageStaticBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to heal the projectile's owner a set amount of their max health per second if possible
+			**/
+			std::function<bool(Projectile* projectile, float dt)> HealOwnerPercentageDynamicBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to set the owner's health (can set it to above max health)
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOwnerHealthStaticBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to set the owner's health (can set it to above max health) to a percentage of their maxhealth
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetOwnerHealthPercentBehaviour(std::vector<BehaviourParameter> parameters); // f, o
+
+			/**
+			* @brief	Adds a behaviour to set the projectiles position to the same as the mouse
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetPositionToMouseBehaviour(std::vector<BehaviourParameter> parameters); // 
+
+			/**
+			* @brief	Adds a condition based on if the projectiles LifeTime is larger than the minimum
+			**/
+			std::function<bool(Projectile* projectile, float dt)> MinimumLifeTimeConditionBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to set the projectiles collision height
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetHeightBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to set the projectiles collision width
+			**/
+			std::function<bool(Projectile* projectile, float dt)> SetWidthBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a behaviour to target the owner of the projectile
+			**/
+			std::function<bool(Projectile* projectile, float dt)> TargetOwnerBehaviour(std::vector<BehaviourParameter> parameters); // f
+
+			/**
+			* @brief	Adds a condition to check if the projectile has collided with the owner
+			**/
+			std::function<bool(Projectile* projectile, float dt)> CollidedWithOwnerConditionBehaviour(std::vector<BehaviourParameter> parameters); //
+
+			/**
+			* @brief	Adds a behaviour to lock the position to the same as the owners
+			**/
+			std::function<bool(Projectile* projectile, float dt)> LockToOwnerBehaviour(std::vector<BehaviourParameter> parameters); //
+
+			/**
+			* @brief	Adds a behaviour to increase the extents of a projectile with a set amount per second
+			**/
+			std::function<bool(Projectile* projectile, float dt)> IncreaseExtentsDynamicallyBehaviour(std::vector<BehaviourParameter> parameters); // f
 
 		public:
 

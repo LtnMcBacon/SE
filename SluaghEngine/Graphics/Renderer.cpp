@@ -64,6 +64,43 @@ int SE::Graphics::Renderer::Initialize(const InitializationInfo& initInfo)
 
 	//animationSystem = new AnimationSystem();
 
+#pragma region SpriteShader
+std::string shader = "Texture2D<float4> Texture : register(t0); \
+sampler TextureSampler : register(s0); \
+\
+struct PS_IN \
+{\
+	float4 color : COLOR0;\
+	float2 Tex : TEXCOORD0;\
+};\
+\
+float4 PS_main(PS_IN input) : SV_TARGET\
+{\
+	return float4(Texture.Sample(TextureSampler, input.Tex)) * input.color;\
+}";
+
+ID3DBlob *blob = nullptr;
+
+hr = D3DCompile(shader.c_str(), shader.size(), NULL, nullptr, nullptr, "PS_main", "ps_5_0", NULL, NULL, &blob, nullptr);
+if (FAILED(hr))
+{
+	if (blob != nullptr)
+		blob->Release();
+	throw std::exception("CRITICAL ERROR: Failed to compile sprite shader");
+	return hr;
+}
+
+hr = device->GetDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &SpriteShader);
+if (FAILED(hr))
+{
+	if (blob != nullptr)
+		blob->Release();
+	throw std::exception("CRITICAL ERROR: Failed to create sprite shader");
+	return hr;
+}
+blob->Release();
+#pragma endregion SpriteShader
+
 	
 
 	graphicResourceHandler->CreateSamplerState();
@@ -82,6 +119,9 @@ void SE::Graphics::Renderer::Shutdown()
 	fonts.clear();
 	delete pipelineHandler;
 	graphicResourceHandler->Shutdown();
+
+	if (SpriteShader != nullptr)
+		SpriteShader->Release();
 	
 
 	delete gpuTimer;
@@ -259,10 +299,48 @@ int SE::Graphics::Renderer::Render()
 	/******************General Jobs*********************/
 	cpuTimer.Start(("RenderJob-CPU"));
 	gpuTimer->Start(("RenderJob-GPU"));
-	
-	
+	Utilz::ConstexprStringAndHash passHashes[] = { "GPU_PrePass_0",
+		"GPU_PrePass_1",
+		"GPU_PrePass_2", 
+		"GPU_PrePass_3", 
+		"GPU_PrePass_4",
+		"GPU_PrePass_5",
+		"GPU_RenderPass_0",
+		"GPU_RenderPass_1",
+		"GPU_RenderPass_2",
+		"GPU_RenderPass_3",
+		"GPU_RenderPass_4",
+		"GPU_RenderPass_5",
+		"GPU_PostPass_0",
+		"GPU_PostPass_1",
+		"GPU_PostPass_2",
+		"GPU_PostPass_3",
+		"GPU_PostPass_4",
+		"GPU_PostPass_5"
+	};
+	Utilz::ConstexprStringAndHash passHashes2[] = { "CPU_PrePass_0",
+		"CPU_PrePass_1",
+		"CPU_PrePass_2",
+		"CPU_PrePass_3",
+		"CPU_PrePass_4",
+		"CPU_PrePass_5",
+		"CPU_RenderPass_0",
+		"CPU_RenderPass_1",
+		"CPU_RenderPass_2",
+		"CPU_RenderPass_3",
+		"CPU_RenderPass_4",
+		"CPU_RenderPass_5",
+		"CPU_PostPass_0",
+		"CPU_PostPass_1",
+		"CPU_PostPass_2",
+		"CPU_PostPass_3",
+		"CPU_PostPass_4",
+		"CPU_PostPass_5"
+	};
 	for (auto& group : jobGroups)
 	{
+		gpuTimer->Start(passHashes[uint32_t(group.first)]);
+		cpuTimer.Start(passHashes2[uint32_t(group.first)]);
 		bool first = true;
 		for (auto& j : group.second)
 		{
@@ -333,7 +411,8 @@ int SE::Graphics::Renderer::Render()
 		device->GetDeviceContext()->CSSetUnorderedAccessViews(0, 8, nullUAVS, nullptr);
 		device->GetDeviceContext()->PSSetShaderResources(0, 8, nullSRVS);
 		device->GetDeviceContext()->CSSetShaderResources(0, 8, nullSRVS);
-
+		gpuTimer->Stop(passHashes[uint32_t(group.first)]);
+		cpuTimer.Stop(passHashes2[uint32_t(group.first)]);
 	}
 
 	device->GetDeviceContext()->GSSetShader(nullptr, nullptr, 0);
@@ -357,7 +436,10 @@ int SE::Graphics::Renderer::Render()
 		long height = gBB_Desc.Height;
 		long width = gBB_Desc.Width;
 
-		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState());
+		spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState(), nullptr, nullptr, nullptr, [=] {
+			device->GetDeviceContext()->PSSetShader(SpriteShader, nullptr, 0);
+		});
+		//spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, device->GetBlendState(), nullptr, nullptr, nullptr, nullptr);
 		for (auto& job : renderTextureJobs)
 		{
 
@@ -378,7 +460,10 @@ int SE::Graphics::Renderer::Render()
 				rect.bottom = (rect.bottom / (float)job.originalScreenHeight)*height;
 				//origin = { job.info.anchor.x*(job.info.width / (float)job.originalScreenWidth)* width, job.info.anchor.y*(job.info.height / (float)job.originalScreenHeight)*height };
 			}
-
+			else
+			{
+				int i = 0;
+			}
 			rect.left += width * job.info.screenAnchor.x;
 			rect.top += height * job.info.screenAnchor.y;
 			rect.right += width * job.info.screenAnchor.x;

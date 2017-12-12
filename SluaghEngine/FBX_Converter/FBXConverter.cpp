@@ -16,6 +16,7 @@ SE::FBX::FBXConverter::FBXConverter() {
 	pFbxScene = nullptr;
 	pImporter = nullptr;
 	pFbxRootNode = nullptr;
+
 }
 
 SE::FBX::FBXConverter::~FBXConverter() {
@@ -114,6 +115,10 @@ bool SE::FBX::FBXConverter::LoadFBXFormat(string mainFileName, string exportFold
 		return false;
 	}
 
+	// Set the coordinate system and convert the FbxScene
+	/*FbxAxisSystem directXAxisSys = FbxAxisSystem::eDirectX;
+	directXAxisSys.ConvertScene(pFbxScene);*/
+	
 	cout << "\n#----------------------------------------------------------------------------\n"
 		"# STEP 1: LOAD MESHES\n"
 		"#----------------------------------------------------------------------------\n" << endl;
@@ -664,7 +669,7 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 			int iNumVertices = pMesh.meshNode->GetPolygonSize(j);	// Retreive the size of every polygon which should be represented as a triangle
 			assert(iNumVertices == 3);	// Reassure that every polygon is a triangle and if not, don't allow the user to pass this point
 
-			for (int k = 0; k < iNumVertices; k++) {	// Process every vertex in the triangle
+			for (int k = iNumVertices - 1; k >= 0; k--) {	// Process every vertex in the triangle
 
 				int iControlPointIndex = pMesh.meshNode->GetPolygonVertex(j, k);	// Retrieve the vertex index to know which control point in the vector to use
 				ControlPoint* currentControlPoint = pMesh.controlPoints[iControlPointIndex];
@@ -673,6 +678,9 @@ void SE::FBX::FBXConverter::CreateVertexDataBone(Mesh &pMesh, FbxNode* pFbxRootN
 				vertex.pos = currentControlPoint->Position;	// Initialize the vertex position from the corresponding control point in the vector
 				vertex.uv = CreateUVCoords(pMesh.meshNode, j, k);
 				vertex.normal = CreateNormals(pMesh.meshNode, j, k);
+
+				vertex.pos.z *= -1.0f;
+				vertex.normal.z *= -1.0f;
 
 				// Retreive Blending Weight info for each vertex in the mesh
 				// Every vertex must have three weights and four influencing bone indices
@@ -1004,8 +1012,7 @@ void SE::FBX::FBXConverter::CreateBindPoseAutomatic(Mesh &pMesh) {
 		currentCluster->GetTransformLinkMatrix(transformLinkMatrix); // The transformation of the cluster(joint) at binding time from joint space to world space
 
 		// The inverse bind pose is calculated by taking the inverse of the joint GLOBAL transformation matrix
-		b.GlobalBindposeInverse = transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform);
-
+		b.GlobalBindposeInverse = (transformLinkMatrix.Inverse() * (transformMatrix * geometryTransform));
 	//	Print4x4Matrix(b.GlobalBindposeInverse);
 
 	}
@@ -1266,57 +1273,6 @@ void SE::FBX::FBXConverter::BuildGlobalKeyframes(Mesh &pMesh) {
 			}
 		}
 	}
-
-	//unsigned int clusterCount = pMesh.skinNode->GetClusterCount();
-
-	//// Loop through each joint
-	//for (unsigned int clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++)
-	//{
-	//	FbxCluster* currentCluster = pMesh.skinNode->GetCluster(clusterIndex);
-	//	string currentJointName = currentCluster->GetLink()->GetName();
-	//	unsigned int currentJointIndex = FindJointIndexByName(currentJointName, pMesh.skeleton);
-
-	//	// If this is the root joint, we don't need to process it. It has already been given its global transformation from its local transformation
-	//	if (currentJointIndex > 0) {
-
-	//		// Get the child and parent joint references
-	//		Joint &childBone = pMesh.skeleton.hierarchy[currentJointIndex];
-	//		Joint &parentBone = pMesh.skeleton.hierarchy[childBone.ParentIndex];
-
-	//		// Get number of animations
-	//		int animCount = childBone.Animations.size();
-
-	//		// Loop through each animation on the joint
-	//		for (int animIndex = 0; animIndex < animCount; animIndex++) {
-
-	//			// Get child and parent joint animation references
-	//			Animation &childAnimation = childBone.Animations[animIndex];
-	//			Animation &parentAnimation = parentBone.Animations[animIndex];
-	//			
-	//			// Get length of animation
-	//			int keyframeCount = childBone.Animations[animIndex].Length;
-
-	//			logFile << "-------------------------------------------------------\n"
-	//				<< "Joint: " << currentJointName << "\nNumber of animations: " << animCount 
-	//				<< "\nAnimation: " << childAnimation.Name << "\nIndex: " << animIndex << "\nLength: " << keyframeCount <<
-	//				"\n-------------------------------------------------------\n";
-
-	//			for (int timeIndex = 0; timeIndex < keyframeCount; timeIndex++) {
-
-	//				// Store child and parent local transformations at the given time
-	//				FbxAMatrix childTransform = childAnimation.Keyframes[timeIndex].LocalTransform;
-	//				FbxAMatrix parentTransform = parentAnimation.Keyframes[timeIndex].GlobalTransform;
-
-	//				// Multiply the joint parent transform and the child transform
-	//				childAnimation.Keyframes[timeIndex].GlobalTransform = (parentTransform * childTransform);
-
-	//				logFile << "Time: " << timeIndex + 1 << endl;
-	//			//	Print4x4Matrix(childAnimation.Keyframes[timeIndex].GlobalTransform);
-	//			}
-	//		}
-	//	}
-
-	//}
 
 	logFile.close();
 }
@@ -1722,8 +1678,9 @@ void SE::FBX::FBXConverter::WriteAnimation(std::string folderName, vector<Animat
 
 				for (auto& keyframe : anim.joints[jointIndex].keyframes) {
 
-					// Transpose the matrix from column major to row major
-					animationTransformations.push_back(Load4X4Transformations(keyframe.GlobalTransform));
+					XMFLOAT4X4 matrix;
+					XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&Load4X4Transformations(keyframe.GlobalTransform)) * XMMatrixRotationY(160.3));
+					animationTransformations.push_back(matrix);
 				}
 			}
 		}
@@ -1837,18 +1794,21 @@ unsigned int SE::FBX::FBXConverter::FindJointIndexByName(string& jointName, Skel
 
 void SE::FBX::FBXConverter::ConvertToLeftHanded(FbxAMatrix &matrix) {
 
-	// Get the translation and rotation from the matrix to be processed
+	// Invert translation
 	FbxVector4 translation = matrix.GetT();
-	FbxQuaternion rotation = matrix.GetQ();
+	translation.Set(translation.mData[0], translation.mData[1], -translation.mData[2], 1.0f);
 
-	// To convert to DirectX left handed coordinate system, we negate the z-translation and xy rotation in the matrix
-
-	translation.Set(translation.mData[0], translation.mData[1], -translation.mData[2]);
-	rotation.Set(-rotation.mData[0], -rotation.mData[1], rotation.mData[2]);
-
-	// Update the matrix with the converted translation and rotation
+	// Set converted translation
 	matrix.SetT(translation);
-	matrix.SetQ(rotation);
+
+	// Create inversion matrix
+	FbxAMatrix Mo = matrix;
+	FbxAMatrix Mi;
+	Mi.SetIdentity();
+
+	// Set converted rotation
+	matrix = Mi * Mo * Mi;
+
 }
 
 FbxMesh* SE::FBX::FBXConverter::GetMeshFromRoot(FbxNode* node, string meshName) {	// Function to receive a mesh from the root node

@@ -12,6 +12,7 @@
 #include "EnemyFactory.h"
 #include <Gameplay\HUD_Parsing.h>
 #include <Gameplay\HUD_Functionality.h>
+#include <optional>
 
 namespace SE 
 {
@@ -48,8 +49,32 @@ namespace SE
 			*/
 			State Update(void*& passableInfo);
 
+			void ToggleFlowField(bool showFlowField);
+
 			
 		private:
+
+			struct SkillIndicator
+			{
+				Core::Entity frame;
+				Core::Entity Image;
+				float currentCooldown = 0;
+				float maxCooldown;
+			}skillIndicators[2];
+
+			struct MiniMap {
+
+				Core::Entity map;
+				Core::Entity frame;
+			};
+
+			struct RoomContainer {
+
+				Room* room = nullptr;
+				Core::Entity symbol;
+				bool visited = false;
+			};
+
 			void InitializeRooms();
 			void InitializeFogDependencies();
 			void InitializeEnemies();
@@ -57,21 +82,64 @@ namespace SE
 			void InitializeOther();
 			void InitWeaponPickups();
 
+			void CreateFlowFieldRendering();
+			void DestroyFlowFieldRendering();
+			void UpdateFlowFieldRendering();
+
+			void CreateMiniMap();
+
 			void UpdateInput(PlayerUnit::MovementInput &movement, PlayerUnit::ActionInput &action);
 			void UpdateProjectiles(std::vector<ProjectileData>& newProjectiles);
 			void CheckForRoomTransition();
 			void UpdateHUD(float dt);
 
-			HUDParser playStateGUI;
+			std::wstring GenerateDeathMessage();
+			void InitializeDeathSequence();
+			void UpdateDeathCamera(float dt, float rotValue, float zoomValue, float zoomLimit);
 
+			HUDParser playStateGUI;
+			std::string OptionalButtons[2]
+			{
+				"EnemyHp.HuD",
+				"EnemyHpFrame.HuD"
+			};
 			int healthBarPos;
 			Core::Entity cam;
 			Core::Entity dummy;
+			Core::Entity usePrompt;
+			Core::Entity returnPrompt;
+			Core::Entity aimDecal;
+			uint32_t dummyBoxJobID;
 			PlayerUnit* player;
-			std::vector<Room*> rooms;
-			Room* currentRoom = nullptr;
-			int currentRoomIndex = -1;
-			static const int enemiesInEachRoom = 0; // !TEMP
+
+			uint8_t worldWidth;
+			uint8_t worldHeight;
+
+			void UpdateAimDecal();
+
+			inline std::optional<std::reference_wrapper<RoomContainer>> GetRoom(int x, int y)
+			{
+				if (x < worldWidth && x >= 0 && y < worldHeight && y >= 0  && rooms[x* worldHeight + y].room)
+					return rooms[x* worldHeight + y];
+				else
+					return std::nullopt;
+			}
+
+
+			void LoadAdjacentRooms(int x, int y, int sx, int sy);
+			void UnloadAdjacentRooms(int x, int y, int sx, int sy);
+			void CloseDoorsToRoom(int x, int y);
+			void OpenDoorsToRoom(int x, int y);
+
+			RoomContainer* rooms;
+			Room* currentRoom; 
+			int currentRoomX = 0;
+			int currentRoomY = 0;
+			int sluaghRoomX = 0;
+			int sluaghRoomY = 0;
+			bool sluaghDoorsOpen = false;
+			int enemiesInEachRoom = 2;
+			int numberOfFreeFrames = 15;
 			Gameplay::GameBlackboard blackBoard;
 			Gameplay::EnemyFactory eFactory;
 
@@ -83,7 +151,15 @@ namespace SE
 			float soundTime = 0.0f;
 			SE::Utilz::GUID sounds[3];
 
+			MiniMap miniMap;
 			bool noShow = false;
+			bool deathSequence = false;
+			float deathTimer = 0.0f;
+			Core::Entity deathText;
+			Core::Entity cameraDummy;
+			bool showFlowField = false;
+			std::vector<SE::Core::Entity> flowFieldEntities;
+
 
 		protected:
 

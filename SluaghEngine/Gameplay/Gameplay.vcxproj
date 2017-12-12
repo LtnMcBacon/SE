@@ -19,17 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Gameplay\Perk.cpp" />
     <ClCompile Include="AddTimeToAttackCooldownLeaf.cpp" />
+    <ClCompile Include="AddTimeToSecondaryAttackCooldownLeaf.cpp" />
     <ClCompile Include="AnimationLeaf.cpp" />
     <ClCompile Include="AnimationRunningCondition.cpp" />
     <ClCompile Include="AttackCooldownZeroCondition.cpp" />
     <ClCompile Include="BehaviouralTree.cpp" />
     <ClCompile Include="BehaviouralTreeFactory.cpp" />
     <ClCompile Include="BodachMeleeAttackLeaf.cpp" />
+    <ClCompile Include="CalculateTimeToRoomTransistionLeaf.cpp" />
     <ClCompile Include="ChangeRoomLeaf.cpp" />
     <ClCompile Include="ChannelingCondition.cpp" />
     <ClCompile Include="CharacterCreationState.cpp" />
+    <ClCompile Include="Consumable.cpp" />
     <ClCompile Include="CoreInit.cpp" />
+    <ClCompile Include="CountdownRoomTransistionLeaf.cpp" />
     <ClCompile Include="CurrentAnimationAllowsBlendingCondition.cpp" />
     <ClCompile Include="DistanceToDoorCondition.cpp" />
     <ClCompile Include="EnemyFactory.cpp" />
@@ -60,13 +65,16 @@
     <ClCompile Include="MoveTowardsPlayerLeaf.cpp" />
     <ClCompile Include="NuckelaveeNormalAttackLeaf.cpp" />
     <ClCompile Include="ObstacleOnPositionCondition.cpp" />
+    <ClCompile Include="OptionState.cpp" />
     <ClCompile Include="PauseAnimationsLeaf.cpp" />
-    <ClCompile Include="PausState.cpp" />
+    <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="PechMeleeAttackLeaf.cpp" />
     <ClCompile Include="PechRangedAttackLeaf.cpp" />
+    <ClCompile Include="PerkFactory.cpp" />
     <ClCompile Include="PerkImporter.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
+    <ClCompile Include="PoisonCloudLeaf.cpp" />
     <ClCompile Include="RandomSelector.cpp" />
     <ClCompile Include="RandomSequence.cpp" />
     <ClCompile Include="RangeToPlayerCondition.cpp" />
@@ -76,20 +84,34 @@
     <ClCompile Include="ProjectileFactory.cpp" />
     <ClCompile Include="ProjectileManger.cpp" />
     <ClCompile Include="ResetAttackCooldownLeaf.cpp" />
+    <ClCompile Include="ResetSecondaryAttackCooldownLeaf.cpp" />
+    <ClCompile Include="ResetTransistionTimerLeaf.cpp" />
     <ClCompile Include="RestartingSequence.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="RootedCondition.cpp" />
+    <ClCompile Include="SecondaryAttackCooldownZeroCondition.cpp" />
     <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="SlowedConditioncpp.cpp" />
+    <ClCompile Include="Sluagh.cpp" />
+    <ClCompile Include="SluaghRoom.cpp" />
     <ClCompile Include="StunnedCondition.cpp" />
     <ClCompile Include="SkillFactory.cpp" />
     <ClCompile Include="Succeeder.cpp" />
     <ClCompile Include="TickDownAttackCooldownLeaf.cpp" />
+    <ClCompile Include="TickDownSecondaryAttackCooldownLeaf.cpp" />
     <ClCompile Include="TimerCondition.cpp" />
     <ClCompile Include="Items.cpp" />
+    <ClCompile Include="TransistionCountdownDoneCondition.cpp" />
+    <ClCompile Include="TransistionToRoomLeaf.cpp" />
+    <ClCompile Include="TutorialState.cpp" />
+    <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WhileChannelingLeaf.cpp" />
+    <ClCompile Include="WinState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\Gameplay\AddTimeToAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\AddTimeToSecondaryAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\AnimationLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\AnimationRunningCondition.h" />
     <ClInclude Include="..\includes\Gameplay\AttackCooldownZeroCondition.h" />
@@ -97,9 +119,12 @@
     <ClInclude Include="..\includes\Gameplay\BehaviouralTreeFactory.h" />
     <ClInclude Include="..\includes\Gameplay\Behaviours.h" />
     <ClInclude Include="..\includes\Gameplay\BodachMeleeAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\CalculateTimeToRoomTransistionLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChangeRoomLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ChannelingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\CharacterCreationState.h" />
+    <ClInclude Include="..\includes\Gameplay\Consumable.h" />
+    <ClInclude Include="..\includes\Gameplay\CountdownRoomTransistionLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\CurrentAnimationAllowsBlendingCondition.h" />
     <ClInclude Include="..\includes\Gameplay\DistanceToDoorCondition.h" />
     <ClInclude Include="..\includes\Gameplay\EnemyBlackboard.h" />
@@ -131,10 +156,14 @@
     <ClInclude Include="..\includes\Gameplay\MoveTowardsPlayerLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\NuckelaveeNormalAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\ObstacleOnPositionCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\OptionState.h" />
     <ClInclude Include="..\includes\Gameplay\PauseAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechMeleeAttackLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\PechRangedAttackLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\Perk.h" />
+    <ClInclude Include="..\includes\Gameplay\perkConditionEnum.h" />
     <ClInclude Include="..\includes\Gameplay\PerkData.h" />
+    <ClInclude Include="..\includes\Gameplay\PerkFactory.h" />
     <ClInclude Include="..\includes\Gameplay\PerkImporter.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerPossibleActions.h" />
     <ClInclude Include="..\includes\Gameplay\PlayerUnit.h" />
@@ -142,6 +171,7 @@
     <ClInclude Include="..\includes\Gameplay\MainMenuState.h" />
     <ClInclude Include="..\includes\Gameplay\PauseState.h" />
     <ClInclude Include="..\includes\Gameplay\PlayState.h" />
+    <ClInclude Include="..\includes\Gameplay\PoisonCloudLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\Projectile.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileData.h" />
     <ClInclude Include="..\includes\Gameplay\RandomSelector.h" />
@@ -152,13 +182,19 @@
     <ClInclude Include="..\includes\Gameplay\ProjectileFactory.h" />
     <ClInclude Include="..\includes\Gameplay\ProjectileManager.h" />
     <ClInclude Include="..\includes\Gameplay\ResetAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ResetSecondaryAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\ResetTransistionTimerLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\RestartingSequence.h" />
     <ClInclude Include="..\includes\Gameplay\Room.h" />
+    <ClInclude Include="..\includes\Gameplay\RootedCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\SecondaryAttackCooldownZeroCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Selector.h" />
     <ClInclude Include="..\includes\Gameplay\Sequence.h" />
     <ClInclude Include="..\includes\Gameplay\Skill.h" />
     <ClInclude Include="..\includes\Gameplay\SkillFactory.h" />
-    <ClInclude Include="..\includes\Gameplay\Slaugh.h" />
+    <ClInclude Include="..\includes\Gameplay\SlowedCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\Sluagh.h" />
+    <ClInclude Include="..\includes\Gameplay\SluaghRoom.h" />
     <ClInclude Include="..\includes\Gameplay\Stats.h" />
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\StopChannelingLeaf.h" />
@@ -166,10 +202,15 @@
     <ClInclude Include="..\includes\Gameplay\Succeeder.h" />
     <ClInclude Include="..\includes\Gameplay\SucceederLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TickDownAttackCooldownLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TickDownSecondaryAttackCooldownLeaf.h" />
     <ClInclude Include="..\includes\Gameplay\TimerCondition.h" />
     <ClInclude Include="..\includes\Gameplay\Items.h" />
+    <ClInclude Include="..\includes\Gameplay\TransistionCountdownDoneCondition.h" />
+    <ClInclude Include="..\includes\Gameplay\TransistionToRoomLeaf.h" />
+    <ClInclude Include="..\includes\Gameplay\TutorialState.h" />
+    <ClInclude Include="..\includes\Gameplay\Weapon.h" />
     <ClInclude Include="..\includes\Gameplay\WhileChannelingLeaf.h" />
-    <ClInclude Include="Game.h" />
+    <ClInclude Include="..\includes\Gameplay\WinState.h" />
     <ClInclude Include="CoreInit.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -258,7 +299,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -267,7 +308,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -278,7 +319,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -293,7 +334,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);__PROFILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

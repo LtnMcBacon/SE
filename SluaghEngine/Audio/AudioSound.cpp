@@ -79,7 +79,7 @@ namespace SE {
 			return 0;
 		}
 
-		size_t AudioSound::LoadSound(AudioFile* sound)
+		int AudioSound::LoadSound(AudioFile* sound)
 		{
 			StartProfile;
 			SF_VIRTUAL_IO sfvirtual;
@@ -105,9 +105,34 @@ namespace SE {
 			tempAS->info = info;
 			tempAS->samples = sampleData;
 
-			soundSample.push_back(tempAS);
-			delete sound;
-			ProfileReturn(soundSample.size() - 1);
+			if (freeSample.size() == 0)
+			{
+				soundSample.push_back(tempAS);
+				delete sound;
+				ProfileReturn(soundSample.size() - 1);
+			}
+			else 
+			{
+				int temp = freeSample.top();
+				freeSample.pop();
+				soundSample[temp] = tempAS;			
+				delete sound;
+				ProfileReturn(temp);
+			}
+		}
+
+		int AudioSound::UnloadSound(int soundHandle)
+		{
+			StartProfile;
+			if (soundSample.size() > soundHandle)
+			{
+				delete soundSample[soundHandle]->samples;
+				delete soundSample[soundHandle];
+				soundSample[soundHandle] = nullptr;
+				freeSample.push(soundHandle);
+				ProfileReturn(0);
+			}
+			ProfileReturn(-1);
 		}
 
 		void * AudioSound::GetSample(int soundID, SoundIndexName soundType)
@@ -135,6 +160,28 @@ namespace SE {
 				outData->panData.hearingVec = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 				ProfileReturn((void*)outData);
 			}
+			else if (soundType == VoiceSound)
+			{
+				AudioOut *outData = new AudioOut();
+				outData->sample = soundSample[soundID];
+				outData->audioPrivateData.currentPos = 0;
+				outData->audioPrivateData.volume = &voiceVol;
+				outData->panData.headPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.soundPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.hearingVec = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				ProfileReturn((void*)outData);
+			}
+			else if (soundType == StereoVoiceSound)
+			{
+				AudioOut *outData = new AudioOut();
+				outData->sample = soundSample[soundID];
+				outData->audioPrivateData.currentPos = 0;
+				outData->audioPrivateData.volume = &voiceSVol;
+				outData->panData.headPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.soundPos = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				outData->panData.hearingVec = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+				ProfileReturn((void*)outData);
+			}
 			ProfileReturnConst(nullptr);
 		}
 
@@ -148,10 +195,13 @@ namespace SE {
 					{
 						bakgroundVol = bakgroundVol * (10000 / masterVol);
 						effectVol = effectVol * (10000 / masterVol);
+						voiceVol = voiceVol * (10000 / masterVol);
 					}
 					masterVol = newVol;
-					bakgroundVol = (masterVol * newVol) / 10000;
-					effectVol = (masterVol * newVol) / 10000;
+					bakgroundVol = (bakgroundVol * newVol) / 10000;
+					effectVol = (effectVol * newVol) / 10000;
+					voiceVol = (voiceVol * newVol) / 10000;
+					voiceSVol = voiceVol * 3.0;
 					break;
 				}
 				case BakgroundVol:
@@ -164,6 +214,12 @@ namespace SE {
 					effectVol = (masterVol * newVol) / 10000;
 					break;
 				}
+				case VoiceVol:
+				{
+					voiceVol = (masterVol * newVol) / 10000;
+					voiceSVol = voiceVol * 3.0;
+					break;
+				}
 			}
 		}
 
@@ -172,8 +228,11 @@ namespace SE {
 			StartProfile;
 			for (auto& sound : soundSample)
 			{
-				delete sound->samples;
-				delete sound;
+				if (sound != nullptr)
+				{
+					delete sound->samples;
+					delete sound;
+				}
 			}
 			soundSample.clear();
 			StopProfile;

@@ -10,9 +10,9 @@ cbuffer OncePerFrame : register(b1)
 cbuffer CameraPos : register(b3)
 {
 	float3 camUpVector;
-	float pad;
+	float padCam;
 	float3 eyePos;
-	float pad2;
+	float padCam2;
 };
 
 struct GS_IN {
@@ -27,11 +27,13 @@ struct GS_IN {
 	float opacity : OPACITY;
 	float age : AGE;
 	uint type : TYPE;
+	uint bloom : BLOOM;
 };
 struct GS_OUT {
 	float4 pos : SV_POSITION;
 	float2 tex : TEXCOORD;
 	float opacity : OPACITY;
+	uint bloom : BLOOM;
 };
 
 [maxvertexcount(4)]
@@ -64,6 +66,7 @@ void GS_main(point GS_IN input[1], inout TriangleStream< GS_OUT > streamOutput)
 			output.pos = mul(p[i], ViewProj);
 			output.tex = UVs[i];
 			output.opacity = input[0].opacity;
+			output.bloom = input[0].bloom;
 			streamOutput.Append(output);
 		}
 		streamOutput.RestartStrip();

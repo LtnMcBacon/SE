@@ -69,6 +69,7 @@ void SE::Gameplay::ProjectileManager::CheckCollisionBetweenUnitAndProjectiles(Ga
 				unit->AddHealingEvent(projectile.GetProjectileHealingEvent());
 				unit->AddConditionEvent(projectile.GetProjectileConditionEvent());
 				projectile.AddToHit(unit);
+				projectile.SetCollisionData(cData);
 			}
 		}
 	}

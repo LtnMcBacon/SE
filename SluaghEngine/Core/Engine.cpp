@@ -188,9 +188,10 @@ void SE::Core::Engine::InitSubSystems()
 		ResourceHandler::InitializationInfo info;
 		info.RAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
 		info.RAM.tryUnloadWhenOver = 0.5;
-		info.RAM.getCurrentMemoryUsage = []() { return Utilz::Memory::GetPhysicalProcessMemory(); };
-		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb);
-		info.VRAM.tryUnloadWhenOver = 0.5;
+		info.RAM.nloadingStrategy = ResourceHandler::EvictPolicy::RANDOM;
+		info.RAM.getCurrentMemoryUsage = [this]() { return Utilz::Memory::GetVirtualProcessMemory() - subSystems.renderer->GetVRam(); };
+		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 256_mb);
+		info.VRAM.tryUnloadWhenOver = 0.0;
 		info.VRAM.getCurrentMemoryUsage = [this]() {return subSystems.renderer->GetVRam(); };
 		auto res = subSystems.resourceHandler->Initialize(info);
 		if (res < 0)
@@ -393,6 +394,7 @@ void SE::Core::Engine::InitLightManager()
 		info.renderer = subSystems.renderer;
 		info.entityManager = managers.entityManager;
 		info.transformManager = managers.transformManager;
+		info.eventManager = managers.eventManager;
 		managers.lightManager = CreateLightManager(info);
 	}
 	managersVec.push_back(managers.lightManager);
@@ -450,6 +452,7 @@ void SE::Core::Engine::InitDecalManager()
 		info.renderer = subSystems.renderer;
 		info.resourceHandler = subSystems.resourceHandler;
 		info.cameraManager = managers.cameraManager;
+		info.eventManager = managers.eventManager;
 		managers.decalManager = CreateDecalManager(info);
 	}
 	managersVec.push_back(managers.decalManager);
@@ -492,22 +495,25 @@ void SE::Core::Engine::SetupDebugConsole()
 		static float ram_usage[samples];
 		static int offset = 0;
 
-		vram_usage[offset] = ((float)subSystems.renderer->GetVRam()) / (1024.0f * 1024.0f);
-		ram_usage[offset] = ((float)Utilz::Memory::GetPhysicalProcessMemory()) / (1024.0f * 1024.0f);
+		auto rhi = subSystems.resourceHandler->GetInfo();
+		
+		vram_usage[offset] = ((float)rhi.VRAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
+		ram_usage[offset] = ((float)rhi.RAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
 		offset = (offset + 1) % samples;
-		ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
-		if (subSystems.renderer->GetVRam() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))
+		ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.VRAM.max), { 0, 80 });
+		if (rhi.VRAM.getCurrentMemoryUsage() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", toMB(rhi.VRAM.max)))
 		{
-		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f});
-		ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 512_mb))) + "mb").c_str());
-		ImGui::PopStyleColor();
+
+			ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
+			ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", toMB(rhi.VRAM.max)))) + "mb").c_str());
+			ImGui::PopStyleColor();
 		}
-		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, 512.0f, { 0, 80 });
-		if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb)))
+		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.RAM.max), { 0, 80 });
+		if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max))))
 		{
-		ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
-		ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 512_mb))) + "mb").c_str());
-		ImGui::PopStyleColor();
+			ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
+			ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max)))) + "mb").c_str());
+			ImGui::PopStyleColor();
 		}
 		ImGui::Separator();
 		}
@@ -540,9 +546,21 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
 			ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
 			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
+			struct MapEntry
+			{
+				std::string name;
+				float value;
+				bool operator<(const MapEntry& other) const { return name < other.name; };
+			};
+			std::vector<MapEntry> sortedEntries;
 			for (auto& m : map)
 			{
-				ImGui::TextUnformatted(m.first); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+				sortedEntries.push_back({ m.first.c_str(), m.second });
+			}
+			std::sort(sortedEntries.begin(), sortedEntries.end());
+			for (auto& e : sortedEntries)
+			{
+				ImGui::TextUnformatted(e.name.c_str()); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(e.value).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
 			}
 
 
@@ -557,13 +575,14 @@ void SE::Core::Engine::InitStartupOption()
 	//Set Sound Vol
 	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::VoiceVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "voiceVolume", 10));
 	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
 	size_t height = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "height", 720);
 	size_t width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
 	ICameraManager::CreateInfo camInfo;
-	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (static_cast<float>(width) / static_cast<float>(height)));
 	camInfo.fov = subSystems.optionsHandler->GetOptionDouble("Camera", "fov", 1.570796);
 	camInfo.nearPlane = subSystems.optionsHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
 	camInfo.farPlance = subSystems.optionsHandler->GetOptionDouble("Camera", "farPlance", 100.0);
@@ -587,6 +606,7 @@ void SE::Core::Engine::OptionUpdate()
 	//Set Sound Vol
 	managers.audioManager->SetSoundVol(Audio::MasterVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "masterVolume", 5));
 	managers.audioManager->SetSoundVol(Audio::EffectVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "effectVolume", 80));
+	managers.audioManager->SetSoundVol(Audio::VoiceVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "voiceVolume", 10));
 	managers.audioManager->SetSoundVol(Audio::BakgroundVol, subSystems.optionsHandler->GetOptionUnsignedInt("Audio", "bakgroundVolume", 50));
 
 	//Set Camera
@@ -594,7 +614,7 @@ void SE::Core::Engine::OptionUpdate()
 	size_t width = subSystems.optionsHandler->GetOptionUnsignedInt("Window", "width", 1280);
 	ICameraManager::CreateInfo camInfo;
 	subSystems.optionsHandler->SetOptionDouble("Camera", "aspectRatio", (static_cast<float>(width) / static_cast<float>(height)));
-	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (width / height));
+	camInfo.aspectRatio = subSystems.optionsHandler->GetOptionDouble("Camera", "aspectRatio", (static_cast<float>(width) / static_cast<float>(height)));
 	camInfo.fov = subSystems.optionsHandler->GetOptionDouble("Camera", "fov", 1.570796);
 	camInfo.nearPlane = subSystems.optionsHandler->GetOptionDouble("Camera", "nearPlane", 0.01);
 	camInfo.farPlance = subSystems.optionsHandler->GetOptionDouble("Camera", "farPlance", 100.0);

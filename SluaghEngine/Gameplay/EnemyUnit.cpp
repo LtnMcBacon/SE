@@ -8,15 +8,48 @@
 void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 {
 	StartProfile;
-	
 	// only basic at the moment
 	myBlackboard->activeBane = Banes::CONDITIONAL_BANES_NONE;
 	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
+	myBlackboard->conditionAmmount = 0.f;
 	if (!myBlackboard->invurnerable)
 	{
+		auto ph = health;
 		for (int i = 0; i < DamageEventVector.size(); i++)
 		{
-			this->health -= DamageEventVector[i].amount;
+			float damageAmount = DamageEventVector[i].amount;
+			switch(DamageEventVector[i].type)
+			{
+			case DamageType::PHYSICAL: damageAmount*=(1 - newStat.physicalResistance); break;
+			case DamageType::FIRE: damageAmount*=(1 - newStat.fireResistance); break;
+			case DamageType::WATER: damageAmount*=(1 - newStat.waterResistance); break;
+			case DamageType::NATURE: damageAmount*=(1 - newStat.natureResistance); break;
+			case DamageType::RANGED: damageAmount*=(1 - newStat.physicalResistance); break;
+			case DamageType::MAGIC: damageAmount*=(1 - newStat.magicResistance); break;
+			default: ;
+			}
+			this->health -= damageAmount;
+		}
+
+
+		if (ph > health)
+		{
+			
+			auto ent = CoreInit::managers.entityManager->Create();
+			CoreInit::managers.transformManager->Create(ent, CoreInit::managers.transformManager->GetPosition(unitEntity));
+
+			// Blood spatter
+			auto bs = CoreInit::managers.entityManager->Create();
+			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+			p.y = 0;
+			CoreInit::managers.transformManager->Create(bs, p, { DirectX::XM_PIDIV2, 0,0 }, { 0.4f,0.4f, 0.05f });
+
+			Core::DecalCreateInfo ci;
+			ci.textureName = "bloodSpatt.png";
+			CoreInit::managers.decalManager->Create(bs, ci);
+			CoreInit::managers.eventManager->SetLifetime(bs, 20);
+			CoreInit::managers.eventManager->ToggleVisible(bs, true);
+
 		}
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)
@@ -72,6 +105,8 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 					break;
 				case Boons::CONDITIONAL_BOONS_SLOW:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_SLOW;
+					if (myBlackboard->conditionAmmount < ConditionEventVector[i].effectValue)
+						myBlackboard->conditionAmmount = ConditionEventVector[i].effectValue;
 					break;
 				case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_INVULNERABILITY;
@@ -126,16 +161,25 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			}
 		}
 	}
+
+	for (int i = 0; i < HealingEventVector.size(); i++)
+	{
+		this->health += HealingEventVector[i].amount;
+	}
+
+	if (this->health > this->maxHealth)
+		this->health = this->maxHealth;
+
 	DamageEventVector.clear();
 	ConditionEventVector.clear();
-
+	HealingEventVector.clear();
 
 
 	ProfileReturnVoid;
 
 }
 
-void SE::Gameplay::EnemyUnit::DecideAction()
+void SE::Gameplay::EnemyUnit::DecideAction(float dt)
 {
 	StartProfile;
 	/*
@@ -143,7 +187,7 @@ void SE::Gameplay::EnemyUnit::DecideAction()
 	*/
 	entityAction = EnemyActions::ENEMY_ACTION_MOVE;
 	
-	if (myBehaviouralTree)
+	if (true/*force[0] == 0.0f && force[1] == 0.0f*/)
 	{
 		myBlackboard->extents = 0.25;
 		myBlackboard->ownerPointer = this;
@@ -172,26 +216,29 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		/*
 		* Code body
 		*/
-		ResolveEvents(dt);
-		DecideAction();
 
+		ClearNewStats();
+		calcBaseStrChanges();
+		calcBaseAgiChanges();
+		calcBaseWhiChanges();
+		ResolveEvents(dt);
+		DecideAction(dt);
 		PerformAction(dt);
+		ClearHealingEvents();
+		ClearDamageEvents();
+		ClearConditionEvents();
 	}
 	ProfileReturnVoid;
 }
 
-void SE::Gameplay::EnemyUnit::AddForce(float force[2])
-{
-	forcesToApply[0] += force[0];
-	forcesToApply[1] += force[1];
-}
-
-SE::Gameplay::EnemyUnit::EnemyUnit(const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
+SE::Gameplay::EnemyUnit::EnemyUnit(EnemyType myType, const FlowField* roomFlowField, float xPos, float yPos, float maxHealth) :
 	GameUnit(xPos, yPos, maxHealth),
 	extraSampleCoords{xPos, yPos},
 	previousMovement{0,0},
-	sample(0)
+	sample(0),
+	myType(myType)
 {
+	this->maxHealth = maxHealth;
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 	radius = sqrt(extents*extents + extents*extents);
 

@@ -11,11 +11,13 @@ struct PS_IN {
 	float4 pos : SV_POSITION;
 	float2 tex : TEXCOORD;
 	float opacity : OPACITY;
+	uint bloom : BLOOM;
 };
 struct PS_OUT
 {
 	float4 backBuffer: SV_TARGET0;
 	float4 bloomBuffer: SV_TARGET1;
+	
 };
 PS_OUT PS_main(PS_IN input) : SV_TARGET
 {
@@ -28,9 +30,14 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	PS_OUT output;
 	output.backBuffer = sampledTex;
 	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
-	if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
-	if (output.backBuffer.b > BLOOM_AT) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
+	if(input.bloom == 1)
+	{	
+		output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
+		if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
+		if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;
+		if (output.backBuffer.b > BLOOM_AT) output.bloomBuffer.b = output.backBuffer.b * output.backBuffer.b;
+	}
 
+	
 	return output;
 }

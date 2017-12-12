@@ -42,6 +42,11 @@ void SE::Core::ImGuiConsole::Toggle()
 	showConsole = !showConsole;
 }
 
+bool SE::Core::ImGuiConsole::IsVisible()
+{
+	return showConsole;
+}
+
 void SE::Core::ImGuiConsole::BeginFrame()
 {
 	ImGuiDX11SDL_NewFrame();
@@ -118,8 +123,8 @@ void SE::Core::ImGuiConsole::Frame()
 	}
 
 	// Demonstrate keeping auto focus on the input box
-	//if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
-	//	ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+	if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+		ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 	ImGui::End();
 	
 	ProfileReturnVoid;
@@ -145,6 +150,12 @@ void * SE::Core::ImGuiConsole::GetContext()
 void SE::Core::ImGuiConsole::AddFrameCallback(const std::function<void()>& frameCallback)
 {
 	frameCallbacks.push_back(frameCallback);
+}
+
+int SE::Core::ImGuiConsole::RemoveCommand(const char* name)
+{
+	commands.RemoveCommand(name);
+	return 0;
 }
 
 int SE::Core::ImGuiConsole::TextEditCallbackStub(ImGuiTextEditCallbackData * data)

@@ -8,13 +8,12 @@ struct Light
 {
 	float4 colour;
 	float4 pos;
-	uint4 castShadow;
 };
 
 cbuffer LightDataBuffer : register(b2)
 {
 	uint4 nrOfLights;
-	Light pointLights[20];
+	Light pointLights[64];
 };
 
 cbuffer CameraPos : register(b3)
@@ -66,7 +65,7 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	float3x3 Tbm = float3x3(normalize(input.TangentInW).xyz, normalize(input.BinormalInW).xyz, normalize(input.NormalInW).xyz);
 	float3 normalWorld = mul(normalTs, Tbm);
 	
-	float shadowFactor = 1.0f;
+	
 	float distance;
 	float specPower = specular.w;
 	float4 textureColor = DiffuseColor.Sample(sampAni, input.Tex);
@@ -76,35 +75,43 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	
 	for (int i = 0; i < nrOfLights.x; i++)
 	{
+		float shadowFactor = 1.0f;
 		light = pointLights[i].pos.xyz - input.PosInW;
 		distance = length(light);
-		float divby = (distance / pointLights[i].pos.w) + 1.0f;
-		attenuation = (1.0f / (divby * divby)) - 0.25f;
-	
-		light /= distance;
-	
-		float normalDotLight = saturate(dot(normalWorld.xyz, light));
-	
-	
-		if (i == nrOfLights.y)
+		if(distance < pointLights[i].pos.w)
 		{
-			float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
-			float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
-			if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
-				shadowFactor = 0.25f;
+			
+			light /= distance;
+			float normalDotLight = saturate(dot(normalWorld.xyz, light));
+			if(normalDotLight > 0.0f)
+			{
+				float divby = (distance / pointLights[i].pos.w) + 1.0f;
+				float intensity = pointLights[i].colour.w;
+				attenuation = (intensity / (divby * divby)) - intensity / 4;
+				
+			
+				if (i == nrOfLights.y)
+				{
+					float3 sampVec = normalize(input.PosInW - pointLights[i].pos.xyz);
+					float mapDepth = ShadowMap.Sample(sampAni, sampVec).r;
+					float ndist = distance / pointLights[i].pos.w;
+					if (mapDepth + 0.002f < distance / pointLights[i].pos.w)
+						shadowFactor = ndist;
+				}
+			
+				//Calculate specular term
+				float3 V = eyePos.xyz - input.PosInW.xyz;
+				float3 H = normalize(light + V);
+				float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
+				float3 colour = pointLights[i].colour.xyz * specular.xyz;
+				specularContribution += power * colour * normalDotLight * shadowFactor;
+				diffuseContribution += attenuation * normalDotLight * pointLights[i].colour.xyz * shadowFactor;
+			}
 		}
-	
-		//Calculate specular term
-		float3 V = eyePos.xyz - input.PosInW.xyz;
-		float3 H = normalize(light + V);
-		float3 power = pow(saturate(dot(input.NormalInW.xyz, H)), specPower);
-		float3 colour = pointLights[i].colour.xyz * specular.xyz;
-		specularContribution += power * colour * normalDotLight * shadowFactor;
-		diffuseContribution += normalDotLight * pointLights[i].colour.xyz * shadowFactor;
 	}
 	
 	PS_OUT output;
-	output.backBuffer = saturate(float4(textureColor.rgb * (attenuation * (diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
+	output.backBuffer = saturate(float4(textureColor.rgb * ((diffuseContribution + specularContribution) + float3(0.1f, 0.1f, 0.1f)), textureColor.a));
 	output.bloomBuffer = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (output.backBuffer.r > BLOOM_AT) output.bloomBuffer.r = output.backBuffer.r * output.backBuffer.r;
 	if (output.backBuffer.g > BLOOM_AT) output.bloomBuffer.g = output.backBuffer.g * output.backBuffer.g;

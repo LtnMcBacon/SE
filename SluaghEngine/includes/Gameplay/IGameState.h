@@ -5,7 +5,9 @@
 #include <Gameplay\KeyBindings.h>
 #include <Core\IEngine.h>
 #include <Gameplay\Skill.h>
-
+#include <Gameplay\PerkData.h>
+#include <Gameplay\PerkFactory.h>
+#include <Gameplay\Perk.h>
 
 namespace SE
 {
@@ -14,8 +16,10 @@ namespace SE
 
 		struct PlayStateData
 		{
-			Skill skills[3];
-			//Perk perks[3];
+			Skill skills[2];
+			Perk perks[2];
+
+			PerkData perksForSlaughSave[2];
 		};
 
 		/**
@@ -44,7 +48,10 @@ namespace SE
 				GAME_OVER_STATE = 2,
 				CHARACTER_CREATION_STATE = 3,
 				PAUSE_STATE = 4,
-				QUIT_GAME = 5
+				TUTORIAL_STATE = 5,
+				OPTION_STATE = 6,
+				WIN_STATE = 7,
+				QUIT_GAME
 			};
 
 			 

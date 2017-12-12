@@ -52,6 +52,7 @@ namespace SE
 			
 			void ToggleVisible(const Entity& entity, bool visible)override;
 			void ToggleShadow(const Entity& entity, bool on) override;
+			void ToggleTransparency(const Entity& entity, bool on) override;
 
 		private:
 			/**
@@ -112,13 +113,13 @@ namespace SE
 			AnimationData animationData;
 			std::unordered_map <Entity, size_t, EntityHasher> entityToIndex;
 
-			struct updateInfo
+			struct UpdateInfo
 			{
 				Entity ent;
 				AnimationInfo& animInfo;
 			};
 
-			std::vector<updateInfo> updateJob;
+			std::vector<UpdateInfo> updateJob;
 			AnimationSystem* animationSystem;
 
 			float aniUpdateTime = 0.0;

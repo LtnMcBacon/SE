@@ -3,7 +3,6 @@
 #define SE_AUDIO_AUDIOSOUND_H
 #include "AudioStructType.h"
 #include "AudioTypeDefs.h"
-#include <Utilz\StackAllocator.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "utilzD.lib")
@@ -38,7 +37,8 @@ namespace SE {
 			* @retval 0+ Sound sample ID
 			*
 			*/
-			size_t LoadSound(AudioFile* sound);
+			int LoadSound(AudioFile* sound);
+			int UnloadSound(int soundHandle);
 			/**
 			* @brief	Returns the requested sample
 			*
@@ -54,10 +54,12 @@ namespace SE {
 
 		private:
 			std::vector<AudioSample*> soundSample;
-			Utilz::StackAllocator sampleStack;
+			std::stack<int> freeSample;
 			
 			float masterVol;
 			float effectVol;
+			float voiceVol;
+			float voiceSVol;
 			float bakgroundVol;
 		};
 	}	//namespace Audio
