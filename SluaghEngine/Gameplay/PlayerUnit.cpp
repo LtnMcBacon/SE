@@ -448,11 +448,9 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	{
 		if (auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)); item != -1)
 		{
-			if(ItemType(item) != ItemType::CONSUMABLE)
-			{
+
 				showingItem = newItem;
-				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
-			}		
+				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);	
 		}
 	}
 	if (ci && attacking == false)
