@@ -8,6 +8,7 @@
 #include <Gameplay\PerkFactory.h>
 #include <Gameplay\perkConditionEnum.h>
 
+
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
 	StartProfile;
@@ -942,6 +943,7 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 {
 
 	StartProfile;
+	PerkFaktory perkFactory;
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 
@@ -954,6 +956,19 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 	input.read((char*)&skills[1], sizeof(skills[1]));
 	memset(&skills[1].skillName, 0, sizeof(skills[1].skillName));
 	skills[1].skillName = std::string("");
+
+	char perkname[255];
+	int size;
+	input.read((char*)&size, sizeof(int));
+	input.read(perkname, size);
+	std::string perkString(perkname, size);
+	perks.push_back(perkFactory.ReadPerksForSlaugh(perkString));
+	input.read((char*)&size, sizeof(int));
+	input.read(perkname, size);
+	perkString = std::string(perkname, size);
+	perks.push_back(perkFactory.ReadPerksForSlaugh(perkString));
+	
+	
 
 	for (int i = 0; i < MAX_ITEMS; i++)
 	{
@@ -1007,7 +1022,14 @@ void SE::Gameplay::PlayerUnit::SavePlayerToFile(std::ofstream &toSave)
 		toSave.write((char*)&skills[i], sizeof(skills[i]));
 
 	/*Save Perks*/
-	
+	int size = perks[0].slaughPerk.name.size();
+	perks[0].slaughPerk.name.resize(size);
+	toSave.write((char*)&size, sizeof(int));
+	toSave.write(perks[0].slaughPerk.name.c_str(), perks[0].slaughPerk.name.size());
+	size = perks[1].slaughPerk.name.size();
+	perks[1].slaughPerk.name.resize(size);
+	toSave.write((char*)&size, sizeof(int));
+	toSave.write(perks[1].slaughPerk.name.c_str(), perks[1].slaughPerk.name.size());
 
 	/*Save Weapons*/
 	for (int i = 0; i < MAX_ITEMS; i++)
