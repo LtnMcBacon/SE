@@ -397,6 +397,44 @@ namespace SE
 			inline void RemoveNewAttackCooldown	   (float cooldown)		{ this->newStat.attackCooldown -= cooldown; };
 
 			/**
+			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcBaseStrChanges();
+			/**
+			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcBaseAgiChanges();
+			/**
+			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcBaseWhiChanges();
+
+			/**
+			* @brief	Used to calculate the new strength stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcNewStrChanges();
+			/**
+			* @brief	Used to calculate the new agility stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcNewAgiChanges();
+			/**
+			* @brief	Used to calculate the new whisdom stat changes caused by attribute changes.
+			* @details	Calculates stats caused by attribute changes. Does not however calculate changes caused
+			*			by weapon types, perks, skills or elements.
+			**/
+			void calcNewWhiChanges();
+
+			/**
 			* @brief To be documented
 			*/
 			void AddForce(float force[2]);

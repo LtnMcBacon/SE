@@ -28,7 +28,8 @@ SE::Gameplay::Status SE::Gameplay::GlaistigAttackLeaf::Update()
 		newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
 		newProjectile.startPosZ = 1.0f;
 		newProjectile.startRotation = CoreInit::managers.transformManager->GetRotation(enemyBlackboard->ownerPointer->GetEntity()).y;;
-		newProjectile.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED,  Gameplay::DamageType::WATER, 10);
+		newProjectile.eventDamage = DamageEvent(Gameplay::DamageSources::DAMAGE_SOURCE_RANGED,
+			enemyBlackboard->ownerPointer->GetDamageType(), enemyBlackboard->ownerPointer->GetNewDamage());
 
 		gameBlackboard->enemyProjectiles.push_back(newProjectile);
 

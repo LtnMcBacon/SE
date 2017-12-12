@@ -235,7 +235,8 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	{
 		float xPos = enemy->GetXPosition();
 		float yPos = enemy->GetYPosition();
-		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
+		enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 		enemy->PositionEntity(xPos, yPos);
 	}
 
@@ -728,7 +729,13 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 				(adjRoom)->get().room->Load();
 				auto enemiesInRoom = (adjRoom)->get().room->GetEnemiesInRoom();
 				for (auto enemy : enemiesInRoom)
-					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+				{
+					float xPos = enemy->GetXPosition();
+					float yPos = enemy->GetYPosition();
+					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
+					enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
+					enemy->PositionEntity(xPos, yPos);
+				}
 
 				if (adjRoom->get().visited == false && !(ax == sluaghRoomX && ay == sluaghRoomY)) {
 
@@ -892,6 +899,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(data.type, &blackBoard, enemy->GetEnemyBlackboard()));
 			//enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(data.type));
 			enemy->PositionEntity(data.startX, data.startY);
+			enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 			room->AddEnemyToRoom(enemy);
 		}
 

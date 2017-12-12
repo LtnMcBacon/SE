@@ -27,7 +27,7 @@ SE::Gameplay::Status SE::Gameplay::NuckelaveeNormalAttackLeaf::Update()
 	newProjectile.startPosX = enemyBlackboard->ownerPointer->GetXPosition();
 	newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
 	newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_MELEE,
-		DamageType::MAGIC , 35);
+		enemyBlackboard->ownerPointer->GetDamageType(), enemyBlackboard->ownerPointer->GetNewDamage());
 
 	gameBlackboard->enemyProjectiles.push_back(newProjectile);
 
