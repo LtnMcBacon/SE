@@ -68,7 +68,7 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 {
 	float attenuation = 1.0f;
 	float3 light = float3(0.0, 0.0, 0.0);
-	float shadowFactor = 1.0f;
+	
 	float distance;
 	float specPower = specular.w;
 	float4 textureColor = DiffuseColor.Sample(sampAni, input.Tex);
@@ -78,6 +78,7 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	
 	for (int i = 0; i < nrOfLights.x; i++)
 	{
+		float shadowFactor = 1.0f;
 		light = pointLights[i].pos.xyz - input.PosInW;
 		distance = length(light);
 		if(distance < pointLights[i].pos.w)

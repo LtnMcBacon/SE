@@ -2085,6 +2085,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 
 			Core::DecalCreateInfo decalFloorInfo;
 			decalFloorInfo.opacity = 1.0f;
+			decalFloorInfo.ambiance = 0.1f;
 			decalFloorInfo.textureName = carpetTextures[carpetToUse];
 
 			const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
@@ -2256,12 +2257,12 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
 		
-		const Utilz::GUID paintingTextures[] = { "painting1.png", "pertan.png" };
+		const Utilz::GUID paintingTextures[] = { "painting1.png" };
 		const size_t paintingTexturesCount = sizeof(paintingTextures) / sizeof(*paintingTextures);
 		const uint32_t paintingToUse = std::rand() % paintingTexturesCount;
 
 		Core::DecalCreateInfo decalInfo;
-		decalInfo.opacity = 0.50f;
+		decalInfo.opacity = 1.0f;
 		decalInfo.textureName = paintingTextures[paintingToUse];
 
 		CoreInit::managers.decalManager->Create(PaintingEnt, decalInfo);

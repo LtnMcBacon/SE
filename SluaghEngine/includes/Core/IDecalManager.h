@@ -23,6 +23,7 @@ namespace SE
 		{
 			Utilz::GUID textureName = Utilz::GUID();
 			float opacity = 1.0f;
+			float ambiance = 0.2f;
 			float transform[16] = {1.0f, 0.0f,0.0f,0.0f,
 									0.0f,1.0f,0.0f,0.0f,
 									0.0f,0.0f,1.0f,0.0f,
