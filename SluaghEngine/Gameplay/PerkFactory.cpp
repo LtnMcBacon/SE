@@ -1366,6 +1366,7 @@ Perk PerkFaktory::ReadPerksForSlaugh(std::string perkName)
 
 	perkConditions myCond = static_cast<perkConditions>(tempData.condition);
 	slaughPerk.myCondition = myCond;
+	slaughPerk.slaughPerk = tempData;
 
 	for (auto& func : perkFuncVector)
 	{
