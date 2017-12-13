@@ -26,7 +26,6 @@ SE::Gameplay::SluaghRoom::SluaghRoom(const Utilz::GUID& fileName, PlayerUnit* th
 	barInfo.textureInfo.layerDepth = 0.01 * hpBars.size() + 0.01;
 
 	CoreInit::managers.guiManager->Create(tempBar, barInfo);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(tempBar, true);
 
 	Core::Entity tempFrame = CoreInit::managers.entityManager->Create();
 	Core::IGUIManager::CreateInfo frameInfo;
@@ -37,7 +36,6 @@ SE::Gameplay::SluaghRoom::SluaghRoom(const Utilz::GUID& fileName, PlayerUnit* th
 	frameInfo.textureInfo.layerDepth = 0.011 * hpBars.size() + 0.011;
 
 	CoreInit::managers.guiManager->Create(tempFrame, frameInfo);
-	CoreInit::managers.guiManager->ToggleRenderableTexture(tempFrame, true);
 
 	HpBar tempHpBar;
 	tempHpBar.bar = tempBar;
