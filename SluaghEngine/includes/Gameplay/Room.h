@@ -267,7 +267,7 @@ namespace SE
 			SE::Utilz::GUID wallTexture;
 			SE::Utilz::GUID floorTexture;
 
-			void UpdateHpBars(float playerX, float playerY);
+			virtual void UpdateHpBars(float playerX, float playerY);
 
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.

@@ -228,6 +228,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	LPSTR lpCmdLine,
 	int nCmdShow)
 {
+	
 	SE::Gameplay::Game game;
 	auto engine = Core::CreateEngine();
 	Core::IEngine::InitializationInfo engineInit;
@@ -253,7 +254,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (result < 0)
 		return result;
 
-
+	
 	game.Initiate(engine);
 	game.Run();
 
