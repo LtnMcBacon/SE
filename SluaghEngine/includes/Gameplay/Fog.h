@@ -34,6 +34,8 @@ namespace SE
 			static const char id_Wall = 255;
 			static const char id_Pillar = 225;
 			static const char id_Bush = 13;
+			static const char id_Tree = 35;
+			static const char id_Window = 180;
 
 			const float roomCenter[2] = { 12.5, 12.5 };
 
@@ -50,8 +52,8 @@ namespace SE
 			const float slopeMiddleOpacity = 0.5;
 			const float slopeBottomOpacity = 0;
 
-			const float slopeTopOpacity_door = 1;
-			const float slopeMiddleOpacity_door = 0.1;
+			const float slopeTopOpacity_door = 0.85;
+			const float slopeMiddleOpacity_door = 0.2;
 			const float slopeBottomOpacity_door = 0;
 
 			const float randomizationMultiplier = 1;

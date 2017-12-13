@@ -842,7 +842,7 @@ void SE::Gameplay::Fog::AddAdjacentTiles(unsigned int column, unsigned int row)
 		return;
 
 	char tileType = tileValues[column][row];
-	if (tileType != id_DeadArea && tileType != id_Wall && tileType != id_Door1 && tileType != id_Door2)
+	if (tileType != id_DeadArea && tileType != id_Wall && tileType != id_Window && tileType != id_Door1 && tileType != id_Door2)
 		return;
 
 

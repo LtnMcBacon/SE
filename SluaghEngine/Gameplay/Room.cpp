@@ -1558,6 +1558,7 @@ Room::Room(Utilz::GUID fileName)
 
 	roomEntity = CoreInit::managers.entityManager->Create();
 
+
 	StopProfile;
 }
 

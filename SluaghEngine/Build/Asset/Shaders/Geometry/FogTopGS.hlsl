@@ -1,5 +1,5 @@
 static const float CYCLE_DURATION = 12;
-static const float FADE_DURATION = 1;
+static const float FADE_DURATION = 2;
 
 
 static const float FOG_SPEED = 2.5 / CYCLE_DURATION;
