@@ -45,17 +45,12 @@ cbuffer CamBuffer : register(b3)
 };
 struct ParticleInfo {
 	float3 pos : POSITION;
-	float pad : PAD1;
-	float3 velocity : VELOCITY;
-	float pad2 : PAD2;
-	float3 startEmitPos : ORIGIN;
-	float pad5 : PAD5;
 	float size : SIZE;
-	float pad4 : PAD4;
+	float3 velocity : VELOCITY;
 	float opacity : OPACITY;
+	float3 startEmitPos : ORIGIN;
 	float age : AGE;
 	uint type : TYPE;
-	uint bloom : BLOOM;
 };
 bool equal(float3 start, float3 end)
 {
@@ -83,11 +78,7 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			particle.opacity = 1.0f;
 			particle.age = 0.0f;
 			particle.type = 1;
-			particle.bloom = bloomCheck;
-			particle.pad = 0;
-			particle.pad2 = 0;
-			particle.pad4 = 0;
-			particle.pad5 = 0;
+			//particle.bloom = bloomCheck;
 			ptStream.Append(particle);
 			ptStream.RestartStrip();
 			input[0].age = 0.0f;
