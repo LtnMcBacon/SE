@@ -16,7 +16,7 @@
 using namespace SE;
 using namespace Gameplay;
 using namespace DirectX;
-static int timeWon = - 1;
+static int timeWon = 0;
 PlayState::PlayState()
 {
 
@@ -27,7 +27,7 @@ bool firstFrame = true;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
-	timeWon++;
+	
 	firstFrame = true;
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
 	{
@@ -342,7 +342,7 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 PlayState::~PlayState()
 {
 	StartProfile;
-
+//	timeWon = -1;
 	//Show the cursor again if we exit the playstate
 	CoreInit::subSystems.window->ToggleCursor(true);
 	CoreInit::subSystems.renderer->RemoveRenderJob(dummyBoxJobID);
@@ -685,7 +685,7 @@ std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 
 void SE::Gameplay::PlayState::InitializeDeathSequence() {
 
-	timeWon = -1;
+	timeWon = 0;
 	deathText = CoreInit::managers.entityManager->Create();
 	returnPrompt = CoreInit::managers.entityManager->Create();
 
@@ -1592,6 +1592,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		{
 			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
 			{
+				timeWon++;
 				returnValue = State::WIN_STATE;
 
 				char* appdataBuffer;
