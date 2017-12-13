@@ -117,16 +117,24 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, DamageTy
 			CoreInit::managers.transformManager->SetPosition(swordEntity, DirectX::XMFLOAT3{ 0.2f, -0.1f, -0.5f });
 			CoreInit::managers.transformManager->Rotate(swordEntity, 3.0f, -0.4f, 1.3f);
 			CoreInit::managers.dataManager->SetValue(newEntity, "Weapon", swordEntity);
+			
 			CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
 			CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+
+			Core::IMaterialManager::CreateInfo materialInfo;
+			materialInfo.bloom = false;
+			materialInfo.materialFile = "Sword.mat";
+			materialInfo.shader = "SimpleLightPS.hlsl";
+			CoreInit::managers.materialManager->Create(swordEntity, materialInfo);
 
 			CoreInit::managers.animationManager->AttachToEntity(newEntity, swordEntity, "LHand", 0);
 		}
 
 		else if(type == ENEMY_TYPE_PECH_MELEE || type == ENEMY_TYPE_PECH_RANGED)
 		{
+			CoreInit::managers.transformManager->SetScale(newEntity, 0.5);
 			//Move up
-			CoreInit::managers.transformManager->Move(newEntity, DirectX::XMFLOAT3{ 0, 0.8f, 0 });
+			CoreInit::managers.transformManager->Move(newEntity, DirectX::XMFLOAT3{ 0, 0.4f, 0 });
 
 			if(type == ENEMY_TYPE_PECH_MELEE)
 			{
@@ -144,6 +152,12 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, DamageTy
 				CoreInit::managers.dataManager->SetValue(newEntity, "Weapon", swordEntity);
 				CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
 				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+
+				Core::IMaterialManager::CreateInfo materialInfo;
+				materialInfo.bloom = false;
+				materialInfo.materialFile = "Sword.mat";
+				materialInfo.shader = "SimpleLightPS.hlsl";
+				CoreInit::managers.materialManager->Create(swordEntity, materialInfo);
 
 				CoreInit::managers.animationManager->AttachToEntity(newEntity, swordEntity, "LHand", 0);
 				
