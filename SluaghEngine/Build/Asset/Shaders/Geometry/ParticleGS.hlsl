@@ -17,23 +17,17 @@ cbuffer CameraPos : register(b3)
 
 struct GS_IN {
 	float3 pos : POSITION;
-	float pad : PAD1;
-	float3 velocity : VELOCITY;
-	float pad2 : PAD2;
-	float3 startEmitPos : ORIGIN;
-	float pad5 : PAD5;
 	float size : SIZE;
-	float pad4 : PAD4;
+	float3 velocity : VELOCITY;
 	float opacity : OPACITY;
+	float3 startEmitPos : ORIGIN;
 	float age : AGE;
 	uint type : TYPE;
-	uint bloom : BLOOM;
 };
 struct GS_OUT {
 	float4 pos : SV_POSITION;
 	float2 tex : TEXCOORD;
 	float opacity : OPACITY;
-	uint bloom : BLOOM;
 };
 
 [maxvertexcount(4)]
@@ -66,7 +60,7 @@ void GS_main(point GS_IN input[1], inout TriangleStream< GS_OUT > streamOutput)
 			output.pos = mul(p[i], ViewProj);
 			output.tex = UVs[i];
 			output.opacity = input[0].opacity;
-			output.bloom = input[0].bloom;
+		//	output.bloom = input[0].bloom;
 			streamOutput.Append(output);
 		}
 		streamOutput.RestartStrip();
