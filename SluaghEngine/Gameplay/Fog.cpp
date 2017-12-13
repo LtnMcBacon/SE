@@ -491,9 +491,6 @@ SE::Gameplay::Fog::Fog()
 {
 	topPlane = new Plane();
 	bottomPlane = new Plane();
-
-
-	srand(time(NULL));
 }
 
 SE::Gameplay::Fog::~Fog()
