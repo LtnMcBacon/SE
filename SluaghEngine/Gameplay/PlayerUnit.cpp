@@ -673,8 +673,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		
 	}
 	
-	std::string cooldownDebug = std::to_string(this->playerAttackCooldown);
-	CoreInit::subSystems.devConsole->Print(cooldownDebug.c_str());
+	//std::string cooldownDebug = std::to_string(this->playerAttackCooldown);
+	//CoreInit::subSystems.devConsole->Print(cooldownDebug.c_str());
 
 	if (this->playerAttackCooldown > 0.0f)
 	{
