@@ -912,7 +912,6 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			{
 					data.type = EnemyType(std::rand() % 3);
 			}
-			data.type = ENEMY_TYPE_GLAISTIG;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
@@ -939,7 +938,6 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		enemiesInEachRoom = std::min(enemiesInEachRoom, 6);
 		delete[] enemies;
 
-		r = worldWidth*worldHeight;
 	}
 	ProfileReturnVoid;
 }
