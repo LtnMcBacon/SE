@@ -412,6 +412,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 {
 	StartProfile;
 
+	// Can only switch weapon if the player is not attacking
 	if(playerAttackCooldown <= 0.0f){
 
 		auto w = CoreInit::subSystems.window;
@@ -665,13 +666,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
-					this->playerAttackCooldown = 1.0f;
+					this->playerAttackCooldown = 1.5f;
 				}
 			
 		}
 		
 	}
-
+	
 	std::string cooldownDebug = std::to_string(this->playerAttackCooldown);
 	CoreInit::subSystems.devConsole->Print(cooldownDebug.c_str());
 
