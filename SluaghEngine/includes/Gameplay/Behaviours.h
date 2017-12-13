@@ -44,6 +44,9 @@
 #include "ResetTransistionTimerLeaf.h"
 #include "TransistionToRoomLeaf.h"
 #include "CountdownRoomTransistionLeaf.h"
+#include "RootedCondition.h"
+#include "SlowedCondition.h"
+#include "PoisonCloudLeaf.h"
 
 /*Composites*/
 #include "IComposite.h"

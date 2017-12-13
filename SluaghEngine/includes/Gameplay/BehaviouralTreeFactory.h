@@ -204,6 +204,22 @@ namespace SE
 			IBehaviour* CreateStunnedConditionLeaf(NodeData* dataArray, int nodeID);
 
 			/**
+			* @brief	Create a StunnedCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateSlowedConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a StunnedCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreateRootedConditionLeaf(NodeData* dataArray, int nodeID);
+
+			/**
 			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
 			*
 			*
@@ -374,6 +390,14 @@ namespace SE
 			* @sa CreateTreeFromNodeData
 			*/
 			IBehaviour* CreateNuckelaveeNormalAttackLeaf(NodeData* dataArray, int nodeID);
+
+			/**
+			* @brief	Create a ObstacleOnPositionCondition Node with the data given on position nodeID in dataArray.
+			*
+			*
+			* @sa CreateTreeFromNodeData
+			*/
+			IBehaviour* CreatePoisonCloudLeaf(NodeData* dataArray, int nodeID);
 
 			/*Create Composites*/
 

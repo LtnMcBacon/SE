@@ -64,8 +64,10 @@ SE::Core::DecalManager::DecalManager(const IDecalManager::InitializationInfo& in
 	defaultPipeline.VSStage.shader = vertexShader;
 	defaultPipeline.PSStage.textureBindings[0] = "DepthBuffer";
 	defaultPipeline.PSStage.textureBindings[1] = textureBindName;
+	defaultPipeline.PSStage.textureBindings[2] = "ShadowMap";
 	defaultPipeline.PSStage.textures[0] = "backbufferdepth";
 	//The texture name will be set for each decal that uses a different texture
+	defaultPipeline.PSStage.textures[2] = "DepthCube";
 	defaultPipeline.PSStage.textureCount = 2;
 	defaultPipeline.PSStage.shader = pixelShader;
 	defaultPipeline.OMStage.renderTargets[0] = "backbuffer";
@@ -138,7 +140,7 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 	decalToTransforms[textureName].inverseWorld.push_back(invWorld);
 	decalToTransforms[textureName].localTransform.push_back(DirectX::XMFLOAT4X4(createInfo.transform));
 	decalToTransforms[textureName].owners.push_back(entity);
-	decalToTransforms[textureName].opacity.push_back(createInfo.opacity);
+	decalToTransforms[textureName].decalInfos.push_back({ createInfo.opacity, createInfo.ambiance });
 
 	const auto renderJob = decalToJobID.find(textureName);
 	if (renderJob == decalToJobID.end())
@@ -153,10 +155,10 @@ int SE::Core::DecalManager::Create(const Entity& entity, const DecalCreateInfo& 
 		{
 			auto& worlds = decalToTransforms[textureName].world;
 			auto& invWorlds = decalToTransforms[textureName].inverseWorld;
-			auto& opacity = decalToTransforms[textureName].opacity;
+			auto& decalInfo = decalToTransforms[textureName].decalInfos;
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(worldConstantBuffer, &worlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
 			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(inverseWorld, &invWorlds[drawn], sizeof(DirectX::XMFLOAT4X4) * toDrawNow);
-			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(opacities, &opacity[drawn], sizeof(float) * toDrawNow);
+			this->initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer(opacities, &decalInfo[drawn], sizeof(DecalInfo) * toDrawNow);
 
 		});
 		decalToJobID[textureName] = initInfo.renderer->AddRenderJob(j, Graphics::RenderGroup::POST_PASS_0);
@@ -197,7 +199,7 @@ int SE::Core::DecalManager::SetOpacity(const Entity& entity, float opacity)
 		const auto transformIndex = entityToTransformIndex[entity];
 		if (opacity > 1.0f) opacity = 1.0f;
 		if (opacity < 0.0f) opacity = 0.0f;
-		transforms->second.opacity[transformIndex] = opacity;
+		transforms->second.decalInfos[transformIndex].opacity = opacity;
 		return 0;
 	}
 	return -1;
@@ -210,10 +212,10 @@ int SE::Core::DecalManager::ModifyOpacity(const Entity& entity, float amount)
 	{
 		auto transforms = decalToTransforms.find(texture->second);
 		const auto transformIndex = entityToTransformIndex[entity];
-		float opacity = transforms->second.opacity[transformIndex] + amount;
+		float opacity = transforms->second.decalInfos[transformIndex].opacity + amount;
 		if (opacity > 1.0f) opacity = 1.0f;
 		if (opacity < 0.0f) opacity = 0.0f;
-		transforms->second.opacity[transformIndex] = opacity;
+		transforms->second.decalInfos[transformIndex].opacity = opacity;
 		return 0;
 	}
 	return -1;
@@ -243,7 +245,7 @@ void SE::Core::DecalManager::ToggleVisible(const Entity& entity, bool visible)
 	if (tex != entityToTextureGuid.end())
 	{
 		const auto index = entityToTransformIndex[entity];
-		float& op = decalToTransforms[tex->second].opacity[index];
+		float& op = decalToTransforms[tex->second].decalInfos[index].opacity;
 		if ((visible && op < 0.0f) || (!visible && op > 0.0f))
 			op = -op;
 	}
@@ -291,7 +293,7 @@ void SE::Core::DecalManager::Destroy(size_t index)
 	bucket->second.world[transformIndex] = bucket->second.world.back();
 	bucket->second.localTransform[transformIndex] = bucket->second.localTransform.back();
 	bucket->second.owners[transformIndex] = bucket->second.owners.back();
-	bucket->second.opacity[transformIndex] = bucket->second.opacity.back();
+	bucket->second.decalInfos[transformIndex] = bucket->second.decalInfos.back();
 
 	entityToTransformIndex[bucket->second.owners[transformIndex]] = transformIndex;
 
@@ -299,7 +301,7 @@ void SE::Core::DecalManager::Destroy(size_t index)
 	bucket->second.world.pop_back();
 	bucket->second.localTransform.pop_back();
 	bucket->second.owners.pop_back();
-	bucket->second.opacity.pop_back();
+	bucket->second.decalInfos.pop_back();
 	
 	entityToTransformIndex.erase(entity);
 

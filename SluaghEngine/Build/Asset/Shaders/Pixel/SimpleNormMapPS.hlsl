@@ -65,7 +65,7 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	float3x3 Tbm = float3x3(normalize(input.TangentInW).xyz, normalize(input.BinormalInW).xyz, normalize(input.NormalInW).xyz);
 	float3 normalWorld = mul(normalTs, Tbm);
 	
-	float shadowFactor = 1.0f;
+	
 	float distance;
 	float specPower = specular.w;
 	float4 textureColor = DiffuseColor.Sample(sampAni, input.Tex);
@@ -75,6 +75,7 @@ PS_OUT PS_main(PS_IN input) : SV_TARGET
 	
 	for (int i = 0; i < nrOfLights.x; i++)
 	{
+		float shadowFactor = 1.0f;
 		light = pointLights[i].pos.xyz - input.PosInW;
 		distance = length(light);
 		if(distance < pointLights[i].pos.w)

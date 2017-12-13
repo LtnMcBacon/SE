@@ -17,6 +17,7 @@ CharacterCreationState::CharacterCreationState()
 CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 {
 	StartProfile;
+	
 	nrOfSkills = 2;
 	nrOfPerks = 2;
 	selectedSkills = 0;
@@ -91,7 +92,7 @@ CharacterCreationState::~CharacterCreationState()
 IGameState::State CharacterCreationState::Update(void* &passableInfo)
 {
 	StartProfile;
-
+	
 	if (selectedSkills != renewSkillList)
 	{
 		renewSkillList = selectedSkills;
@@ -121,7 +122,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
 	}
 
-
+	 
 	bool pressed = input->ButtonDown(uint32_t(GameInput::ACTION));
 	bool released = input->ButtonUp(uint32_t(GameInput::ACTION));
 	int mousePosX, mousePosY;
@@ -143,6 +144,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 			SkillFactory sf;
 			float attrArray[8];
 			sf.readAttributesFromFile(chosenSkillsIndex[i], chosenSkills[i].projectileFileGUID, attrArray);
+			//sf.readAttributesFromFile(3, chosenSkills[i].projectileFileGUID, attrArray);
 
 			infoToPass->skills[i].skillName		= chosenSkills.at(i).skillName;
 			infoToPass->skills[i].skillDesc     = chosenSkills.at(i).skillDesc;
@@ -192,7 +194,7 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 		CurrentState = State::PLAY_STATE;
 	}
 
-
+	
 	ProfileReturn(CurrentState);
 }
 	

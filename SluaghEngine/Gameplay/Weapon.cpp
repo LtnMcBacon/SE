@@ -3,6 +3,7 @@
 #include <Items.h>
 #include <array>
 #include <Stats.h>
+#include <EventStructs.h>
 
 struct WeaponInfo
 {
@@ -18,12 +19,13 @@ struct WeaponInfo
 	DirectX::XMFLOAT3 equipPos;
 	DirectX::XMFLOAT3 scale;
 	DirectX::XMFLOAT3 equipRot;
+	SE::Gameplay::DamageType damageType;
 };
 
 static const std::array<WeaponInfo, 3> weaponInfo = { {
-	{ "Sword_black.png", "Sword2.png", "PhysicalPickup.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl",  "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } },
-	{ "Crossbow_black.png", "Crossbow_silver.png", "RangedPickup.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl",  "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f } },
-	{ "Wand_black.png","Wand_silver.png", "MagicPickup.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl",  "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } }
+	{ "Sword_black.png", "Sword2.png", "PhysicalPickup.png", "Sword.mesh", "Sword.mat", "SimpleLightPS.hlsl",  "TopSwordAttackAnim_MCModell.anim", "LHand", 0,{ 0.2f, -0.1f, -0.5f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f }, SE::Gameplay::DamageType::PHYSICAL },
+	{ "Crossbow_black.png", "Crossbow_silver.png", "RangedPickup.png", "Crossbow.mesh", "Crossbow.mat", "SimpleLightPS.hlsl",  "TopCrossbowAttackAnim_MCModell.anim" , "LHand", 0,{ 0, -0.02f, -0.25f },{ 0.15f,0.15f,0.15f },{ 1.6f, 1.2f,0.0f }, SE::Gameplay::DamageType::RANGED },
+	{ "Wand_black.png","Wand_silver.png", "MagicPickup.png", "WandPivotEnd.mesh", "WandPivotEnd.mat", "SimpleLightPS.hlsl",  "TopWandAttackAnim_MCModell.anim", "LHand", 0,{ 0.05f, 0.0f, -0.2f },{ 1,1,1 },{ 3.0f, -0.4f, 1.3f } , SE::Gameplay::DamageType::MAGIC }
 	} };
 
 struct ProjectileInfo
@@ -35,19 +37,19 @@ struct ProjectileInfo
 static const std::vector<std::vector<ProjectileInfo>> projectiles = 
 {
 	{
-		{ 2.0f, "playerMeleeProjectiles.SEP" },
-		{ 2.0f, "playerMeleeProjectiles.SEP" }
+		{ 0.16f, "playerMeleeProjectiles.SEP" },
+		{ 0.16f, "playerMeleeProjectiles.SEP" }
 	},
 
 	{
-		{ 1.0f, "CrossbowAttack.SEP" },
-		{ 20.0f, "BoomerangArrow.SEP" },
-		{ 0.5f, "TripleArrow.SEP" }
+		{ 0.1f, "CrossbowAttack.SEP" },
+		{ 2.0f, "BoomerangArrow.SEP" },
+		{ 0.09f, "TripleArrow.SEP" }
 	},
 	{
-		{ 1.0f, "WandAttack.SEP" },
-		{ 0.75f, "TronWand.SEP" },
-		{ 0.25f, "WandVortex.SEP" }
+		{ 0.1f, "WandAttack.SEP" },
+		{ 0.09f, "TronWand.SEP" },
+		{ 0.08f, "WandVortex.SEP" }
 	}
 };
 
@@ -61,6 +63,7 @@ SE::Core::Entity SE::Gameplay::Item::Weapon::Create(Weapon::Type type, bool base
 	auto wep = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.dataManager->SetValue(wep, "Item", int32_t(ItemType::WEAPON));
 	CoreInit::managers.dataManager->SetValue(wep, "Type", int32_t(type));
+	CoreInit::managers.dataManager->SetValue(wep, "DamageType", int32_t(weaponInfo[size_t(type)].damageType));
 	CoreInit::managers.dataManager->SetValue(wep, "Health", base ? 0 : Stats::GetRandHealth());
 	CoreInit::managers.dataManager->SetValue(wep, "Str", base ? 0 : Stats::GetRandStr());
 	CoreInit::managers.dataManager->SetValue(wep, "Agi", base ? 0 : Stats::GetRandAgi());
@@ -169,6 +172,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	CoreInit::managers.eventManager->RegisterEntitytoEvent(textEnt, "StopRenderItemInfo");
 	posY += textHeigth + 5;
 
+
 	auto agi = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Agi", 0));
 	auto agiCW = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(compareWith, "Agi", 0));
 	if (agi > agiCW)
@@ -213,7 +217,7 @@ void SE::Gameplay::Item::Weapon::RenderItemInfo(Core::Entity item, Core::Entity 
 	ciback.textureInfo.posY = 0;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
 	ciback.textureInfo.anchor = { 1.0f, 0.5f };
-	ciback.textureInfo.layerDepth = 0.1;
+	ciback.textureInfo.layerDepth = 0.11;
 	auto weaponBack = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.guiManager->Create(weaponBack, ciback);
 

@@ -267,7 +267,7 @@ namespace SE
 			SE::Utilz::GUID wallTexture;
 			SE::Utilz::GUID floorTexture;
 
-			void UpdateHpBars(float playerX, float playerY);
+			virtual void UpdateHpBars(float playerX, float playerY);
 
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
@@ -691,6 +691,8 @@ namespace SE
 			float RotatePainting(int x, int y);
 
 			void CreateFire(int x, int y);
+
+			bool TorchOnWall(int x, int y);
 
 			void CreateWindows(CreationArguments &args);
 			/**

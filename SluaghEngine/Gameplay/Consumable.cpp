@@ -114,7 +114,7 @@ void SE::Gameplay::Item::Consumable::RenderItemInfo(Core::Entity item, Core::Ent
 	ciback.textureInfo.posY = 0;
 	ciback.textureInfo.screenAnchor = { 0.5f, 0.5f };
 	ciback.textureInfo.anchor = { 1.0f, 0.5f };
-	ciback.textureInfo.layerDepth = 0.1;
+	ciback.textureInfo.layerDepth = 0.11;
 	auto weaponBack = CoreInit::managers.entityManager->Create();
 	CoreInit::managers.guiManager->Create(weaponBack, ciback);
 

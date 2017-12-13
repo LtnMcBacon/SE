@@ -1933,6 +1933,32 @@ void SE::Gameplay::Room::CreateFire(int x, int y)
 	roomEntities[x][y].push_back(entFire);
 
 }
+bool SE::Gameplay::Room::TorchOnWall(int x, int y)
+{
+	StartProfile;
+	
+	bool torchFound = false;
+
+	if (x - 1 >= 0 && tileValues[x - 1][y] == id_Torch ) {
+		
+		torchFound = true;
+	}
+	else if (y - 1 >= 0 && tileValues[x][y - 1] == id_Torch) {
+		
+		torchFound = true;
+	}
+	else if (y + 1 < 25 && tileValues[x][y + 1] == id_Torch) {
+		
+		torchFound = true;
+	}
+	else if (x + 1 < 25 && tileValues[x + 1][y] == id_Torch) {
+		
+		torchFound = true;
+	}
+
+	
+	ProfileReturnConst(torchFound);
+}
 void SE::Gameplay::Room::CreateWindows(CreationArguments & args)
 {
 	int x = args.x;
@@ -2059,6 +2085,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 
 			Core::DecalCreateInfo decalFloorInfo;
 			decalFloorInfo.opacity = 1.0f;
+			decalFloorInfo.ambiance = 0.1f;
 			decalFloorInfo.textureName = carpetTextures[carpetToUse];
 
 			const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
@@ -2217,7 +2244,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 	auto rand = CoreInit::subSystems.window->GetRand();
 	int randValue = (rand % 500); // 2% chance a wall will have painting
 
-	if (0 < randValue && randValue <= 10)
+	if ((0 < randValue && randValue <= 10) && !TorchOnWall(args.x, args.y))
 	{
 		const auto PaintingEnt = CoreInit::managers.entityManager->Create();
 		Core::IMaterialManager::CreateInfo matInfoPainting;
@@ -2230,12 +2257,12 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
 		
-		const Utilz::GUID paintingTextures[] = { "painting1.png", "pertan.png" };
+		const Utilz::GUID paintingTextures[] = { "painting1.png" };
 		const size_t paintingTexturesCount = sizeof(paintingTextures) / sizeof(*paintingTextures);
 		const uint32_t paintingToUse = std::rand() % paintingTexturesCount;
 
 		Core::DecalCreateInfo decalInfo;
-		decalInfo.opacity = 0.50f;
+		decalInfo.opacity = 1.0f;
 		decalInfo.textureName = paintingTextures[paintingToUse];
 
 		CoreInit::managers.decalManager->Create(PaintingEnt, decalInfo);

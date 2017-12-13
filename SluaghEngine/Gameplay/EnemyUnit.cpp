@@ -11,12 +11,24 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	// only basic at the moment
 	myBlackboard->activeBane = Banes::CONDITIONAL_BANES_NONE;
 	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
+	myBlackboard->conditionAmmount = 0.f;
 	if (!myBlackboard->invurnerable)
 	{
 		auto ph = health;
 		for (int i = 0; i < DamageEventVector.size(); i++)
 		{
-			this->health -= DamageEventVector[i].amount;
+			float damageAmount = DamageEventVector[i].amount;
+			switch(DamageEventVector[i].type)
+			{
+			case DamageType::PHYSICAL: damageAmount*=(1 - newStat.physicalResistance); break;
+			case DamageType::FIRE: damageAmount*=(1 - newStat.fireResistance); break;
+			case DamageType::WATER: damageAmount*=(1 - newStat.waterResistance); break;
+			case DamageType::NATURE: damageAmount*=(1 - newStat.natureResistance); break;
+			case DamageType::RANGED: damageAmount*=(1 - newStat.physicalResistance); break;
+			case DamageType::MAGIC: damageAmount*=(1 - newStat.magicResistance); break;
+			default: ;
+			}
+			this->health -= damageAmount;
 		}
 
 
@@ -93,6 +105,8 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 					break;
 				case Boons::CONDITIONAL_BOONS_SLOW:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_SLOW;
+					if (myBlackboard->conditionAmmount < ConditionEventVector[i].effectValue)
+						myBlackboard->conditionAmmount = ConditionEventVector[i].effectValue;
 					break;
 				case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_INVULNERABILITY;
@@ -167,7 +181,6 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	ConditionEventVector.clear();
 	HealingEventVector.clear();
 
-	this->newStat.damage = 1000.f;
 
 	ProfileReturnVoid;
 
@@ -210,7 +223,11 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		/*
 		* Code body
 		*/
+
 		ClearNewStats();
+		calcBaseStrChanges();
+		calcBaseAgiChanges();
+		calcBaseWhiChanges();
 		ResolveEvents(dt);
 		DecideAction(dt);
 		PerformAction(dt);

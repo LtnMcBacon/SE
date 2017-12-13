@@ -4,6 +4,7 @@
 #include <Profiler.h>
 #include <AtlBase.h>
 #include <atlconv.h>
+#include <string>
 
 using namespace std;
 namespace SE
@@ -12,7 +13,6 @@ namespace SE
 	{
 		HUDButtons::HUDButtons()
 		{
-			//CalculateScreenPositions();
 		}
 
 		HUDButtons::~HUDButtons()
@@ -25,14 +25,14 @@ namespace SE
 			ButtonElement preRender;
 			preRender.PositionX = posX;
 			preRender.PositionY = posY;
-			
+
 			preRender.Width = width;
 			preRender.Height = height;
-			
+
 			preRender.layerDepth = layerDepth;
 			preRender.rectName = name;
 			preRender.textName = textName;
-		
+
 			preRender.hoverTex = hoverTex;
 			preRender.PressTex = PressTex;
 			preRender.bindButton = func;
@@ -40,7 +40,7 @@ namespace SE
 			preRender.EntityIndex = -1;
 			preRenderButtons.push_back(preRender);
 
-			CalculateScreenPositions(width, height,posX,posY);
+			CalculateScreenPositions(width, height, posX, posY);
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -61,7 +61,7 @@ namespace SE
 			ProfileReturnVoid;
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill, string perkName, string textName, string hoverTex, string PressTex, string buttonText,PerkData perk)
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill, string perkName, string textName, string hoverTex, string PressTex, string buttonText, PerkData perk)
 		{
 			StartProfile;
 			ButtonElement preRender;
@@ -81,7 +81,7 @@ namespace SE
 			preRender.buttonText = buttonText;
 			preRender.EntityIndex = -1;
 			preRenderButtons.push_back(preRender);
-			CalculateScreenPositions(width,height,posX,posY);
+			CalculateScreenPositions(width, height, posX, posY);
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -157,7 +157,7 @@ namespace SE
 		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, std::string skillDescription, unsigned short skillDesc[],string skillName, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
-			CalculateScreenPositions(width, height,posX,posY);
+			CalculateScreenPositions(width, height, posX, posY);
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -180,7 +180,7 @@ namespace SE
 			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 8; i++)
 			{
-			
+
 				tempElement.skillDesc[i] = skillDesc[i];
 
 			}
@@ -355,7 +355,7 @@ namespace SE
 				std::replace(holder.begin(), holder.end(), '_', ' ');
 				description.resize(holder.length(), L'\0');
 				std::copy(holder.begin(), holder.end(), description.begin());
-				
+
 
 				switch (button.perk.condition)
 				{
@@ -448,6 +448,8 @@ namespace SE
 						description += L"Skada % ökning: ";
 						break;
 					case 16:
+						unsigned char bla[255];
+						//bla("Närstrids längd % ökning: ");
 						description += L"Närstrids längd % ökning: ";
 						break;
 					case 17:
@@ -728,9 +730,9 @@ namespace SE
 				bool fullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", perhaps);
 				if (fullscreen)
 				{
-					reverseScreenPositions(ButtonElement.Width, ButtonElement.Height,ButtonElement.PositionX,ButtonElement.PositionY);
+					reverseScreenPositions(ButtonElement.Width, ButtonElement.Height, ButtonElement.PositionX, ButtonElement.PositionY);
 				}
-				
+
 
 				auto entity = CoreInit::managers.entityManager->Create();
 				if (fullscreen)
@@ -753,7 +755,7 @@ namespace SE
 				ButtonGuiManager.textureInfo.layerDepth = 1.0f - ButtonElement.layerDepth / 1000.0f;
 
 				ButtonGuiManager.texture = ButtonElement.textName;
-				
+
 				CoreInit::managers.guiManager->Create(entity, ButtonGuiManager);
 
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
@@ -781,18 +783,19 @@ namespace SE
 		void HUDButtons::ButtonHover(int mouseX, int mouseY, bool pressed, bool released)
 		{
 			StartProfile;
+			
 			bool inside = false;
 			ButtonElement skillDescBtn;
-		
-				for (auto& button : Buttons)
+
+			for (auto& button : Buttons)
+			{
+				if (button.rectName == "skillDescription")
 				{
-					if (button.rectName == "skillDescription")
-					{
-						skillDescBtn = button;
-						break;
-					}
+					skillDescBtn = button;
+					break;
 				}
-			
+			}
+
 			for (auto& button : Buttons)
 			{
 				if (mouseX < button.PositionX + button.Width && mouseX > button.PositionX)
@@ -805,7 +808,7 @@ namespace SE
 
 				if (inside)
 				{
-					
+
 					if (pressed)
 					{
 						// pressed
@@ -835,7 +838,7 @@ namespace SE
 					{
 						// hovered;
 						auto& entity = ButtonEntityVec.at(button.EntityIndex);
-						if (button.hoverTex!="")
+						if (button.hoverTex != "")
 						{
 							CoreInit::managers.guiManager->SetTexture(entity, button.hoverTex);
 						}
@@ -843,42 +846,43 @@ namespace SE
 						{
 							if (wasHovering == false)
 							{
+								
 								std::wstring text;
 								text = printSkillDesc(button);
 								auto entText = CoreInit::managers.entityManager->Create();
-								
-								
+
+
 
 								bool isFullscreen = false;
 								isFullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", isFullscreen);
 
 								if (isFullscreen)
 								{
-									reverseScreenPositions(skillDescBtn.Width, skillDescBtn.Height, skillDescBtn.PositionX, skillDescBtn.PositionY,true);
+									reverseScreenPositions(skillDescBtn.Width, skillDescBtn.Height, skillDescBtn.PositionX, skillDescBtn.PositionY, true);
 								}
 								Graphics::TextGUI guiText;
 								guiText.colour = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 1.0);
 								guiText.effect = Graphics::Effect::NoEffect;
 								guiText.text = text;
-								
+
 								guiText.hashString = std::hash<std::wstring>()(guiText.text);
 								guiText.layerDepth = 0;
 								guiText.anchor = DirectX::XMFLOAT2(0, 0);
 								guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
-								guiText.posX = skillDescBtn.PositionX+55;
-								guiText.posY = skillDescBtn.PositionY+30;
-								guiText.width = skillDescBtn.Width-50;
-								guiText.height = skillDescBtn.Height-10;
+								guiText.posX = skillDescBtn.PositionX + 55;
+								guiText.posY = skillDescBtn.PositionY + 30;
+								guiText.width = skillDescBtn.Width - 50;
+								guiText.height = skillDescBtn.Height - 10;
 								guiText.rotation = 0;
-								
+
 								guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
 								CoreInit::managers.textManager->Create(entText, { Utilz::GUID("EnchantedLand.spritefont"), guiText });
 								CoreInit::managers.textManager->ToggleRenderableText(entText, true);
 
 								skillDescEntity = entText;
-								
-								
+
+
 							}
 						}
 						if (button.rectName != "skillBackgroundBtn" && button.rectName != "skillBackgroundBtn2" && button.rectName != "skillBackgroundBtn3")
@@ -903,7 +907,7 @@ namespace SE
 
 								CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
 								CoreInit::managers.entityManager->Destroy(skillDescEntity);
-								
+
 							}
 							wasHovering = false;
 						}
@@ -917,7 +921,7 @@ namespace SE
 		void HUDButtons::DeleteButtons()
 		{
 			StartProfile;
-			for (auto& entity: ButtonEntityVec)
+			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
 				CoreInit::managers.entityManager->Destroy(entity);
@@ -932,7 +936,7 @@ namespace SE
 			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
-				
+
 			}
 			ProfileReturnVoid;
 		}
@@ -943,7 +947,7 @@ namespace SE
 			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
-				
+
 			}
 			ProfileReturnVoid;
 		}
@@ -958,13 +962,13 @@ namespace SE
 				{
 					if (name == Buttons[i].rectName)
 					{
-						Buttons.erase(Buttons.begin()+i);
+						Buttons.erase(Buttons.begin() + i);
 						i = 0;
-						
+
 					}
 				}
 			}
-			
+
 			for (auto& entity : SkillNPerkEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
@@ -993,12 +997,12 @@ namespace SE
 
 			posX = posX*newWidthPercent;
 			posY = posY*newHeightPercent;
-			width =  width*newWidthPercent;
+			width = width*newWidthPercent;
 			height = height*newHeightPercent;
 
 		}
 
-		void HUDButtons::reverseScreenPositions(int width, int height,int posX, int posY)
+		void HUDButtons::reverseScreenPositions(int width, int height, int posX, int posY)
 		{
 			size_t screenHeight = CoreInit::subSystems.window->Height();
 			size_t screenWidth = CoreInit::subSystems.window->Width();
@@ -1009,12 +1013,12 @@ namespace SE
 			float newWidthPercent = screenWidth / minWidth;
 			float newHeightPercent = screenHeight / minHeight;
 
-			positionX = posX/newWidthPercent;
+			positionX = posX / newWidthPercent;
 			positionY = posY / newWidthPercent;
-			Width = width/newWidthPercent;
-			Height = height/newHeightPercent;
+			Width = width / newWidthPercent;
+			Height = height / newHeightPercent;
 		}
-		void HUDButtons::reverseScreenPositions(int& width, int& height, int& posX, int& posY,bool reference)
+		void HUDButtons::reverseScreenPositions(int& width, int& height, int& posX, int& posY, bool reference)
 		{
 			size_t screenHeight = CoreInit::subSystems.window->Height();
 			size_t screenWidth = CoreInit::subSystems.window->Width();
@@ -1034,12 +1038,12 @@ namespace SE
 		void HUDButtons::DrawButtonText(ButtonElement &button)
 		{
 			StartProfile;
-		
+
 			auto entText = CoreInit::managers.entityManager->Create();
 
 			std::wstring text;
 			text.assign(button.buttonText.begin(), button.buttonText.end());
-			
+
 			Graphics::TextGUI guiText;
 			guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 			guiText.effect = Graphics::Effect::NoEffect;
@@ -1048,10 +1052,10 @@ namespace SE
 			guiText.layerDepth = 0;
 			guiText.anchor = DirectX::XMFLOAT2(0, 0);
 			guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
-			guiText.posX = button.PositionX -5;
-			guiText.posY = button.PositionY -5;
-			guiText.width = button.Width -5;
-			guiText.height = button.Height -5;
+			guiText.posX = button.PositionX - 5;
+			guiText.posY = button.PositionY - 5;
+			guiText.width = button.Width - 5;
+			guiText.height = button.Height - 5;
 			guiText.rotation = 0;
 			guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
@@ -1068,11 +1072,11 @@ namespace SE
 
 		void HUDButtons::DeleteSpecificButtons(string name)
 		{
-			for (auto& Button: Buttons)
+			for (auto& Button : Buttons)
 			{
 				if (Button.rectName == name)
 				{
-					CoreInit::managers.guiManager->ToggleRenderableTexture(ButtonEntityVec.at(Button.EntityIndex),false);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(ButtonEntityVec.at(Button.EntityIndex), false);
 					CoreInit::managers.entityManager->Destroy(ButtonEntityVec.at(Button.EntityIndex));
 				}
 			}
@@ -1085,7 +1089,7 @@ namespace SE
 			std::vector<ButtonElement> newButtons = preRenderButtons;
 			preRenderButtons.clear();
 			Buttons.clear();
-			for (auto& Button: newButtons)
+			for (auto& Button : newButtons)
 			{
 				CreateButton(Button);
 			}
@@ -1101,7 +1105,10 @@ namespace SE
 				for (int i = 1; i <= amount; i++)
 				{
 					size_t index = string.find(' ', i * 45);
-					string.insert(index, L"\n");
+					if (index <= string.length())
+					{
+						string.insert(index, L"\n");
+					}
 				}
 			}
 			return string;
@@ -1111,4 +1118,3 @@ namespace SE
 
 	}
 }
-

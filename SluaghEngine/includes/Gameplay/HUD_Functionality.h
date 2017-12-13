@@ -16,6 +16,8 @@ namespace SE
 			HUDButtons();
 			~HUDButtons();
 
+			
+
 			// struct for buttons
 			struct ButtonElement
 			{
