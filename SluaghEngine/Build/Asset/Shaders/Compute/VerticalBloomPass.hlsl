@@ -4,7 +4,7 @@ static const int2 RESOLUTION = { 640, 360 };
 static const int3 DISPATCH_SIZE = { 16, 15, 1 };
 static const int3 GROUP_SIZE = { 32, 32, 1 };
 
-static const int KERNEL_RADIUS = 16;
+static const int KERNEL_RADIUS = 32;
 static const int KERNEL_STEPS = 4;
 
 
