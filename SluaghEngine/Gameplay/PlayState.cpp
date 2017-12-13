@@ -831,7 +831,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 	EnemyCreationStruct eStruct;
 	int counter = 0;
 	
-	for(size_t r = 0; r < 1; r++)//worldWidth*worldHeight; r++)	
+	for(size_t r = 0; r < worldWidth*worldHeight; r++)	
 	{
 	auto& room = rooms[r].room;
 		room->GetMap(map);
