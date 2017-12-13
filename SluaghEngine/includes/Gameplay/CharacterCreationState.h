@@ -75,15 +75,15 @@ namespace SE
 			bool allSkillsSelected = false;
 
 			//	every file to be parsed //
-			std::string skillButtonFiles[18]
+			std::string skillButtonFiles[20]
 			{
-				"Bat_Minion.HuD",
-				"Heavy_Machine_Bow.HuD",
-				"voidRift.HuD",
-				"Bat_Swarm.HuD",
-				"Dagger_Rain.HuD",
-				"Doom_Ball.HuD",
-				"Fire_Pillars.HuD",
+				"Fladdermus_Kompanion.HuD",
+				"Drak_Torn.HuD",
+				"Intets_Klyfta.HuD",
+				"Fladdermus_Pack.HuD",
+				"Kniv_Regn.HuD",
+				"Ond_Skalle.HuD",
+				"Eld_Pelare.HuD",
 				"Gae_Bolg.HuD",
 				"Kasta_Sten.HuD",
 				"Blixt.HuD",
@@ -95,9 +95,11 @@ namespace SE
 				"Studs_Boll.HuD",
 				"Tidens_melodi.HuD",
 				"Vasst_blad.HuD",
+				"Magisk_Ande.HuD",
+				"Pilstorm.HuD"
 			};
 
-			std::string perkButtonFiles[18]
+			std::string perkButtonFiles[19]
 			{
 				"Krigs_herre.HuD",
 				"Tom_i_skallen.HuD",
@@ -116,11 +118,12 @@ namespace SE
 				"Veva_upp.HuD",
 				"Vulkan.HuD",
 				"Masochism.HuD",
-				"Tunga_slag.HuD"
+				"Tunga_slag.HuD",
+				"Utmattad.HuD"
 				
 			};
 
-			std::string Perkfiles[18]
+			std::string Perkfiles[19]
 			{
 				 "Krigs_herre.prk",
 				 "Tom_i_skallen.prk",
@@ -139,7 +142,8 @@ namespace SE
 				 "Veva_upp.prk",
 				 "Vulkan.prk",
 				 "Masochism.prk",
-				 "Tunga_slag.prk"
+				 "Tunga_slag.prk",
+				 "Utmattad.prk"
 			};
 			
 			IGameState::State CurrentState = State::CHARACTER_CREATION_STATE;

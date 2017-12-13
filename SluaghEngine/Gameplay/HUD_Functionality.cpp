@@ -2,6 +2,8 @@
 #include <HUD_Parsing.h>
 #include "CoreInit.h"
 #include <Profiler.h>
+#include <string>
+
 using namespace std;
 namespace SE
 {
@@ -9,7 +11,6 @@ namespace SE
 	{
 		HUDButtons::HUDButtons()
 		{
-			//CalculateScreenPositions();
 		}
 
 		HUDButtons::~HUDButtons()
@@ -22,14 +23,14 @@ namespace SE
 			ButtonElement preRender;
 			preRender.PositionX = posX;
 			preRender.PositionY = posY;
-			
+
 			preRender.Width = width;
 			preRender.Height = height;
-			
+
 			preRender.layerDepth = layerDepth;
 			preRender.rectName = name;
 			preRender.textName = textName;
-		
+
 			preRender.hoverTex = hoverTex;
 			preRender.PressTex = PressTex;
 			preRender.bindButton = func;
@@ -37,7 +38,7 @@ namespace SE
 			preRender.EntityIndex = -1;
 			preRenderButtons.push_back(preRender);
 
-			CalculateScreenPositions(width, height,posX,posY);
+			CalculateScreenPositions(width, height, posX, posY);
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -58,7 +59,7 @@ namespace SE
 			ProfileReturnVoid;
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill, string perkName, string textName, string hoverTex, string PressTex, string buttonText,PerkData perk)
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, bool skill, string perkName, string textName, string hoverTex, string PressTex, string buttonText, PerkData perk)
 		{
 			StartProfile;
 			ButtonElement preRender;
@@ -78,7 +79,7 @@ namespace SE
 			preRender.buttonText = buttonText;
 			preRender.EntityIndex = -1;
 			preRenderButtons.push_back(preRender);
-			CalculateScreenPositions(width,height,posX,posY);
+			CalculateScreenPositions(width, height, posX, posY);
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -151,10 +152,10 @@ namespace SE
 
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[],string skillName, string textName, string hoverTex, string PressTex, string buttonText)
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string skillName, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
-			CalculateScreenPositions(width, height,posX,posY);
+			CalculateScreenPositions(width, height, posX, posY);
 			ButtonElement tempElement;
 			tempElement.PositionX = posX;
 			tempElement.PositionY = posY;
@@ -172,11 +173,11 @@ namespace SE
 			tempElement.buttonText = buttonText;
 			tempElement.skillButton = true;
 			tempElement.skillName = skillName;
-			
+
 			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 8; i++)
 			{
-			
+
 				tempElement.skillDesc[i] = skillDesc[i];
 
 			}
@@ -198,7 +199,7 @@ namespace SE
 				std::replace(holder.begin(), holder.end(), '_', ' ');
 				description.resize(holder.length(), L'\0');
 				std::copy(holder.begin(), holder.end(), description.begin());
-				
+
 				description += L"Damage Source: ";
 				switch (button.skillDesc[0])
 				{
@@ -348,7 +349,7 @@ namespace SE
 				std::replace(holder.begin(), holder.end(), '_', ' ');
 				description.resize(holder.length(), L'\0');
 				std::copy(holder.begin(), holder.end(), description.begin());
-				
+
 
 				switch (button.perk.condition)
 				{
@@ -356,34 +357,34 @@ namespace SE
 					description += L"Alltid aktiv\n";
 					break;
 				case 1:
-					description += L"nÃ¤r slagen av fysisk skada\n";
+					description += L"när slagen av fysisk skada\n";
 					break;
 				case 2:
-					description += L"nÃ¤r slagen av vatten skada\n";
+					description += L"när slagen av vatten skada\n";
 					break;
 				case 3:
-					description += L"nÃ¤r slagen av natur skada\n";
+					description += L"när slagen av natur skada\n";
 					break;
 				case 4:
-					description += L"nÃ¤r slagen av magisk skada\n";
+					description += L"när slagen av magisk skada\n";
 					break;
 				case 5:
-					description += L"nÃ¤r slagen av eld skada\n";
+					description += L"när slagen av eld skada\n";
 					break;
 				case 6:
-					description += L"nÃ¤r slÃ¥endes med fysisk skada\n";
+					description += L"när slåendes med fysisk skada\n";
 					break;
 				case 7:
-					description += L"nÃ¤r slÃ¥endes med vatten skada\n";
+					description += L"när slåendes med vatten skada\n";
 					break;
 				case 8:
-					description += L"nÃ¤r slÃ¥endes med natur skada\n";
+					description += L"när slåendes med natur skada\n";
 					break;
 				case 9:
-					description += L"nÃ¤r slÃ¥endes med magisk skada\n";
+					description += L"när slåendes med magisk skada\n";
 					break;
 				case 10:
-					description += L"nÃ¤r slÃ¥endes med eld skada\n";
+					description += L"när slåendes med eld skada\n";
 					break;
 				default:
 					break;
@@ -393,7 +394,7 @@ namespace SE
 					switch (button.perk.types[i])
 					{
 					case 0:
-						description += L"Livs stjÃ¤lande %: ";
+						description += L"Livs stjälande %: ";
 						break;
 					case 1:
 						description += L"Fysisk resistans %: ";
@@ -423,7 +424,7 @@ namespace SE
 						description += L"Intelligens adderat: ";
 						break;
 					case 10:
-						description += L"HÃ¤lsa adderat: ";
+						description += L"Hälsa adderat: ";
 						break;
 					case 11:
 						description += L"Styrka % : ";
@@ -435,64 +436,66 @@ namespace SE
 						description += L"Smidighet % : ";
 						break;
 					case 14:
-						description += L"HÃ¤lsa % : ";
+						description += L"Hälsa % : ";
 						break;
 					case 15:
-						description += L"Skada % Ã¶kning: ";
+						description += L"Skada % ökning: ";
 						break;
 					case 16:
-						description += L"NÃ¤rstrids lÃ¤ngd % Ã¶kning: ";
+						unsigned char bla[255];
+						//bla("Närstrids längd % ökning: ");
+						description += L"Närstrids längd % ökning: ";
 						break;
 					case 17:
-						description += L"NÃ¤rstrids skada % Ã¶kning: ";
+						description += L"Närstrids skada % ökning: ";
 						break;
 					case 18:
-						description += L"Distans skada % Ã¶kning: ";
+						description += L"Distans skada % ökning: ";
 						break;
 					case 19:
-						description += L"Attack hastighet % Ã¶kning: ";
+						description += L"Attack hastighet % ökning: ";
 						break;
 					case 20:
-						description += L"NÃ¤rstrids attack hastighet % Ã¶kning: ";
+						description += L"Närstrids attack hastighet % ökning: ";
 						break;
 					case 21:
-						description += L"Skada % Ã¶kning per slag: ";
+						description += L"Skada % ökning per slag: ";
 						break;
 					case 22:
-						description += L"Attack hastighet % Ã¶kning per slag: ";
+						description += L"Attack hastighet % ökning per slag: ";
 						break;
 					case 23:
-						description += L"NÃ¤rstrids skada % Ã¶kning per slag: ";
+						description += L"Närstrids skada % ökning per slag: ";
 						break;
 					case 24:
-						description += L"Distans skada % Ã¶kning per slag: ";
+						description += L"Distans skada % ökning per slag: ";
 						break;
 					case 25:
-						description += L"NÃ¤rstrids attack hastighet % Ã¶kning per slag: ";
+						description += L"Närstrids attack hastighet % ökning per slag: ";
 						break;
 					case 26:
-						description += L"Distans attack hastighet % Ã¶kning per slag: ";
+						description += L"Distans attack hastighet % ökning per slag: ";
 						break;
 					case 27:
 						description += L"inte aktuell!\n";
 						break;
 					case 28:
-						description += L"FÃ¶rmÃ¥ga nedkylning %: ";
+						description += L"Förmåga nedkylning %: ";
 						break;
 					case 29:
-						description += L"FÃ¶rmÃ¥ga nedkylning sekunder: ";
+						description += L"Förmåga nedkylning sekunder: ";
 						break;
 					case 30:
-						description += L"FÃ¶rmÃ¥ga skada % Ã¶kning: ";
+						description += L"Förmåga skada % ökning: ";
 						break;
 					case 31:
-						description += L"Momentum % Ã¶kning: ";
+						description += L"Momentum % ökning: ";
 						break;
 					case 32:
-						description += L"Max hÃ¤lsa % helande: ";
+						description += L"Max hälsa % helande: ";
 						break;
 					case 33:
-						description += L"HÃ¤lsa helande:\n";
+						description += L"Hälsa helande:\n";
 						break;
 					case 34:
 						description += L"Helande immun\n";
@@ -510,10 +513,10 @@ namespace SE
 						description += L"Natur immun\n";
 						break;
 					case 39:
-						description += L"NedslÃ¶andes immun\n";
+						description += L"Nedslöandes immun\n";
 						break;
 					case 40:
-						description += L"BedÃ¶vnings immun\n";
+						description += L"Bedövnings immun\n";
 						break;
 					case 41:
 						description += L"Magi immun\n";
@@ -522,22 +525,22 @@ namespace SE
 						description += L"Puttnings immun\n";
 						break;
 					case 43:
-						description += L"NÃ¤rstrid LÃ¥st\n";
+						description += L"Närstrid Låst\n";
 						break;
 					case 44:
-						description += L"Distans LÃ¥st\n";
+						description += L"Distans Låst\n";
 						break;
 					case 45:
-						description += L"Magi LÃ¥st\n";
+						description += L"Magi Låst\n";
 						break;
 					case 46:
-						description += L"Vatten LÃ¥st\n";
+						description += L"Vatten Låst\n";
 						break;
 					case 47:
-						description += L"Eld LÃ¥st\n";
+						description += L"Eld Låst\n";
 						break;
 					case 48:
-						description += L"Natur LÃ¥st\n";
+						description += L"Natur Låst\n";
 						break;
 					default:
 						break;
@@ -550,7 +553,7 @@ namespace SE
 					switch (button.perk.checks[i])
 					{
 					case 0:
-						description += L"Livs stjÃ¤lande: ";
+						description += L"Livs stjälande: ";
 						break;
 					case 1:
 						description += L"Fysisk resistans: ";
@@ -580,76 +583,76 @@ namespace SE
 						description += L"Intelligens adderat: ";
 						break;
 					case 10:
-						description += L"HÃ¤lsa adderat: ";
+						description += L"Hälsa adderat: ";
 						break;
 					case 11:
-						description += L"Styrka % Ã¶kning: ";
+						description += L"Styrka % ökning: ";
 						break;
 					case 12:
-						description += L"Smidighet % Ã¶kning: ";
+						description += L"Smidighet % ökning: ";
 						break;
 					case 13:
-						description += L"Intelligens % Ã¶kning: ";
+						description += L"Intelligens % ökning: ";
 						break;
 					case 14:
-						description += L"HÃ¤lsa % Ã¶kning: ";
+						description += L"Hälsa % ökning: ";
 						break;
 					case 15:
-						description += L"Skada % Ã¶kning: ";
+						description += L"Skada % ökning: ";
 						break;
 					case 16:
-						description += L"NÃ¤rstrids lÃ¤ngd % Ã¶kning: ";
+						description += L"Närstrids längd % ökning: ";
 						break;
 					case 17:
-						description += L"NÃ¤rstrids skada % Ã¶kning: ";
+						description += L"Närstrids skada % ökning: ";
 						break;
 					case 18:
-						description += L"Distans skada % Ã¶kning: ";
+						description += L"Distans skada % ökning: ";
 						break;
 					case 19:
-						description += L"Attack hastighet % Ã¶kning: ";
+						description += L"Attack hastighet % ökning: ";
 						break;
 					case 20:
-						description += L"NÃ¤rstrids attack hastighet % Ã¶kning: ";
+						description += L"Närstrids attack hastighet % ökning: ";
 						break;
 					case 21:
-						description += L"Skada % Ã¶kning per slag: ";
+						description += L"Skada % ökning per slag: ";
 						break;
 					case 22:
-						description += L"Attack hastighet % Ã¶kning per slag: ";
+						description += L"Attack hastighet % ökning per slag: ";
 						break;
 					case 23:
-						description += L"NÃ¤rstrids skada % Ã¶kning per slag: ";
+						description += L"Närstrids skada % ökning per slag: ";
 						break;
 					case 24:
-						description += L"Distans skada % Ã¶kning per slag: ";
+						description += L"Distans skada % ökning per slag: ";
 						break;
 					case 25:
-						description += L"NÃ¤rstrids attack hastighet % Ã¶kning per slag: ";
+						description += L"Närstrids attack hastighet % ökning per slag: ";
 						break;
 					case 26:
-						description += L"Distans attack hastighet % Ã¶kning per slag: ";
+						description += L"Distans attack hastighet % ökning per slag: ";
 						break;
 					case 27:
 						description += L"inte aktuell!\n";
 						break;
 					case 28:
-						description += L"FÃ¶rmÃ¥ga nedkylning %:";
+						description += L"Förmåga nedkylning %:";
 						break;
 					case 29:
-						description += L"FÃ¶rmÃ¥ga nedkylning sekunder: ";
+						description += L"Förmåga nedkylning sekunder: ";
 						break;
 					case 30:
-						description += L"FÃ¶rmÃ¥ga skada % Ã¶kning: ";
+						description += L"Förmåga skada % ökning: ";
 						break;
 					case 31:
-						description += L"Momentum % Ã¶kning: ";
+						description += L"Momentum % ökning: ";
 						break;
 					case 32:
-						description += L"Max hÃ¤lsa % helande: ";
+						description += L"Max hälsa % helande: ";
 						break;
 					case 33:
-						description += L"HÃ¤lsa helande: ";
+						description += L"Hälsa helande: ";
 						break;
 					case 34:
 						description += L"Helande immun\n";
@@ -667,10 +670,10 @@ namespace SE
 						description += L"Natur immun\n";
 						break;
 					case 39:
-						description += L"NedslÃ¶andes immun\n";
+						description += L"Nedslöandes immun\n";
 						break;
 					case 40:
-						description += L"BedÃ¶vnings immun\n";
+						description += L"Bedövnings immun\n";
 						break;
 					case 41:
 						description += L"Magi immun\n";
@@ -679,22 +682,22 @@ namespace SE
 						description += L"Puttnings immun\n";
 						break;
 					case 43:
-						description += L"NÃ¤rstrid LÃ¥st\n";
+						description += L"Närstrid Låst\n";
 						break;
 					case 44:
-						description += L"Distans LÃ¥st\n";
+						description += L"Distans Låst\n";
 						break;
 					case 45:
-						description += L"Magi LÃ¥st\n";
+						description += L"Magi Låst\n";
 						break;
 					case 46:
-						description += L"Vatten LÃ¥st\n";
+						description += L"Vatten Låst\n";
 						break;
 					case 47:
-						description += L"Eld LÃ¥st";
+						description += L"Eld Låst";
 						break;
 					case 48:
-						description += L"Natur LÃ¥st";
+						description += L"Natur Låst";
 						break;
 					default:
 						break;
@@ -721,9 +724,9 @@ namespace SE
 				bool fullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", perhaps);
 				if (fullscreen)
 				{
-					reverseScreenPositions(ButtonElement.Width, ButtonElement.Height,ButtonElement.PositionX,ButtonElement.PositionY);
+					reverseScreenPositions(ButtonElement.Width, ButtonElement.Height, ButtonElement.PositionX, ButtonElement.PositionY);
 				}
-				
+
 
 				auto entity = CoreInit::managers.entityManager->Create();
 				if (fullscreen)
@@ -746,7 +749,7 @@ namespace SE
 				ButtonGuiManager.textureInfo.layerDepth = 1.0f - ButtonElement.layerDepth / 1000.0f;
 
 				ButtonGuiManager.texture = ButtonElement.textName;
-				
+
 				CoreInit::managers.guiManager->Create(entity, ButtonGuiManager);
 
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
@@ -774,18 +777,19 @@ namespace SE
 		void HUDButtons::ButtonHover(int mouseX, int mouseY, bool pressed, bool released)
 		{
 			StartProfile;
+			
 			bool inside = false;
 			ButtonElement skillDescBtn;
-		
-				for (auto& button : Buttons)
+
+			for (auto& button : Buttons)
+			{
+				if (button.rectName == "skillDescription")
 				{
-					if (button.rectName == "skillDescription")
-					{
-						skillDescBtn = button;
-						break;
-					}
+					skillDescBtn = button;
+					break;
 				}
-			
+			}
+
 			for (auto& button : Buttons)
 			{
 				if (mouseX < button.PositionX + button.Width && mouseX > button.PositionX)
@@ -798,7 +802,7 @@ namespace SE
 
 				if (inside)
 				{
-					
+
 					if (pressed)
 					{
 						// pressed
@@ -828,7 +832,7 @@ namespace SE
 					{
 						// hovered;
 						auto& entity = ButtonEntityVec.at(button.EntityIndex);
-						if (button.hoverTex!="")
+						if (button.hoverTex != "")
 						{
 							CoreInit::managers.guiManager->SetTexture(entity, button.hoverTex);
 						}
@@ -836,42 +840,43 @@ namespace SE
 						{
 							if (wasHovering == false)
 							{
+								
 								std::wstring text;
 								text = printSkillDesc(button);
 								auto entText = CoreInit::managers.entityManager->Create();
-								
-								
+
+
 
 								bool isFullscreen = false;
 								isFullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", isFullscreen);
 
 								if (isFullscreen)
 								{
-									reverseScreenPositions(skillDescBtn.Width, skillDescBtn.Height, skillDescBtn.PositionX, skillDescBtn.PositionY,true);
+									reverseScreenPositions(skillDescBtn.Width, skillDescBtn.Height, skillDescBtn.PositionX, skillDescBtn.PositionY, true);
 								}
 								Graphics::TextGUI guiText;
 								guiText.colour = DirectX::XMFLOAT4(0.0, 0.0, 0.0, 1.0);
 								guiText.effect = Graphics::Effect::NoEffect;
 								guiText.text = text;
-								
+
 								guiText.hashString = std::hash<std::wstring>()(guiText.text);
 								guiText.layerDepth = 0;
 								guiText.anchor = DirectX::XMFLOAT2(0, 0);
 								guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
-								guiText.posX = skillDescBtn.PositionX+55;
-								guiText.posY = skillDescBtn.PositionY+30;
-								guiText.width = skillDescBtn.Width-50;
-								guiText.height = skillDescBtn.Height-10;
+								guiText.posX = skillDescBtn.PositionX + 55;
+								guiText.posY = skillDescBtn.PositionY + 30;
+								guiText.width = skillDescBtn.Width - 50;
+								guiText.height = skillDescBtn.Height - 10;
 								guiText.rotation = 0;
-								
+
 								guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
 								CoreInit::managers.textManager->Create(entText, { Utilz::GUID("EnchantedLand.spritefont"), guiText });
 								CoreInit::managers.textManager->ToggleRenderableText(entText, true);
 
 								skillDescEntity = entText;
-								
-								
+
+
 							}
 						}
 						if (button.rectName != "skillBackgroundBtn" && button.rectName != "skillBackgroundBtn2" && button.rectName != "skillBackgroundBtn3")
@@ -896,7 +901,7 @@ namespace SE
 
 								CoreInit::managers.guiManager->ToggleRenderableTexture(skillDescEntity, false);
 								CoreInit::managers.entityManager->Destroy(skillDescEntity);
-								
+
 							}
 							wasHovering = false;
 						}
@@ -910,7 +915,7 @@ namespace SE
 		void HUDButtons::DeleteButtons()
 		{
 			StartProfile;
-			for (auto& entity: ButtonEntityVec)
+			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
 				CoreInit::managers.entityManager->Destroy(entity);
@@ -925,7 +930,7 @@ namespace SE
 			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
-				
+
 			}
 			ProfileReturnVoid;
 		}
@@ -936,7 +941,7 @@ namespace SE
 			for (auto& entity : ButtonEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, true);
-				
+
 			}
 			ProfileReturnVoid;
 		}
@@ -951,13 +956,13 @@ namespace SE
 				{
 					if (name == Buttons[i].rectName)
 					{
-						Buttons.erase(Buttons.begin()+i);
+						Buttons.erase(Buttons.begin() + i);
 						i = 0;
-						
+
 					}
 				}
 			}
-			
+
 			for (auto& entity : SkillNPerkEntityVec)
 			{
 				CoreInit::managers.guiManager->ToggleRenderableTexture(entity, false);
@@ -986,12 +991,12 @@ namespace SE
 
 			posX = posX*newWidthPercent;
 			posY = posY*newHeightPercent;
-			width =  width*newWidthPercent;
+			width = width*newWidthPercent;
 			height = height*newHeightPercent;
 
 		}
 
-		void HUDButtons::reverseScreenPositions(int width, int height,int posX, int posY)
+		void HUDButtons::reverseScreenPositions(int width, int height, int posX, int posY)
 		{
 			size_t screenHeight = CoreInit::subSystems.window->Height();
 			size_t screenWidth = CoreInit::subSystems.window->Width();
@@ -1002,12 +1007,12 @@ namespace SE
 			float newWidthPercent = screenWidth / minWidth;
 			float newHeightPercent = screenHeight / minHeight;
 
-			positionX = posX/newWidthPercent;
+			positionX = posX / newWidthPercent;
 			positionY = posY / newWidthPercent;
-			Width = width/newWidthPercent;
-			Height = height/newHeightPercent;
+			Width = width / newWidthPercent;
+			Height = height / newHeightPercent;
 		}
-		void HUDButtons::reverseScreenPositions(int& width, int& height, int& posX, int& posY,bool reference)
+		void HUDButtons::reverseScreenPositions(int& width, int& height, int& posX, int& posY, bool reference)
 		{
 			size_t screenHeight = CoreInit::subSystems.window->Height();
 			size_t screenWidth = CoreInit::subSystems.window->Width();
@@ -1027,12 +1032,12 @@ namespace SE
 		void HUDButtons::DrawButtonText(ButtonElement &button)
 		{
 			StartProfile;
-		
+
 			auto entText = CoreInit::managers.entityManager->Create();
 
 			std::wstring text;
 			text.assign(button.buttonText.begin(), button.buttonText.end());
-			
+
 			Graphics::TextGUI guiText;
 			guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 			guiText.effect = Graphics::Effect::NoEffect;
@@ -1041,10 +1046,10 @@ namespace SE
 			guiText.layerDepth = 0;
 			guiText.anchor = DirectX::XMFLOAT2(0, 0);
 			guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
-			guiText.posX = button.PositionX -5;
-			guiText.posY = button.PositionY -5;
-			guiText.width = button.Width -5;
-			guiText.height = button.Height -5;
+			guiText.posX = button.PositionX - 5;
+			guiText.posY = button.PositionY - 5;
+			guiText.width = button.Width - 5;
+			guiText.height = button.Height - 5;
 			guiText.rotation = 0;
 			guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
@@ -1061,11 +1066,11 @@ namespace SE
 
 		void HUDButtons::DeleteSpecificButtons(string name)
 		{
-			for (auto& Button: Buttons)
+			for (auto& Button : Buttons)
 			{
 				if (Button.rectName == name)
 				{
-					CoreInit::managers.guiManager->ToggleRenderableTexture(ButtonEntityVec.at(Button.EntityIndex),false);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(ButtonEntityVec.at(Button.EntityIndex), false);
 					CoreInit::managers.entityManager->Destroy(ButtonEntityVec.at(Button.EntityIndex));
 				}
 			}
@@ -1078,7 +1083,7 @@ namespace SE
 			std::vector<ButtonElement> newButtons = preRenderButtons;
 			preRenderButtons.clear();
 			Buttons.clear();
-			for (auto& Button: newButtons)
+			for (auto& Button : newButtons)
 			{
 				CreateButton(Button);
 			}
@@ -1088,4 +1093,3 @@ namespace SE
 
 	}
 }
-
