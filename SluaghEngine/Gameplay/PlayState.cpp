@@ -913,7 +913,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			{
 					data.type = EnemyType(std::rand() % 3);
 			}
-			data.type = ENEMY_TYPE_NUCKELAVEE;
+			
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
