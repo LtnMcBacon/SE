@@ -16,7 +16,7 @@ SE::Gameplay::Status SE::Gameplay::RootedCondition::Update()
 {
 	StartProfile;
 
-	if (enemyBlackboard->activeCondition == Boons::CONDITIONAL_BOONS_ROOT)
+	if (enemyBlackboard->activeCondition & Boons::CONDITIONAL_BOONS_ROOT || enemyBlackboard->activeBane & Banes::CONDITIONAL_BANES_ROOT)
 		myStatus = Status::BEHAVIOUR_SUCCESS;
 
 	else
