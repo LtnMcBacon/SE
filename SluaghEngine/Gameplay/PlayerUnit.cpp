@@ -510,6 +510,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	this->calcNewStrChanges();
 	this->calcNewAgiChanges();
 	this->calcNewWhiChanges();
+	this->calcNewConsecutiveAttackSpeed();
+	this->calcNewAttackSpeed();
 
 	int nrOfSKills = skills.size();
 
@@ -680,6 +682,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 
 
+	this->setBaseAttackMult(0);
 	handlePerks(dt, this, newProjectiles);
 
 	ResolveEvents(dt);

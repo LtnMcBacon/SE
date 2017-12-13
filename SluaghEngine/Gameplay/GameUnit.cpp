@@ -312,3 +312,13 @@ void SE::Gameplay::GameUnit::calcNewWhiChanges()
 	}
 	StopProfile;
 }
+
+void SE::Gameplay::GameUnit::calcNewConsecutiveAttackSpeed()
+{
+	newStat.attackSpeed += baseStat.attackSpeed*baseStat.ConsecutiveattackSpeedMultiplier;
+}
+
+void SE::Gameplay::GameUnit::calcNewAttackSpeed()
+{
+	newStat.attackSpeed += baseStat.attackSpeed*baseStat.attackSpeedMultiplier;
+}
