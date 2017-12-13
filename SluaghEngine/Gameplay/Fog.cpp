@@ -524,6 +524,10 @@ void SE::Gameplay::Fog::Enable(bool status)
 
 void SE::Gameplay::Fog::Instantiate(char tileValues[25][25], float *time)
 {
+	if (rjInitialized)
+		return;
+
+
 	for (unsigned int row = 0; row < 25; row++)
 	{
 		for (unsigned int column = 0; column < 25; column++)
@@ -531,6 +535,7 @@ void SE::Gameplay::Fog::Instantiate(char tileValues[25][25], float *time)
 			this->tileValues[column][row] = tileValues[column][row];
 		}
 	}
+
 
 	CreatePlane(time);
 }
