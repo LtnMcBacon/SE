@@ -877,19 +877,42 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			EnemyCreationData data;
 			if (counter < 1 && timeWon < 2)
 			{
-				data.type = ENEMY_TYPE_BODACH;
+				if (CoreInit::subSystems.window->GetRand() % 2)
+					data.type = ENEMY_TYPE_PECH_MELEE;
+				else
+					data.type = ENEMY_TYPE_PECH_RANGED;
 			}
-			else if(counter < 4)
+			else if(counter < 3)
 			{
 				if (CoreInit::subSystems.window->GetRand() % 2)
 					data.type = ENEMY_TYPE_BODACH;
 				else
 					data.type = ENEMY_TYPE_GLAISTIG;
 			}
-			else 
+			else if(counter < 6)
+			{
+				switch (CoreInit::subSystems.window->GetRand() % 4)
+				{
+				case 1:
+					data.type = ENEMY_TYPE_PECH_MELEE;
+					break;
+				case 2:
+					data.type = ENEMY_TYPE_PECH_RANGED;
+					break;
+				case 3:
+					data.type = ENEMY_TYPE_BODACH;
+					break;
+				case 4:
+					data.type = ENEMY_TYPE_GLAISTIG;
+					break;
+				default: break;
+				}
+			}
+			else
 			{
 					data.type = EnemyType(std::rand() % 3);
 			}
+			data.type = ENEMY_TYPE_GLAISTIG;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
@@ -916,7 +939,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		enemiesInEachRoom = std::min(enemiesInEachRoom, 6);
 		delete[] enemies;
 
-
+		r = worldWidth*worldHeight;
 	}
 	ProfileReturnVoid;
 }
@@ -1477,7 +1500,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 			for (int y = 0; y < worldHeight; y++)
 				totalEnemiesLeft += GetRoom(x, y)->get().room->NumberOfEnemiesInRoom();
 
-		if (totalEnemiesLeft <= 2) {
+		if (!totalEnemiesLeft) {
 			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
 			sluaghDoorsOpen = true;
 			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY)->get().room);
