@@ -830,9 +830,10 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	EnemyCreationStruct eStruct;
 	int counter = 0;
-	for(size_t r = 0; r < worldWidth*worldHeight; r++)
+	
+	for(size_t r = 0; r < 1; r++)//worldWidth*worldHeight; r++)	
 	{
-		auto& room = rooms[r].room;
+	auto& room = rooms[r].room;
 		room->GetMap(map);
 		eStruct.information.clear();
 		enemiesInEachRoom = 1 + std::min(timeWon, 3);
@@ -912,6 +913,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			{
 					data.type = EnemyType(std::rand() % 3);
 			}
+			data.type = ENEMY_TYPE_NUCKELAVEE;
 			data.startX = enemyPos.x;
 			data.startY = enemyPos.y;
 			data.useVariation = true;
