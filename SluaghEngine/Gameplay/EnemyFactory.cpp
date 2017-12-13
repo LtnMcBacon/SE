@@ -119,7 +119,7 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, DamageTy
 			CoreInit::managers.dataManager->SetValue(newEntity, "Weapon", swordEntity);
 			
 			CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
-			CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+			CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, false);
 
 			Core::IMaterialManager::CreateInfo materialInfo;
 			materialInfo.bloom = false;
@@ -151,7 +151,7 @@ Core::Entity EnemyFactory::CreateEntityDataForEnemyType(EnemyType type, DamageTy
 				CoreInit::managers.transformManager->Rotate(swordEntity, 3.0f, -0.4f, 1.3f);
 				CoreInit::managers.dataManager->SetValue(newEntity, "Weapon", swordEntity);
 				CoreInit::managers.renderableManager->CreateRenderableObject(swordEntity, swordInfo);
-				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, true);
+				CoreInit::managers.renderableManager->ToggleRenderableObject(swordEntity, false);
 
 				Core::IMaterialManager::CreateInfo materialInfo;
 				materialInfo.bloom = false;
