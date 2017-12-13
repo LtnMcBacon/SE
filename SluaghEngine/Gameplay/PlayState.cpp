@@ -655,6 +655,7 @@ void SE::Gameplay::PlayState::InitializeDeathSequence() {
 	deathInfo.info.anchor = { 0.5f, 0.5f };
 	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
 	deathInfo.font = "Knights.spritefont";
+	deathInfo.info.layerDepth = 0.01f;
 
 	CoreInit::managers.textManager->Create(deathText, deathInfo);
 
@@ -1105,6 +1106,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	promptCreateInfo.info.text = L"f LÄMNA RUMMET";
 	promptCreateInfo.info.scale = { 0.3f, 0.3f };
 	promptCreateInfo.font = "Knights.spritefont";
+	promptCreateInfo.info.layerDepth = 0.011f;
 	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
 
 	aimDecal = CoreInit::managers.entityManager->Create();
@@ -1562,7 +1564,10 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		soundTime = 0.0f;
 	}
 	//-----end sound update
-	CheckForRoomTransition();
+
+	if(deathSequence == false)
+		CheckForRoomTransition();
+
 	UpdateHUD(dt);
 
 	

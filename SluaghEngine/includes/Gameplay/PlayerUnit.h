@@ -349,9 +349,8 @@ namespace SE
 			
 
 			//void changeElementType(Gameplay::DamageTypes element);
-
+			float playerAttackCooldown = 0.0f;
 			bool isStunned = false;
-			bool attacking = false;
 			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, Perk* importPerks ,PerkData* slaughPerks, float xPos, float yPos, char mapForRoom[25][25]);
