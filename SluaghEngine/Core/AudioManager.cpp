@@ -28,6 +28,7 @@ namespace SE {
 		void AudioManager::Create(const Entity & entity, const CreateInfo & createInfo)
 		{
 			StartProfile;
+			//ProfileReturnVoid;
 			// Check if the entity is alive
 			if (!initInfo.entityManager->Alive(entity))
 				ProfileReturnVoid;
