@@ -37,19 +37,19 @@ struct ProjectileInfo
 static const std::vector<std::vector<ProjectileInfo>> projectiles = 
 {
 	{
-		{ 2.0f, "playerMeleeProjectiles.SEP" },
-		{ 2.0f, "playerMeleeProjectiles.SEP" }
+		{ 0.16f, "playerMeleeProjectiles.SEP" },
+		{ 0.16f, "playerMeleeProjectiles.SEP" }
 	},
 
 	{
-		{ 1.0f, "CrossbowAttack.SEP" },
-		{ 20.0f, "BoomerangArrow.SEP" },
-		{ 0.5f, "TripleArrow.SEP" }
+		{ 0.1f, "CrossbowAttack.SEP" },
+		{ 2.0f, "BoomerangArrow.SEP" },
+		{ 0.09f, "TripleArrow.SEP" }
 	},
 	{
-		{ 1.0f, "WandAttack.SEP" },
-		{ 0.75f, "TronWand.SEP" },
-		{ 0.25f, "WandVortex.SEP" }
+		{ 0.1f, "WandAttack.SEP" },
+		{ 0.09f, "TronWand.SEP" },
+		{ 0.08f, "WandVortex.SEP" }
 	}
 };
 
