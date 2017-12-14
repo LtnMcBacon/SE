@@ -1105,7 +1105,7 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		switch (randNr)
 		{
 		case 0:
-			wallGuid = Materials[Materials::WallStone];
+			wallGuid = Materials[Materials::julWall];
 			break;
 		case 1:
 			wallGuid = Materials[Materials::FanzyWall];
@@ -2075,6 +2075,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	else
 	{
 		matInfo.materialFile = args.floorMat;
+		
 
 		const Utilz::GUID carpetTextures[] = { "CowWhite.png", "CowBlack.png", "CowBrown.png", "bear.png" };
 		const size_t carpetTexturesCount = sizeof(carpetTextures) / sizeof(*carpetTextures);
@@ -2146,13 +2147,23 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 					DirectX::XMStoreFloat4x4(&floorDecalTrans, (floorDecalScaling) * (floorDecalRotationX *floorDecalRotationY) * floorDecalTranslation);
 
 					CoreInit::managers.decalManager->SetLocalTransform(entFloor, (float*)&floorDecalTrans);
+
 			
 			}
 		}
 		
 	}
 
-	matInfo.shader = Norm;
+	
+	if (IsOutside == false)
+	{
+		matInfo.shader = Norm;
+	}
+	else
+	{
+		matInfo.shader = BushShader;
+	}
+
 	CoreInit::managers.materialManager->Create(entFloor, matInfo);
 	//CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
 	roomEntities[args.x][args.y].push_back(entFloor);
