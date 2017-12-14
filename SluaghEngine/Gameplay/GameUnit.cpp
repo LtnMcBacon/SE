@@ -315,7 +315,7 @@ void SE::Gameplay::GameUnit::calcNewWhiChanges()
 
 void SE::Gameplay::GameUnit::calcNewConsecutiveAttackSpeed()
 {
-	newStat.attackSpeed += baseStat.attackSpeed*baseStat.ConsecutiveattackSpeedMultiplier;
+	newStat.attackSpeed += baseStat.attackSpeed * baseStat.ConsecutiveattackSpeedMultiplier;
 }
 
 void SE::Gameplay::GameUnit::calcNewAttackSpeed()
