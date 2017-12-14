@@ -106,8 +106,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				newStat.meleeMultiplier += baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
 				break;
 			case Boons::CONDITIONAL_BOONS_STUN:
+				this->isStunned = true;
 				break;
 			case Boons::CONDITIONAL_BOONS_ROOT:
+				this->isRooted = true;
+				this->newStat.movementSpeed = 0;
 				break;
 			case Boons::CONDITIONAL_BOONS_PROTECTION:
 				this->newStat.physicalResistance += this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
@@ -130,9 +133,17 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 			case Boons::CONDITIONAL_BOONS_CASTSPEED:
 				break;
 			case Boons::CONDITIONAL_BOONS_SWIFTNESS:
-				this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				if (!isRooted == false)
+				{
+					this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			case Boons::CONDITIONAL_BOONS_SLOW:
+				if (!isRooted || !isStunned)
+				{
+					this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 				break;
@@ -151,6 +162,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				this->isStunned = true;
 				break;
 			case Banes::CONDITIONAL_BANES_ROOT:
+				this->isRooted = true;
 				this->newStat.movementSpeed = 0;
 				break;
 			case Banes::CONDITIONAL_BANES_BLOODLETTING:
@@ -174,8 +186,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				this->newStat.natureResistance -= this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
 				break;
 			case Banes::CONDITIONAL_BANES_SLOW:
-				this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
-				this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				if (!isRooted || !isStunned)
+				{
+					this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			}
 		}
@@ -411,49 +426,53 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-	auto w = CoreInit::subSystems.window;
-	bool ci = false;
-	auto newItem = 0;
-	if (!isSluagh)
+
+	// Can only switch weapon if the player is not attacking
+	if(playerAttackCooldown <= 0.0f){
+
+		auto w = CoreInit::subSystems.window;
+		bool ci = false;
+		auto newItem = 0;
+		if (!isSluagh)
 	{
 		if (CoreInit::subSystems.window->ButtonUp(GameInput::SHOWINFO))
 			showingItem = currentItem;
 	}
-	if (input.one)
-	{
-		newItem = 0;
-		ci = true;
-	}
-	else if (input.two)
-	{
-		newItem = 1;
-		ci = true;
-	}
-	else if (input.three)
-	{
-		newItem = 2;
-		ci = true;
-	}
-	else if (input.four)
+		if (input.one)
+		{
+			newItem = 0;
+			ci = true;
+		}
+		else if (input.two)
+		{
+			newItem = 1;
+			ci = true;
+		}
+		else if (input.three)
+		{
+			newItem = 2;
+			ci = true;
+		}
+		else if (input.four)
 	{
 		newItem = 3;
 		ci = true;
 	}
-	else if (input.five)
+		else if (input.five)
 	{
 		newItem = 4;
 		ci = true;
 	}
-	if (ci && input.showInfo)
-	{
-		if (auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)); item != -1)
+		if (ci && input.showInfo)
+		{
+			if (auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)); item != -1)
 		{
 
 				showingItem = newItem;
 				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);	
 		}
-	}
-	if (ci && attacking == false)
+		}
+		if (ci)
 	{
 		if (!input.showInfo)
 		{
@@ -496,6 +515,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 	}
 
+	}
 
 	this->newStat.str += weaponStats.str;
 	this->newStat.agi += weaponStats.agi;
@@ -506,10 +526,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 	this->newStat.damageType = weaponStats.damageType;
 	this->newStat.weapon = weaponStats.weapon;
-
-	this->calcNewStrChanges();
-	this->calcNewAgiChanges();
-	this->calcNewWhiChanges();
 
 	int nrOfSKills = skills.size();
 
@@ -528,7 +544,6 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
-		//temp.conditionEvent = skills[0]->GetConditionEvent();
 		if (skills[0].boon != Boons(1 << 0))
 		{
 			ConditionEvent::ConditionType condition;
@@ -541,7 +556,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			ConditionEvent::ConditionType condition;
 			condition.unionType = 1;
 			condition.condition.bane = skills[0].bane;
-			ConditionEventVector.push_back(ConditionEvent(condition, skills[0].boonEffectValue, skills[0].baneDuration));
+			temp.eventCondition = ConditionEvent(condition, skills[0].baneEffectValue, skills[0].baneDuration);
 		}
 		if (!isSluagh)
 		{
@@ -596,7 +611,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			ConditionEvent::ConditionType condition;
 			condition.unionType = 1;
 			condition.condition.bane = skills[1].bane;
-			ConditionEventVector.push_back(ConditionEvent(condition, skills[1].boonEffectValue, skills[1].baneDuration));
+			temp.eventCondition = ConditionEvent(condition, skills[1].baneEffectValue, skills[1].baneDuration);
 		}
 		if (!isSluagh)
 		{
@@ -638,14 +653,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		skills[1].currentCooldown -= dt;
 	}
 	
-	if (input.actionButton && this->newStat.attackCooldown <= 0.0f)
+	if (input.actionButton && playerAttackCooldown <= 0.0f)
 	{
 		if (auto equipped = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Equipped", false)); equipped)
 		{
 				// Only allow attacking if attack animation is not already playing and attacking is false
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/ this->newStat.attackSpeed) && attacking == false)
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/ this->newStat.attackSpeed))
 				{
-					attacking = true;
 
 					ProjectileData temp;
 
@@ -662,23 +676,24 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
-					this->newStat.attackCooldown = 1.0f / this->newStat.attackSpeed;
+					this->playerAttackCooldown = 1.5f;
 				}
 			
 		}
 		
 	}
+	
+	//std::string cooldownDebug = std::to_string(this->playerAttackCooldown);
+	//CoreInit::subSystems.devConsole->Print(cooldownDebug.c_str());
 
-	if (this->newStat.attackCooldown > 0.f)
+	if (this->playerAttackCooldown > 0.0f)
 	{
-		this->newStat.attackCooldown -= dt;
+		this->playerAttackCooldown -= dt;
 	}
-	else if (this->newStat.attackCooldown <= 0.f){
-		attacking = false;
-		this->newStat.attackCooldown = 0.f;
+	else if (this->playerAttackCooldown <= 0.0f){
+		
+		this->playerAttackCooldown = 0.0f;
 	}
-
-
 
 	handlePerks(dt, this, newProjectiles);
 
@@ -710,6 +725,7 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 	{
 		ClearNewStats();
 		isStunned = false;
+		isRooted = false;
 		UpdateActions(dt, newProjectiles, aInput);
 		UpdateMovement(dt, mInputs);
 
