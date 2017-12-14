@@ -223,20 +223,20 @@ bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, fl
 	const int yDownFloored = int(floor(yCenterPosition - yExtent));
 
 
-	if (tileValues[xLeftFloored][yDownFloored])
+	if (tileValues[xLeftFloored][yDownFloored] && tileValues[xLeftFloored][yDownFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
-	if (tileValues[xLeftFloored][yUpFloored])
+	if (tileValues[xLeftFloored][yUpFloored] && tileValues[xLeftFloored][yUpFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
 
-	if (tileValues[xRightFloored][yUpFloored])
+	if (tileValues[xRightFloored][yUpFloored] && tileValues[xRightFloored][yUpFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
-	if (tileValues[xRightFloored][yDownFloored])
+	if (tileValues[xRightFloored][yDownFloored] && tileValues[xRightFloored][yDownFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
