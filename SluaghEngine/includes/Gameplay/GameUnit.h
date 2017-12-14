@@ -207,6 +207,9 @@ namespace SE
 			inline DamageSources GetBaseWeapon		  (){ return this->baseStat.weapon; };
 			inline DamageType GetBaseDamageType		  (){ return this->baseStat.damageType; };
 
+			inline float getBaseConsAttackMult() { return this->baseStat.ConsecutiveattackSpeedMultiplier; };
+			inline float getBaseAttackMult() { return this->baseStat.attackSpeedMultiplier; };
+
 			//Base Stat Setters
 			inline void SetBaseStrength			 (int str)						{ this->baseStat.str = str;};
 			inline void SetBaseAgility			 (int agi)						{ this->baseStat.agi = agi; };
@@ -231,6 +234,8 @@ namespace SE
 			inline void SetBaseWaterResistance	 (float resistance)				{ this->baseStat.waterResistance = resistance; };
 
 			inline void SetBaseAttackCooldown    (float cooldown)				{ this->baseStat.attackCooldown = cooldown; };
+			inline void setBaseConsAttackMult	 (float attackSpeedMult)		{ this->baseStat.ConsecutiveattackSpeedMultiplier = attackSpeedMult; };
+			inline void setBaseAttackMult		 (float attackSpeedMult)		{ this->baseStat.attackSpeedMultiplier = attackSpeedMult; };
 			inline void	 SetBaseArmour			 (unsigned short int armour)	{ this->baseStat.armour = static_cast<ArmourType>(armour); };
 			inline void  SetBaseWeapon			 (unsigned short int weapon)	{ this->baseStat.weapon = static_cast<DamageSources>(weapon); };
 			inline void  SetDamageType			 (unsigned short int damageType){ this->baseStat.damageType = static_cast<DamageType>(damageType); };
@@ -258,7 +263,9 @@ namespace SE
 			inline void AddBaseFireResistance	 (float resistance)				{ this->baseStat.fireResistance += resistance; };
 			inline void AddBaseWaterResistance	 (float resistance)				{ this->baseStat.waterResistance += resistance; };
 
-			inline float AddBaseAttackCooldown	 (float cooldown)				{ this->baseStat.attackCooldown += cooldown; };
+			inline void AddBaseAttackCooldown	 (float cooldown)				{ this->baseStat.attackCooldown += cooldown; };
+			inline void AddBaseConsAttackMult	 (float attackSpeedMulti)		{ this->baseStat.ConsecutiveattackSpeedMultiplier += attackSpeedMulti; };
+			inline void AddBaseAttackMult		 (float attackSpeedMulti)		{ this->baseStat.attackSpeedMultiplier += attackSpeedMulti; };
 
 			//Base Stat Removers
 			inline void RemoveBaseStrength			(int str)					   { this->baseStat.str -= str;};
@@ -275,6 +282,8 @@ namespace SE
 			inline void RemoveBaseRangedMulitplier	(float multiplier)			   { this->baseStat.rangedMultiplier -= multiplier; };
 			inline void RemoveBaseMovement			(float speed)				   { this->baseStat.movementSpeed -= speed; };
 			inline void RemoveBaseAttackSpeed		(float speed)				   { this->baseStat.attackSpeed -= speed; };
+			inline void RemoveBaseConsAttackMult	(float attackSpeedMulti)	   { this->baseStat.ConsecutiveattackSpeedMultiplier -= attackSpeedMulti; };
+			inline void RemoveBaseAttackMult		(float attackSpeedMulti)	   { this->baseStat.attackSpeedMultiplier -= attackSpeedMulti; };
 
 			inline void RemoveBaseMagicDamage		(float damage)				   { this->baseStat.magicDamage -= damage; };
 			inline void RemoveBaseMagicMulitplier	(float multiplier)			   { this->baseStat.magicMultiplier -= multiplier; };
@@ -282,6 +291,8 @@ namespace SE
 			inline void RemoveBaseNatureResistance	(float resistance)			   { this->baseStat.natureResistance -= resistance; };
 			inline void RemoveBaseFireResistance	(float resistance)			   { this->baseStat.fireResistance -= resistance; };
 			inline void RemoveBaseWaterResistance	(float resistance)			   { this->baseStat.waterResistance -= resistance; };
+
+
 			inline void SetHealth(float amount) { health = amount; };
 
 			virtual float GetMaxHealth() { return health; };
@@ -434,6 +445,8 @@ namespace SE
 			**/
 			void calcNewWhiChanges();
 
+			void calcNewConsecutiveAttackSpeed();
+			void calcNewAttackSpeed();
 			/**
 			* @brief To be documented
 			*/

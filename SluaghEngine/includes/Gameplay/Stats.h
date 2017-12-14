@@ -32,6 +32,8 @@ namespace SE
 			float movementSpeed = 5.f;
 			float attackSpeed		= 1.f;
 			float attackCooldown = 0.f;
+			float ConsecutiveattackSpeedMultiplier = 0.f;
+			float attackSpeedMultiplier = 0.f;
 
 			//whi
 			float magicDamage = 1.f;
