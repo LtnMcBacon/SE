@@ -231,7 +231,7 @@ void SE::Core::AnimationManager::Frame(Utilz::TimeCluster * timer)
 
 					ai.timePos[j] += ai.animationSpeed[j] * aniUpdateTime;
 
-					ai.blendFactor[j] += ai.blendSpeed[j] * dt;
+					ai.blendFactor[j] += ai.blendSpeed[j] * aniUpdateTime;
 					ai.blendFactor[j] = min(ai.blendFactor[j], 1.0f);
 
 				}

@@ -177,7 +177,7 @@ namespace SE
 			}
 
 
-			void AddItem(Core::Entity item, uint8_t slot);
+			void AddItem(Core::Entity item, uint8_t slot, bool equip = true);
 			inline Core::Entity GetCurrentItem()const
 			{
 				return items[currentItem];

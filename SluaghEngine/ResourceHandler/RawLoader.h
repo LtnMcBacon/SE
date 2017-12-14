@@ -3,6 +3,7 @@
 #include "IAssetLoader.h"
 #include <Utilz\GUID.h>
 #include <map>
+#include <mutex>
 namespace SE
 {
 	namespace ResourceHandler
@@ -70,6 +71,7 @@ namespace SE
 			*/
 			bool Exist(const Utilz::GUID& guid, size_t* size)const override;
 		private:
+
 			struct Entry
 			{
 				Utilz::GUID ext;

@@ -72,6 +72,7 @@ CharacterCreationState::CharacterCreationState(Window::IWindow * Input)
 			fileParser.GUIButtons.CreateButton(950, 90, button.Width, button.Height, 1, "skillBackgroundBtn3", NULL, button.textName, button.hoverTex, button.PressTex);
 		}
 	}
+	fileParser.GUIButtons.CreateButton(490, 25, 300, 50, 1, "ChoseSkillText", NULL, std::string("TextBackGrund.png"), "TextBackGrund.png", "TextBackGrund.png", "Chose your Skills!");
 
 	fileParser.GUIButtons.DrawButtons();
 	importSkillButtons();
@@ -104,6 +105,9 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 		else
 		{
 			getPerks();
+			fileParser.GUIButtons.DeleteSpecificButtons("ChoseSkillText");
+			fileParser.GUIButtons.CreateButton(490, 25, 300, 50, 1, "ChoseSkillText", NULL, std::string("TextBackGrund.png"), "TextBackGrund.png", "TextBackGrund.png", "Chose your Perks!");
+			fileParser.GUIButtons.DrawButtons();
 		}
 	}
 	else if (selectedPerks != renewPerks)
@@ -117,9 +121,16 @@ IGameState::State CharacterCreationState::Update(void* &passableInfo)
 	}
 	if (selectedPerks == nrOfPerks)
 	{
-		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
-		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
-		fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
+		static int lock = 0;
+		if (lock ==0)
+		{
+
+			fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn");
+			fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn2");
+			fileParser.GUIButtons.DeleteSpecificButtons("skillBackgroundBtn3");
+			fileParser.GUIButtons.DeleteSpecificButtons("ChoseSkillText");
+			lock++;
+		}
 	}
 
 	 
@@ -304,6 +315,10 @@ void SE::Gameplay::CharacterCreationState::getSkills()
 		skill.animation	 = 0;
 		skill.particle	 = 0;
 	
+		if (skillName == "Blixt")
+		{
+			int a = 0;
+		}
 		auto SkillIndexReturn = [this, index, skill]()->void
 		{
 			if (selectedSkills < nrOfSkills)
