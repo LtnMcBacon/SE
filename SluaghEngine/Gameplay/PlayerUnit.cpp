@@ -738,7 +738,7 @@ void SE::Gameplay::PlayerUnit::handlePerks(float deltaTime,PlayerUnit* player , 
 
 }
 
-void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
+void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot, bool equip)
 {
 	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
@@ -772,7 +772,7 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		Item::GodPickup(item);
 	}
 
-	
+	if(equip)
 	if (itype == ItemType::WEAPON)
 	{
 		
