@@ -434,7 +434,7 @@ public:
 	void Randomize(float multiplier = 1)
 	{
 		offsets.rim.position[0] = offsets.rim.position[2] = multiplier * GetRandomNumberWithin(0, 0, 0);
-		offsets.rim.position[1] = multiplier * GetRandomNumberWithin(-0.4, 0.15, 2.5);
+		offsets.rim.position[1] = multiplier * GetRandomNumberWithin(-0.3, 0.15, 2.5);
 
 		offsets.top.position[0] = offsets.top.position[2] = multiplier * GetRandomNumberWithin(0, 0, 0);
 		offsets.top.position[1] = multiplier * GetRandomNumberWithin(-0.169, 0.1, 2.5);

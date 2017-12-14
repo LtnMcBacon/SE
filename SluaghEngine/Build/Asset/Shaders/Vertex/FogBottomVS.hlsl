@@ -83,7 +83,24 @@ VS_OUT VS_main(VS_IN input)
     output.uv[0] = input.uv[0];
     output.uv[1] = input.uv[1] + SCROLL_SPEED * time;
 
-    output.opacity = input.opacity;
+
+    float opacityMultiplier = fmod(0.25 * input.position.x + input.position.y + 0.333 * input.position.z + time, WAVE_CYCLE_DURATION)
+                             / WAVE_CYCLE_DURATION_HALF;
+
+    opacityMultiplier -= max(0, opacityMultiplier - 1) * 2;
+
+
+    shouldFadeOut = (opacityMultiplier > 0.5);
+    shouldFadeOut_half = shouldFadeOut / 2.f;
+    shouldFadeIn_multiplier = !shouldFadeOut - shouldFadeOut;
+
+    float interpolatedOpacity = shouldFadeOut + shouldFadeIn_multiplier * (opacityMultiplier - shouldFadeOut_half) * 2;
+    interpolatedOpacity *= interpolatedOpacity;
+
+    opacityMultiplier = shouldFadeOut_half + (shouldFadeOut + shouldFadeIn_multiplier * interpolatedOpacity) / 2;
+
+
+    output.opacity = opacityMultiplier * input.opacity + input.position.y * input.opacity / 9;
 
 
     return output;

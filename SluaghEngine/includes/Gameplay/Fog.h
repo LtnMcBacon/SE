@@ -42,7 +42,7 @@ namespace SE
 			const float padding = 10.f;
 			const float height = 3.1f;
 
-			const float slopeRimOffset[2] = { 0.4f, height - 0.4f };
+			const float slopeRimOffset[2] = { 0.65f, height - 0.45f };
 			const float slopeTopOffset[2] = { 0.3f, height + 0.17f };
 			const float slopeMiddleOffset[2] = { 0.42f, height / 2.f };
 			const float slopeBottomOffset[2] = { 0.75f, 0.f };
