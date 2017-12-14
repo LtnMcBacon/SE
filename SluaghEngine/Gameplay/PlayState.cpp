@@ -132,6 +132,48 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			con->PrintChannel("drop", "\tHp - 0");
 		}
 	}, "drop", "Drop item at players feet");
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+				//EnemySpawnerCommand
+		if (argc >= 3)
+		{
+
+			auto type = EnemyType(std::stoi(argv[1]));
+			auto enemy = eFactory.CreateEnemyDataForEnemyType(type,false);
+			DamageType damageType = static_cast<DamageType>(std::stoi(argv[2]));
+			
+
+			float xPos = player->GetXPosition();
+			float yPos = player->GetYPosition();
+
+			
+			enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(type, damageType));
+			enemy->PositionEntity(xPos, yPos);
+			
+			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(type, &blackBoard, enemy->GetEnemyBlackboard()));
+			currentRoom->AddEnemyToRoom(enemy);
+			
+		}
+		else
+		{
+			con->PrintChannel("spawn", "Usage:");
+			con->PrintChannel("spawn", "spawn Enemytype Damagetype");
+			con->PrintChannel("spawn", "EnemyTypes:");
+			con->PrintChannel("spawn", "\tBodach - 0:");
+			con->PrintChannel("spawn", "\tGlaistig - 1");
+			con->PrintChannel("spawn", "\tNucklavee - 2");
+			con->PrintChannel("spawn", "");
+			con->PrintChannel("spawn", "DamageTypes:");
+			con->PrintChannel("spawn", "\tPhysical - 0");
+			con->PrintChannel("spawn", "\tFire - 1");
+			con->PrintChannel("spawn", "\tWater - 2");
+			con->PrintChannel("spawn", "\tNature - 3");
+			con->PrintChannel("spawn", "\tRanged - 4");
+			con->PrintChannel("spawn", "\tMagic - 5");
+		}
+	}, "spawn", "spawn enemies in current room");
+
 	this->input = Input;
 	this->engine = engine;
 
@@ -655,6 +697,7 @@ void SE::Gameplay::PlayState::InitializeDeathSequence() {
 	deathInfo.info.anchor = { 0.5f, 0.5f };
 	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
 	deathInfo.font = "Knights.spritefont";
+	deathInfo.info.layerDepth = 0.01f;
 
 	CoreInit::managers.textManager->Create(deathText, deathInfo);
 
@@ -1105,6 +1148,7 @@ void SE::Gameplay::PlayState::InitializeOther()
 	promptCreateInfo.info.text = L"f LÄMNA RUMMET";
 	promptCreateInfo.info.scale = { 0.3f, 0.3f };
 	promptCreateInfo.font = "Knights.spritefont";
+	promptCreateInfo.info.layerDepth = 0.011f;
 	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
 
 	aimDecal = CoreInit::managers.entityManager->Create();
@@ -1562,7 +1606,10 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		soundTime = 0.0f;
 	}
 	//-----end sound update
-	CheckForRoomTransition();
+
+	if(deathSequence == false)
+		CheckForRoomTransition();
+
 	UpdateHUD(dt);
 
 	
