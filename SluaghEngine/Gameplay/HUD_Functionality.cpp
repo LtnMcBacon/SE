@@ -2,6 +2,8 @@
 #include <HUD_Parsing.h>
 #include "CoreInit.h"
 #include <Profiler.h>
+#include <AtlBase.h>
+#include <atlconv.h>
 #include <string>
 
 using namespace std;
@@ -152,7 +154,7 @@ namespace SE
 
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string skillName, string textName, string hoverTex, string PressTex, string buttonText)
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, std::string skillDescription, unsigned short skillDesc[],string skillName, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
 			CalculateScreenPositions(width, height, posX, posY);
@@ -173,7 +175,8 @@ namespace SE
 			tempElement.buttonText = buttonText;
 			tempElement.skillButton = true;
 			tempElement.skillName = skillName;
-
+			tempElement.skillDescription = skillDescription;
+			
 			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 8; i++)
 			{
@@ -196,9 +199,12 @@ namespace SE
 			if (button.skillName != "")
 			{
 				holder += button.skillName + "\n";
+				holder += button.skillDescription + "\n";
 				std::replace(holder.begin(), holder.end(), '_', ' ');
 				description.resize(holder.length(), L'\0');
-				std::copy(holder.begin(), holder.end(), description.begin());
+				CA2W ca2w(holder.c_str());
+				description = std::wstring(ca2w);
+				description = FuckingPieceOfShitTextWrapFunction(description);
 
 				description += L"Damage Source: ";
 				switch (button.skillDesc[0])
@@ -1090,6 +1096,25 @@ namespace SE
 			DrawButtons();
 			ProfileReturnVoid;
 		}
+
+		std::wstring HUDButtons::FuckingPieceOfShitTextWrapFunction(std::wstring string)
+		{
+			if (string.length() >= 48)
+			{
+				int amount = string.length() / 48;
+				for (int i = 1; i <= amount; i++)
+				{
+					size_t index = string.find(' ', i * 45);
+					if (index <= string.length())
+					{
+						string.insert(index, L"\n");
+					}
+				}
+			}
+			return string;
+		}
+
+
 
 	}
 }

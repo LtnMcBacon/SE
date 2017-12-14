@@ -40,6 +40,7 @@ namespace SE
 				bool skillButton = false;
 				std::string skillName;
 				std::string perkName;
+				std::string skillDescription;
 				PerkData perk;
 				std::function<void()> bindButton;
 			};
@@ -69,7 +70,7 @@ namespace SE
 			//void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, bool skill,std::string perkName, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "", PerkData Perk = PerkData());
-			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, unsigned short int skillDesc[],std::string skillName, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
+			void CreateButton(int posX, int posY, int width, int height, int layerDepth, std::string name, std::function<void()> func, std::string skillDescription, unsigned short int skillDesc[],std::string skillName, std::string textName = "checkerboard.png", std::string hoverTex = "checkerboard.png", std::string PressTex = "checkerboard.png", std::string buttonText = "");
 			void CreateButton(ButtonElement newButtons);
 
 			std::wstring printSkillDesc(ButtonElement button);
@@ -87,6 +88,7 @@ namespace SE
 			void DeleteSpecificButtons(std::string name);
 			void reloadButtons();
 
+			std::wstring FuckingPieceOfShitTextWrapFunction(std::wstring string);
 		};
 	}
 }

@@ -342,8 +342,6 @@ namespace SE
 			* @param[ín]	skills is the list that will be emptied.
 			**/
 			inline void flushSkills(std::vector<Skill> skills) { skills.clear(); };
-			//void addPlayerSkills();
-			//void movePlayerSkillsToAI();
 
 			SkillFactory SF;
 			
@@ -351,6 +349,8 @@ namespace SE
 			//void changeElementType(Gameplay::DamageTypes element);
 			float playerAttackCooldown = 0.0f;
 			bool isStunned = false;
+			bool isRooted = false;
+			bool attacking = false;
 			bool isSluagh = false;
 		public:
 			PlayerUnit(Skill* skills, Perk* importPerks ,PerkData* slaughPerks, float xPos, float yPos, char mapForRoom[25][25]);
