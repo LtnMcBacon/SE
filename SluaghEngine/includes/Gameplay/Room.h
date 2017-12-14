@@ -45,8 +45,9 @@ namespace SE
 			std::vector<Core::Entity> itemsInRoom;
 			std::vector<HpBar> hpBars;
 			Fog fog;
+			const float fogCycleDuration = 12.f;
 			const float fogFadeDuration = 2.f;
-			float time = fogFadeDuration;
+			float time = fogCycleDuration + fogFadeDuration;
 			bool IsOutside = false;
 			enum class PropTypes
 			{

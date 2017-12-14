@@ -241,7 +241,7 @@ int InitializeFogDependencies(SE::Core::IEngine::Subsystems& subSystem)
 	int res = subSystem.resourceHandler->LoadResource("FogTopVS.hlsl", topVertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 	{
-		throw std::exception("Could not load fog vertex shader");
+		throw std::exception("Could not load fog top vertex shader");
 		return -1;
 	}
 
@@ -265,7 +265,7 @@ int InitializeFogDependencies(SE::Core::IEngine::Subsystems& subSystem)
 	res = subSystem.resourceHandler->LoadResource("FogBottomVS.hlsl", bottomVertexShaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::IMMUTABLE);
 	if (res)
 	{
-		throw std::exception("Could not load fog vertex shader");
+		throw std::exception("Could not load fog bottom vertex shader");
 		return -1;
 	}
 
