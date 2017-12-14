@@ -115,6 +115,15 @@ int SE::Core::Engine::EndFrame()
 		subSystems.devConsole->PrintChannel("ResourceHandler", "%s", r.c_str());
 
 	timeClus.Stop(("Frame"));
+	Utilz::TimeMap map;
+	timeClus.GetMap(map);
+	float frameTime = map["Frame"];
+	const auto rhi = subSystems.resourceHandler->GetInfo();
+	const float vramUsage = ((float)rhi.VRAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
+	const float ramUsage = ((float)rhi.RAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
+
+	std::string titleString = "Frame: " + std::to_string(frameTime) + "ms, RAM: " + std::to_string(ramUsage) + "MB, VRAM: " + std::to_string(vramUsage) + "MB";
+	subSystems.window->SetWindowTitle(titleString);
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
