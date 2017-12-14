@@ -239,6 +239,22 @@ int SE::Core::DecalManager::Remove(const Entity& entity)
 	ProfileReturn(index != -1 ? 0 : -1);
 }
 
+void SE::Core::DecalManager::DrawLast(const Entity& entity)
+{
+	const auto find = entityToTextureGuid.find(entity);
+	if(find != entityToTextureGuid.end())
+	{
+		auto jobID =  decalToJobID[find->second];
+		Graphics::RenderJob j;
+		initInfo.renderer->ChangeRenderJob(jobID, [&j](Graphics::RenderJob& job)
+		{
+			j = job;
+		});
+		initInfo.renderer->RemoveRenderJob(jobID);
+		decalToJobID[find->second] = initInfo.renderer->AddRenderJob(j, RenderGroup::POST_PASS_0);
+	}
+}
+
 void SE::Core::DecalManager::ToggleVisible(const Entity& entity, bool visible)
 {
 	const auto tex = entityToTextureGuid.find(entity);

@@ -1709,5 +1709,8 @@ void PlayState::UpdateAimDecal()
 		decalPos.y = 3.0f;
 	
 	CoreInit::managers.transformManager->SetPosition(aimDecal, decalPos);
+	//Dirty hack to make the aim decal draw last.
+	CoreInit::managers.decalManager->DrawLast(aimDecal);
+	
 
 }

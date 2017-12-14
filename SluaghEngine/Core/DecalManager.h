@@ -39,6 +39,10 @@ namespace SE
 			int Remove(const Entity& entity) override;
 
 			/*
+			* @brief A bit of a dirty hack to make a certain group of decals render after another group.
+			*/
+			void DrawLast(const Entity& entity) override;
+			/*
 			* @brief See IDecalManager
 			*/
 			void ToggleVisible(const Entity& entity, bool visible)override;

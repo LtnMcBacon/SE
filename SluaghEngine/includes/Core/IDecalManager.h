@@ -82,6 +82,11 @@ namespace SE
 			 * @param[in] entity The entity to remove the decal component from.
 			 */
 			virtual int Remove(const Entity& entity) = 0;
+			
+			/*
+			 * @brief A bit of a dirty hack to make a certain group of decals render after another group.
+			 */
+			virtual void DrawLast(const Entity& entity) = 0;
 
 			/*
 			* @brief Toggles visibility of a decal
