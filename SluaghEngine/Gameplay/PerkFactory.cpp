@@ -461,12 +461,10 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 			{
 				timer = duration;
 			}
-			if (timer>0)
+			if (timer > 0)
 			{
 				timer -= deltaTime;
-				float AS = player->GetBaseAttackSpeed();
-				float newAS = AS * (value / 100.f);
-				player->AddNewAttackSpeed(newAS);
+				player->AddBaseAttackMult(value / 100.f);
 			}
 			
 		}; std::function<void(PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition)> AttackSpeedFunc = AttackSpeed;
@@ -519,23 +517,23 @@ std::function<void(SE::Gameplay::PlayerUnit* player, std::vector<SE::Gameplay::P
 	}
 	case 22:
 	{
-
+		
 		auto ConsecutiveAttackSpeed = [value, duration, consecutiveValue, timer](PlayerUnit* player, std::vector<ProjectileData>& Projs, float deltaTime, bool condition) mutable->void
 		{
 			if (condition)
 			{
 				timer = duration;
+				consecutiveValue += value;
+				player->AddBaseConsAttackMult(value / 100.f);
+				
 			}
 			if (timer > 0)
 			{
 				timer -= deltaTime;
-				float AS = player->GetBaseAttackSpeed();
-				consecutiveValue += value;
-				float newAS = AS * (consecutiveValue / 100.f);
-				player->AddNewAttackCooldown(newAS);
 			}
 			else
 			{
+				player->RemoveBaseConsAttackMult(consecutiveValue / 100.f);
 				consecutiveValue = 0;
 			}
 
