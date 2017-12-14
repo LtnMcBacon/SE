@@ -19,6 +19,7 @@ namespace SE {
 		int GUIManager::Create(const Entity& entity, const CreateInfo& info)
 		{
 			StartProfile;
+			//ProfileReturnConst(0);
 			auto fileLoaded = textureGUID.find(info.texture);
 			if (fileLoaded == textureGUID.end())
 			{
