@@ -222,7 +222,8 @@ void SE::Core::MaterialManager::Create(const Entity & entity, const CreateInfo& 
 		materialInfo.materialGUID[newEntry] = defaultMaterial;
 
 
-		auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
+		auto res = initInfo.resourceHandler->LoadResource(info.shader, shaderCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM 
+		);
 
 	}
 	else

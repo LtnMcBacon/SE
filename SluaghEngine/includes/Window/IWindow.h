@@ -370,6 +370,11 @@ namespace SE
 			virtual void ToggleCursor(bool on) = 0;
 
 			/*
+			 * @brief Sets the title of the window
+			 */
+			virtual void SetWindowTitle(const std::string& title) = 0;
+
+			/*
 			 * @brief Returns the width of the window.
 			 */
 			virtual int Width() const = 0;
