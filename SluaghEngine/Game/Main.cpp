@@ -239,7 +239,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	Window::InitializationInfo initInfo;
 	initInfo.winState = Window::WindowState::Record;
-	initInfo.winState = Window::WindowState::Playback;
+	//initInfo.winState = Window::WindowState::Playback;
 	initInfo.file = "Recordings/RecordingThursday Thu Dec 14 164108 2017.bin";
 	engineInit.subSystems.window = Window::CreateNewWindow();
 	engineInit.subSystems.window->Initialize(initInfo);
