@@ -499,6 +499,8 @@ void SE::Core::Engine::SetupDebugConsole()
 		
 		vram_usage[offset] = ((float)rhi.VRAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
 		ram_usage[offset] = ((float)rhi.RAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
+		const float tempram = ram_usage[offset];
+		const float tempvram = vram_usage[offset];
 		offset = (offset + 1) % samples;
 		ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.VRAM.max), { 0, 80 });
 		if (rhi.VRAM.getCurrentMemoryUsage() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", toMB(rhi.VRAM.max)))
@@ -509,12 +511,14 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::PopStyleColor();
 		}
 		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.RAM.max), { 0, 80 });
-		if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max))))
-		{
-			ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
-			ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max)))) + "mb").c_str());
-			ImGui::PopStyleColor();
-		}
+		//if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max))))
+		//{
+		//	ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
+		//	ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max)))) + "mb").c_str());
+		//	ImGui::PopStyleColor();
+		//}
+		ImGui::TextUnformatted("RAM Usage:"); ImGui::SameLine(0,10.0f); ImGui::TextUnformatted(std::to_string(tempram).c_str());
+		ImGui::TextUnformatted("VRAM Usage:"); ImGui::SameLine(0,10.0f); ImGui::TextUnformatted(std::to_string(tempvram).c_str());
 		ImGui::Separator();
 		}
 
