@@ -16,7 +16,7 @@ SE::Gameplay::Status SE::Gameplay::SlowedCondition::Update()
 {
 	StartProfile;
 
-	if (enemyBlackboard->activeCondition == Boons::CONDITIONAL_BOONS_SLOW)
+	if (enemyBlackboard->activeCondition & Boons::CONDITIONAL_BOONS_SLOW || enemyBlackboard->activeBane & Banes::CONDITIONAL_BANES_SLOW)
 	{
 		myStatus = Status::BEHAVIOUR_SUCCESS;
 		enemyBlackboard->movementSpeedPercent = 1.f - enemyBlackboard->conditionAmmount;

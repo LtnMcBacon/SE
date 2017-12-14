@@ -162,8 +162,8 @@ Status FlowFieldMovementLeaf::Update()
 	yMovementTot = yMovement;
 
 
-	/*if (!sample)
-		SampleFromMap(yMovementTot, xMovementTot);*/
+	if (!sample)
+		SampleFromMap(yMovementTot, xMovementTot);
 
 	sample = (sample + 1) % sampleRate;
 
@@ -181,7 +181,31 @@ Status FlowFieldMovementLeaf::Update()
 		myStatus = Status::BEHAVIOUR_SUCCESS;
 	}
 	else
-		myStatus = Status::BEHAVIOUR_FAILURE;
+	{
+		for (int i = 0; i < 9; i++)
+		{
+			if (i % 3 == 0)
+			{
+				myPos.x = xPos - 1.f;
+				if (i == 0)
+					myPos.y -= 1.f;
+				else
+					myPos.y += 1.f;
+			}
+			else
+			{
+				myPos.x++;
+			}
+			flowField->SampleFromMap(myPos, xMovement, yMovement);
+			if (xMovement != 0.f || yMovement != 0.f)
+			{
+				xMovement = xPos - myPos.x;
+				yMovement = yPos - myPos.y;
+				break;
+			}
+		}
+	}
+	myStatus = Status::BEHAVIOUR_SUCCESS;
 	/*Move the entity in the normalized direction*/
 
 	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime*enemyBlackboard->movementSpeedPercent, 
@@ -210,7 +234,7 @@ bool FlowFieldMovementLeaf::CorrectCollision(float& xMov, float& yMov)
 	xMovementTot *= gameBlackboard->deltaTime;
 	yMovementTot *= gameBlackboard->deltaTime;
 
-	float localExtent = enemyBlackboard->extents + 0.25;
+	float localExtent = enemyBlackboard->extents + 0.15;
 
 	float xPos = enemyBlackboard->ownerPointer->GetXPosition();
 	float yPos = enemyBlackboard->ownerPointer->GetYPosition();
