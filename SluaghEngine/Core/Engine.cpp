@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include <Profiler.h>
 #include <Utilz\Memory.h>
+#include <sstream>
 #include "ImGuiConsole.h"
 using namespace SE::Utilz::Memory;
 
@@ -122,8 +123,9 @@ int SE::Core::Engine::EndFrame()
 	const float vramUsage = ((float)rhi.VRAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
 	const float ramUsage = ((float)rhi.RAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
 
-	std::string titleString = "Frame: " + std::to_string(frameTime) + "ms, RAM: " + std::to_string(ramUsage) + "MB, VRAM: " + std::to_string(vramUsage) + "MB";
-	subSystems.window->SetWindowTitle(titleString);
+	std::stringstream ss;
+	ss << "Frame: " << std::fixed << std::setprecision(0) << frameTime << "ms, RAM: " << std::fixed << std::setprecision(2) << ramUsage << "MB, VRAM: "  << vramUsage << "MB";
+	subSystems.window->SetWindowTitle(ss.str());
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
