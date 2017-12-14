@@ -2076,28 +2076,29 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	{
 		matInfo.materialFile = args.floorMat;
 
+		const Utilz::GUID carpetTextures[] = { "CowWhite.png", "CowBlack.png", "CowBrown.png", "bear.png" };
+		const size_t carpetTexturesCount = sizeof(carpetTextures) / sizeof(*carpetTextures);
+		const uint32_t carpetToUse = std::rand() % carpetTexturesCount;
+
+
+
 		if (tileValues[args.x][args.y] == id_Door1) 
 		{
-
-			const Utilz::GUID carpetTextures[] = { "CowWhite.png", "CowBlack.png" };
-			const size_t carpetTexturesCount = sizeof(carpetTextures) / sizeof(*carpetTextures);
-			const uint32_t carpetToUse = std::rand() % carpetTexturesCount;
-
 			Core::DecalCreateInfo decalFloorInfo;
 			decalFloorInfo.opacity = 1.0f;
 			decalFloorInfo.ambiance = 0.1f;
 			decalFloorInfo.textureName = carpetTextures[carpetToUse];
-
 			const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
 			const DirectX::XMFLOAT3 doorForward = CoreInit::managers.transformManager->GetRight(args.ent);
 
-			CoreInit::managers.decalManager->Create(entFloor, decalFloorInfo);
 
 			DirectX::XMFLOAT4X4 floorDecalTrans;
 			DirectX::XMMATRIX floorDecalTranslation = DirectX::XMMatrixTranslation(doorForward.x * 1.5f, 0.1f * floorForward.y, 1.5f * doorForward.z);
-			DirectX::XMMATRIX floorDecalScaling = DirectX::XMMatrixScaling(0.90f, 0.90f, 0.05f);
+			DirectX::XMMATRIX floorDecalScaling = DirectX::XMMatrixScaling(2.00f, 2.00f, 1.05f);
 			DirectX::XMMATRIX floorDecalRotation = DirectX::XMMatrixRotationX(DirectX::XM_PI / 2);
-			
+
+			CoreInit::managers.decalManager->Create(entFloor, decalFloorInfo);
+
 			if (doorForward.x < 0.0f) {
 
 				floorDecalRotation *= DirectX::XMMatrixRotationY(FloorCheck(args.x, args.y));
@@ -2106,6 +2107,47 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 			DirectX::XMStoreFloat4x4(&floorDecalTrans, floorDecalScaling * floorDecalRotation * floorDecalTranslation);
 
 			CoreInit::managers.decalManager->SetLocalTransform(entFloor, (float*)&floorDecalTrans);
+		}
+
+		auto rand = CoreInit::subSystems.window->GetRand();
+		int randValue = (rand % 500);
+
+		if (tileValues[args.x][args.y] == id_Floor && 
+			tileValues[args.x][args.y + 1] == id_Floor && 
+
+			tileValues[args.x][args.y - 1] == id_Floor && 
+			tileValues[args.x +1][args.y + 1] == id_Floor &&
+			tileValues[args.x +1][args.y -1] == id_Floor &&
+			tileValues[args.x + 1][args.y] == id_Floor && 
+
+			tileValues[args.x - 1][args.y] == id_Floor && 
+			tileValues[args.x -1][args.y - 1] == id_Floor && 
+			tileValues[args.x - 1][args.y + 1] == id_Floor)
+
+
+
+		{
+			if (0 < randValue && randValue <= 20)
+			{
+					Core::DecalCreateInfo decalFloorInfo;
+					decalFloorInfo.opacity = 1.0f;
+					decalFloorInfo.ambiance = 0.1f;
+					decalFloorInfo.textureName = carpetTextures[carpetToUse];
+					const DirectX::XMFLOAT3 floorForward = CoreInit::managers.transformManager->GetForward(entFloor);
+
+					DirectX::XMFLOAT4X4 floorDecalTrans;
+					DirectX::XMMATRIX floorDecalTranslation = DirectX::XMMatrixTranslation(0.5f, 0.1f * floorForward.y, 0.5f);
+					DirectX::XMMATRIX floorDecalScaling = DirectX::XMMatrixScaling(2.00f, 2.00f, 0.05f);
+					DirectX::XMMATRIX floorDecalRotationX = DirectX::XMMatrixRotationX(DirectX::XM_PI / 2);
+					DirectX::XMMATRIX floorDecalRotationY = DirectX::XMMatrixRotationY(randValue);
+
+					CoreInit::managers.decalManager->Create(entFloor, decalFloorInfo);
+
+					DirectX::XMStoreFloat4x4(&floorDecalTrans, (floorDecalScaling) * (floorDecalRotationX *floorDecalRotationY) * floorDecalTranslation);
+
+					CoreInit::managers.decalManager->SetLocalTransform(entFloor, (float*)&floorDecalTrans);
+			
+			}
 		}
 		
 	}
@@ -2257,7 +2299,7 @@ void SE::Gameplay::Room::CreateWall2(CreationArguments &args)
 		CoreInit::managers.materialManager->Create(PaintingEnt, matInfoPainting);
 		//CoreInit::managers.renderableManager->ToggleRenderableObject(test, true);
 		
-		const Utilz::GUID paintingTextures[] = { "painting1.png" };
+		const Utilz::GUID paintingTextures[] = { "painting1.png", "painting2.png" };
 		const size_t paintingTexturesCount = sizeof(paintingTextures) / sizeof(*paintingTextures);
 		const uint32_t paintingToUse = std::rand() % paintingTexturesCount;
 
