@@ -424,9 +424,9 @@ int SE::ResourceHandler::ResourceHandler::Load(entryMap& map, const EvictInfo& e
 
 	if (job.callbacks.loadCallback)
 	{
-		loadCallbackLock.lock();
+		//loadCallbackLock.lock();
 		auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
-		loadCallbackLock.unlock();
+		//loadCallbackLock.unlock();
 
 		bool error = false;
 		Utilz::OperateSingle(map, job.guid, [lresult, &error, &rawData](auto& resource)
