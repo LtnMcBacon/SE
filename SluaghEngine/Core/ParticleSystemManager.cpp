@@ -282,6 +282,14 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 		}
 
 		particleSystemData[newEntry].renderJob.pipeline = RPP;
+		particleSystemData[newEntry].renderJob.mappingFunc.push_back([entity, this](int a, int b) {
+			auto const entityIndex = entityToIndex.find(entity);
+			if (entityIndex != entityToIndex.end())
+			{
+				auto& fileInfo = particleSystemData[entityIndex->second].particleFileInfo;
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("bloomCBuffer", &fileInfo.bloomCheck, sizeof(fileInfo.bloomCheck));
+			}
+		});
 	}
 
 	StopProfile;

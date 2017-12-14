@@ -271,7 +271,9 @@ int main()
 	RPP.OMStage.renderTargetCount = 1;
 	RenderJob renderParticleJob;
 	renderParticleJob.pipeline = RPP;
-
+	renderParticleJob.mappingFunc.push_back([&movBuffer, subSystem](int a, int b) {
+		subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomCBuffer", &movBuffer.bloomCheck, sizeof(movBuffer.bloomCheck));
+	});
 
 
 	struct CameraMatrices {

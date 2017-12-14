@@ -6,7 +6,7 @@ SE::Gameplay::Status SE::Gameplay::AddTimeToAttackCooldownLeaf::Update()
 {
 	StartProfile;
 
-	enemyBlackboard->attackCooldown += timeToAdd;
+	enemyBlackboard->attackCooldown = timeToAdd;
 
 	ProfileReturnConst(Status::BEHAVIOUR_SUCCESS);
 }

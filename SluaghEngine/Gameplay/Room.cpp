@@ -185,7 +185,7 @@ void Room::Update(float dt, float playerX, float playerY)
 			CoreInit::managers.decalManager->Create(bs, ci);
 			CoreInit::managers.eventManager->SetLifetime(bs, 60);
 			CoreInit::managers.eventManager->ToggleVisible(bs, true);
-
+			//roomEntities[size_t(p.x)][size_t(p.z)].push_back(bs);
 
 			auto spw = CoreInit::subSystems.window->GetRand() % 100;
 			if (spw < 80)
