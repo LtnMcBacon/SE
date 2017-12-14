@@ -347,7 +347,7 @@ namespace SE
 			
 
 			//void changeElementType(Gameplay::DamageTypes element);
-
+			float playerAttackCooldown = 0.0f;
 			bool isStunned = false;
 			bool isRooted = false;
 			bool attacking = false;
