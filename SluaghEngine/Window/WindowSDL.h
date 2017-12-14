@@ -67,6 +67,11 @@ namespace SE
 			*/
 			void ToggleCursor(bool on) override;
 			/*
+			* @brief Sets the title of the window
+			*/
+			void SetWindowTitle(const std::string& title) override;
+
+			/*
 			* @brief Returns the width of the window.
 			*/
 			int Width() const override;
