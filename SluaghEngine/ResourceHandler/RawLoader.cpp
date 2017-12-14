@@ -71,6 +71,8 @@ void SE::ResourceHandler::RawLoader::GetAllGUIDsWithExtension(const Utilz::GUID&
 			names.push_back(e.second.name);
 		}
 }
+static std::mutex loadLock;
+
 int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void ** data)const
 {
 	_ASSERT(data);
@@ -84,7 +86,10 @@ int SE::ResourceHandler::RawLoader::LoadResource(const Utilz::GUID & guid, void 
 		ProfileReturnConst( -2);
 
 	*data = operator new(find->second.size);
-	file.read((char*)*data, find->second.size);
+	{
+		std::lock_guard<std::mutex> lock(loadLock);
+		file.read((char*)*data, find->second.size);
+	}
 	file.close();
 
 	ProfileReturnConst( 0);

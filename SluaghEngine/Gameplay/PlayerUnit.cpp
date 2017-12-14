@@ -527,6 +527,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	this->newStat.damageType = weaponStats.damageType;
 	this->newStat.weapon = weaponStats.weapon;
 
+	this->calcNewAgiChanges();
+	this->calcNewStrChanges();
+	this->calcNewWhiChanges();
+
+	this->calcNewConsecutiveAttackSpeed();
+	this->calcNewAttackSpeed();
+
 	int nrOfSKills = skills.size();
 
 	if (nrOfSKills > 0 && skills[0].currentCooldown <= 0.0f && input.skill1Button)
@@ -676,7 +683,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
-					this->playerAttackCooldown = 1.5f;
+					this->playerAttackCooldown = 1.0f / this->newStat.attackSpeed;
 				}
 			
 		}
@@ -695,6 +702,9 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		this->playerAttackCooldown = 0.0f;
 	}
 
+
+
+	this->setBaseAttackMult(0);
 	handlePerks(dt, this, newProjectiles);
 
 	ResolveEvents(dt);
@@ -754,7 +764,7 @@ void SE::Gameplay::PlayerUnit::handlePerks(float deltaTime,PlayerUnit* player , 
 
 }
 
-void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
+void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot, bool equip)
 {
 	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
@@ -788,7 +798,7 @@ void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
 		Item::GodPickup(item);
 	}
 
-	
+	if(equip)
 	if (itype == ItemType::WEAPON)
 	{
 		
