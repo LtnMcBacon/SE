@@ -49,5 +49,5 @@ float4 PS_main(PS_IN input) : SV_TARGET
     depthFadeMultiplier = 1 - depthFadeMultiplier_inverse;
 
 
-    return float4(diffuseFactor * albedoColor, depthFadeMultiplier * 2 * input.opacity);
+    return float4(diffuseFactor * albedoColor, depthFadeMultiplier * 1.667 * input.opacity);
 }
