@@ -1612,24 +1612,40 @@ std::function<bool(SE::Gameplay::Projectile*projectile, float dt)> SE::Gameplay:
 {
 	StartProfile;
 	auto window = CoreInit::subSystems.window;
+	auto player = ptrs.player;
 
-	auto setToMousePos = [window](Projectile* p, float dt) -> bool
+	auto setToMousePos = [window, player](Projectile* p, float dt) -> bool
 	{
 		int mouseX, mouseY;
-		window->GetMousePos(mouseX, mouseY);
+		GameUnit* ownerPtr = nullptr;
+		if (auto target = p->GetOwnerPtr().lock())
+		{
+			ownerPtr = *target.get();
 
-		DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
-		DirectX::XMVECTOR rayD;
+		}
 
-		auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
-		auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
-		CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mouseX, mouseY, width, height, rayO, rayD);
+		if (ownerPtr != player)
+		{
+			auto pos = CoreInit::managers.transformManager->GetPosition(player->GetEntity());
+			p->PositionEntity(pos.x, pos.z);
+		}
+		else
+		{
+			window->GetMousePos(mouseX, mouseY);
 
-		float distance = DirectX::XMVectorGetY(rayO) / -DirectX::XMVectorGetY(rayD);
+			DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+			DirectX::XMVECTOR rayD;
 
-		auto clickPos = rayO + rayD * distance;
+			auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+			auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
+			CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mouseX, mouseY, width, height, rayO, rayD);
 
-		p->PositionEntity(DirectX::XMVectorGetX(clickPos), DirectX::XMVectorGetZ(clickPos));
+			float distance = DirectX::XMVectorGetY(rayO) / -DirectX::XMVectorGetY(rayD);
+
+			auto clickPos = rayO + rayD * distance;
+
+			p->PositionEntity(DirectX::XMVectorGetX(clickPos), DirectX::XMVectorGetZ(clickPos));
+		}
 
 		return false;
 	};

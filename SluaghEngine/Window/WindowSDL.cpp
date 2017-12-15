@@ -586,3 +586,8 @@ void SE::Window::WindowSDL::ToggleCursor(bool on)
 		while (ShowCursor(on) >= 0){}
 	
 }
+
+void SE::Window::WindowSDL::SetWindowTitle(const std::string& title)
+{
+	SDL_SetWindowTitle(window, title.c_str());
+}

@@ -128,6 +128,10 @@ void SE::Gameplay::Game::Run()
 				/*if (currentState == SE::Gameplay::IGameState::State::PLAY_STATE || currentState == SE::Gameplay::IGameState::State::CHARACTER_CREATION_STATE)
 					CoreInit::subSystems.window->StopRecording();*/
 				delete state;
+				if (currentState == SE::Gameplay::IGameState::State::PAUSE_STATE)
+				{
+					delete tempState;
+				}
 				CoreInit::managers.entityManager->DestroyAll();
 				state = new SE::Gameplay::MainMenuState(CoreInit::subSystems.window);
 				break;

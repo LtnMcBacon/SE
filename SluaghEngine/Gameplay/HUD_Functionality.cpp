@@ -2,6 +2,8 @@
 #include <HUD_Parsing.h>
 #include "CoreInit.h"
 #include <Profiler.h>
+#include <AtlBase.h>
+#include <atlconv.h>
 #include <string>
 
 using namespace std;
@@ -152,7 +154,7 @@ namespace SE
 
 		}
 
-		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, unsigned short skillDesc[], string skillName, string textName, string hoverTex, string PressTex, string buttonText)
+		void HUDButtons::CreateButton(int posX, int posY, int width, int height, int layerDepth, string name, std::function<void()> func, std::string skillDescription, unsigned short skillDesc[],string skillName, string textName, string hoverTex, string PressTex, string buttonText)
 		{
 			StartProfile;
 			CalculateScreenPositions(width, height, posX, posY);
@@ -173,7 +175,8 @@ namespace SE
 			tempElement.buttonText = buttonText;
 			tempElement.skillButton = true;
 			tempElement.skillName = skillName;
-
+			tempElement.skillDescription = skillDescription;
+			
 			tempElement.EntityIndex = -1;
 			for (size_t i = 0; i < 8; i++)
 			{
@@ -196,9 +199,12 @@ namespace SE
 			if (button.skillName != "")
 			{
 				holder += button.skillName + "\n";
+				holder += button.skillDescription + "\n";
 				std::replace(holder.begin(), holder.end(), '_', ' ');
 				description.resize(holder.length(), L'\0');
-				std::copy(holder.begin(), holder.end(), description.begin());
+				CA2W ca2w(holder.c_str());
+				description = std::wstring(ca2w);
+				description = FuckingPieceOfShitTextWrapFunction(description);
 
 				description += L"Damage Source: ";
 				switch (button.skillDesc[0])
@@ -1038,6 +1044,20 @@ namespace SE
 			std::wstring text;
 			text.assign(button.buttonText.begin(), button.buttonText.end());
 
+
+			int width = button.Width;
+			int height = button.Height;
+			int posX = button.PositionX;
+			int posY = button.PositionY;
+			bool perhaps=false;
+			bool fullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", perhaps);
+			if (fullscreen)
+			{
+				
+				reverseScreenPositions(width, height, posX, posY, true);
+			}
+
+
 			Graphics::TextGUI guiText;
 			guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 			guiText.effect = Graphics::Effect::NoEffect;
@@ -1046,14 +1066,14 @@ namespace SE
 			guiText.layerDepth = 0;
 			guiText.anchor = DirectX::XMFLOAT2(0, 0);
 			guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
-			guiText.posX = button.PositionX - 5;
-			guiText.posY = button.PositionY - 5;
-			guiText.width = button.Width - 5;
-			guiText.height = button.Height - 5;
+			guiText.posX = posX + 5;
+			guiText.posY = posY + 5;
+			guiText.width = width - 5;
+			guiText.height = height - 5;
 			guiText.rotation = 0;
 			guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
-			CoreInit::managers.textManager->Create(entText, { Utilz::GUID(), guiText });
+			CoreInit::managers.textManager->Create(entText, { Utilz::GUID("EnchantedLand.spritefont"), guiText });
 			CoreInit::managers.textManager->ToggleRenderableText(entText, true);
 
 			ButtonEntityVec.push_back(entText);
@@ -1066,13 +1086,22 @@ namespace SE
 
 		void HUDButtons::DeleteSpecificButtons(string name)
 		{
+			int index = 0;
 			for (auto& Button : Buttons)
 			{
 				if (Button.rectName == name)
 				{
+					if (Button.buttonText!= "")
+					{
+						CoreInit::managers.guiManager->ToggleRenderableTexture(ButtonEntityVec.at(Button.textEntityIndex), false);
+						CoreInit::managers.entityManager->Destroy(ButtonEntityVec.at(Button.textEntityIndex));
+					}
 					CoreInit::managers.guiManager->ToggleRenderableTexture(ButtonEntityVec.at(Button.EntityIndex), false);
 					CoreInit::managers.entityManager->Destroy(ButtonEntityVec.at(Button.EntityIndex));
+					Buttons.erase(Buttons.begin() + index);
+					break;
 				}
+				index++;
 			}
 		}
 
@@ -1090,6 +1119,25 @@ namespace SE
 			DrawButtons();
 			ProfileReturnVoid;
 		}
+
+		std::wstring HUDButtons::FuckingPieceOfShitTextWrapFunction(std::wstring string)
+		{
+			if (string.length() >= 48)
+			{
+				int amount = string.length() / 48;
+				for (int i = 1; i <= amount; i++)
+				{
+					size_t index = string.find(' ', i * 45);
+					if (index <= string.length())
+					{
+						string.insert(index, L"\n");
+					}
+				}
+			}
+			return string;
+		}
+
+
 
 	}
 }

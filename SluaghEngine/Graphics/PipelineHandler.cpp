@@ -1604,6 +1604,7 @@ void SE::Graphics::PipelineHandler::SetPipeline(const Pipeline& pipeline)
 	//ForcedSetOutputMergerStage(pipeline.OMStage);
 	SetPixelShaderStage(pipeline.PSStage);
 	SetOutputMergerStage(pipeline.OMStage);
+	//ForcedSetOutputMergerStage(pipeline.OMStage);
 	SetComputeShaderStage(pipeline.CSStage);
 	StopProfile;
 }
@@ -1949,6 +1950,9 @@ void SE::Graphics::PipelineHandler::SetOutputMergerStage(const OutputMergerStage
 			renderTargets[i] = nullptr;
 		c.renderTargets[i] = oms.renderTargets[i];
 	}
+	for (int i = oms.renderTargetCount; i < Graphics::OutputMergerStage::maxRenderTargets; i++)
+		c.renderTargets[i] = Utilz::GUID();
+
 	c.renderTargetCount = oms.renderTargetCount;
 	ID3D11DepthStencilView* depthview = nullptr;
 	if (oms.depthStencilView != c.depthStencilView)
@@ -2208,6 +2212,9 @@ void SE::Graphics::PipelineHandler::ForcedSetOutputMergerStage(const OutputMerge
 		c.renderTargets[i] = oms.renderTargets[i];
 	}
 	c.renderTargetCount = oms.renderTargetCount;
+	for (int i = oms.renderTargetCount; i < Graphics::OutputMergerStage::maxRenderTargets; i++)
+		c.renderTargets[i] = Utilz::GUID();
+
 	ID3D11DepthStencilView* depthview = nullptr;
 
 	const auto dsv = depthStencilViews.find(oms.depthStencilView);

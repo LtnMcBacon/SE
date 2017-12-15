@@ -139,8 +139,8 @@ void SE::Gameplay::Sluagh::DecideActions(float dt, PlayerUnit::MovementInput &mo
 	StartProfile;
 	ClearMap();
 
-	CalculateSkillUtilities(dt);
 	CalculateWeaponChangeUtilities(dt);
+	CalculateSkillUtilities(dt);
 	CalculateUseItemUtilities(dt);
 	CalculateMovementUtilities(dt);
 	DecideActionInput(dt, action);
@@ -734,7 +734,8 @@ void SE::Gameplay::Sluagh::DecideActionInput(float dt, PlayerUnit::ActionInput& 
 
 	default:;
 	}
-	actionCooldown = 0.35f;
+	/*if(distanceToPlayer < 2.5f)
+		actionCooldown = 0.35f;*/
 	StopProfile;
 }
 
@@ -792,16 +793,16 @@ void SE::Gameplay::Sluagh::DecideMovementInput(float dt, PlayerUnit::MovementInp
 				switch(CoreInit::subSystems.window->GetRand()%4)
 				{
 				case 0:
-					previousMovement.upButton != previousMovement.upButton;
+					previousMovement.upButton = !previousMovement.upButton;
 					break;
 				case 1:
-					previousMovement.downButton != previousMovement.downButton;
+					previousMovement.downButton = !previousMovement.downButton;
 					break;
 				case 2:
-					previousMovement.rightButton != previousMovement.rightButton;
+					previousMovement.rightButton = !previousMovement.rightButton;
 					break;
 				case 3:
-					previousMovement.leftButton != previousMovement.leftButton;
+					previousMovement.leftButton = !previousMovement.leftButton;
 					break;
 				}
 			}

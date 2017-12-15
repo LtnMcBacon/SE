@@ -166,6 +166,7 @@ SE::Gameplay::TutorialState::TutorialState()
 	managers.audioManager->Create(sounds, { "Utmärkt.wav", SE::Audio::VoiceSound });
 	managers.audioManager->Create(sounds, { "UtmärktGeNu.wav", SE::Audio::VoiceSound });
 	managers.audioManager->Create(sounds, { "Välkommen.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Pech.wav", SE::Audio::VoiceSound });
 #pragma endregion
 
 	BehaviourPointers temp;
@@ -182,7 +183,7 @@ SE::Gameplay::TutorialState::TutorialState()
 	subSystems.window->UpdateTime();
 	scriptToRun = &TutorialState::GreetingScript;
 
-//scriptToRun = &TutorialState::SpawnaGlastigScript;
+	//scriptToRun = &TutorialState::GåTillSluaghSvartScript;
 
 }
 
@@ -526,7 +527,7 @@ void SE::Gameplay::TutorialState::PickupWeaponScript(float dt)
 
 		if (CoreInit::subSystems.window->ButtonDouble(GameInput::ONE))
 		{
-			player->AddItem(ent2, 0);
+			player->AddItem(ent2, 0, false);
 			managers.dataManager->SetValue(ent2, "Pickup", true);
 			scriptToRun = &TutorialState::UtmärktPickupWeaponScript;
 			managers.entityManager->Destroy(ent);
@@ -645,7 +646,7 @@ void SE::Gameplay::TutorialState::BytaVapenAddInitScript(float dt)
 	});
 	managers.eventManager->RegisterEntitytoEvent(ent, "DelBytVapenText");
 
-	player->AddItem(Item::Weapon::Create(Item::Weapon::Type::WAND), 1);
+	player->AddItem(Item::Weapon::Create(Item::Weapon::Type::WAND), 1, false);
 
 	scriptToRun = &TutorialState::BytaVapenAddScript;
 
@@ -827,7 +828,7 @@ void SE::Gameplay::TutorialState::SpawnaFiendeScript(float dt)
 	auto ent = managers.entityManager->Create();
 	Core::ITextManager::CreateInfo gti;
 	gti.font = "Knights.spritefont";
-	gti.info.text = L"DET FINNS FYRA OLIKA MONSTER I SLOTTET";
+	gti.info.text = L"DET FINNS FEM OLIKA MONSTER I SLOTTET";
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
@@ -871,8 +872,8 @@ void SE::Gameplay::TutorialState::SpawnaGlastigScript(float dt)
 	Core::ILightManager::CreateInfo pl;
 	pl.pos = { 15.5f, 2.5f, 15.5f };
 	pl.color = { 1.0f, 0.85f, 0.85f };
-	pl.intensity = 2;
-	pl.radius = 3;
+	pl.intensity = 1;
+	pl.radius = 2;
 	managers.lightManager->Create(glastigLight, pl);
 	managers.lightManager->ToggleLight(glastigLight, true);
 
@@ -927,8 +928,8 @@ void SE::Gameplay::TutorialState::SpawnaBodachScript(float dt)
 	Core::ILightManager::CreateInfo pl;
 	pl.pos = { 15.5f, 1.75f, 12.5f };
 	pl.color = { 1.0f, 0.85f, 0.85f };
-	pl.intensity = 2;
-	pl.radius = 3;
+	pl.intensity = 1;
+	pl.radius = 2;
 	managers.lightManager->Create(bodachLight, pl);
 	managers.lightManager->ToggleLight(bodachLight, true);
 
@@ -983,8 +984,8 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 	Core::ILightManager::CreateInfo pl;
 	pl.pos = { 15.5f, 1.75f, 10.5f };
 	pl.color = { 1.0f, 0.85f, 0.85f };
-	pl.intensity = 2;
-	pl.radius = 3;
+	pl.intensity = 1;
+	pl.radius = 2;
 	managers.lightManager->Create(nuckLight, pl);
 	managers.lightManager->ToggleLight(nuckLight, true);
 
@@ -1000,6 +1001,62 @@ void SE::Gameplay::TutorialState::SpawnaNuckelaveeScript(float dt)
 
 	managers.audioManager->StopSound(sounds, currentSound);
 	currentSound = "Nuklavie.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
+
+	Utilz::GUID anims[] = { "BottomIdleAnim_MCModell.anim","TopIdleAnim_MCModell.anim" };
+	managers.animationManager->Start(nuck, anims, 2, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
+	managers.eventManager->SetLifetime(nuck, 12.0f);
+
+	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, nuckLight](Core::Entity ent) {
+		scriptToRun = &TutorialState::SpawnaPechScript;
+		managers.entityManager->Destroy(ent);
+		managers.entityManager->Destroy(nuckLight);
+	});
+
+	managers.eventManager->RegisterEntitytoEvent(nuck, "OnDeath");
+
+	scriptToRun = &TutorialState::NoneScript;
+}
+
+void SE::Gameplay::TutorialState::SpawnaPechScript(float dt)
+{
+	Core::Entity nuck;
+	Core::Entity nuckLight;
+	nuck = managers.entityManager->Create();
+	managers.transformManager->Create(nuck, { 14.5f, 0.45f, 12.5f }, { 0, -XM_PIDIV2,0 }, {0.5f,0.5f,0.5f});
+	Core::IAnimationManager::CreateInfo aci;
+	aci.mesh = "Pech.mesh";
+	aci.skeleton = "Pech.skel";
+	aci.animationCount = 0;
+	managers.animationManager->CreateAnimatedObject(nuck, aci);
+	managers.animationManager->ToggleVisible(nuck, true);
+	Core::IMaterialManager::CreateInfo mci;
+	mci.materialFile = "Pech.mat";
+	mci.shader = "SimpleLightPS.hlsl";
+	managers.materialManager->Create(nuck, mci);
+
+
+	nuckLight = managers.entityManager->Create();
+	Core::ILightManager::CreateInfo pl;
+	pl.pos = { 13.5f, 1.45f, 12.5f };
+	pl.color = { 1.0f, 0.85f, 0.85f };
+	pl.intensity = 1;
+	pl.radius = 2;
+	managers.lightManager->Create(nuckLight, pl);
+	managers.lightManager->ToggleLight(nuckLight, true);
+
+	Core::ITextManager::CreateInfo gti;
+	gti.font = "Knights.spritefont";
+	gti.info.text = L"PECH";
+	gti.info.screenAnchor = { 0.5f,0.25f };
+	gti.info.anchor = { 0.5f,0.5f };
+	gti.info.scale = { 0.35f ,0.35f };
+	gti.info.layerDepth = 0.9;
+	managers.textManager->Create(nuck, gti);
+	managers.textManager->ToggleRenderableText(nuck, true);
+
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Pech.wav";
 	managers.audioManager->PlaySound(sounds, currentSound);
 
 	Utilz::GUID anims[] = { "BottomIdleAnim_MCModell.anim","TopIdleAnim_MCModell.anim" };
@@ -1049,7 +1106,7 @@ void SE::Gameplay::TutorialState::SpawnAndScript(float dt)
 	currentSound = "Och.wav";
 	managers.audioManager->PlaySound(sounds, currentSound);
 
-	managers.eventManager->SetLifetime(ent, 7.0f);
+	managers.eventManager->SetLifetime(ent, 8.0f);
 	subSystems.window->MapActionButton(8731479874, Window::KeySpace);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		if(subSystems.window->ButtonDown(8731479874))
@@ -1108,7 +1165,7 @@ void SE::Gameplay::TutorialState::GåTillSluaghSvartScript(float dt)
 	managers.lightManager->Create(l, d);
 	managers.lightManager->ToggleLight(l, true);
 
-	managers.eventManager->SetLifetime(sluagh, 12.0f);
+	managers.eventManager->SetLifetime(sluagh, 8.0f);
 
 
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this, sword, l](Core::Entity ent) {
