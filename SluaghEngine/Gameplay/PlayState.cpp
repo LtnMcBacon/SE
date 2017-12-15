@@ -866,6 +866,7 @@ void PlayState::InitializeRooms()
 	CoreInit::subSystems.devConsole->Print("Room Load Time: %f", diff);
 	ProfileReturnVoid;
 }
+
 void SE::Gameplay::PlayState::InitializeEnemies()
 {
 	StartProfile;

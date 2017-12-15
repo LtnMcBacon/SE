@@ -414,7 +414,9 @@ int SE::Graphics::Renderer::Render()
 		gpuTimer->Stop(passHashes[uint32_t(group.first)]);
 		cpuTimer.Stop(passHashes2[uint32_t(group.first)]);
 	}
-	
+
+	device->GetDeviceContext()->GSSetShader(nullptr, nullptr, 0);
+
 	{
 		ID3D11RenderTargetView* backbuf = device->GetRTV();
 		ID3D11DepthStencilView* depthsv = device->GetDepthStencil();

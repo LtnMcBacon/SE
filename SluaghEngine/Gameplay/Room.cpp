@@ -219,6 +219,9 @@ void Room::Update(float dt, float playerX, float playerY)
 		}
 	}
 
+	time += dt;
+	CoreInit::subSystems.renderer->GetPipelineHandler()->UpdateConstantBuffer("fog_timeBuffer", &time, sizeof(float));
+
 	StopProfile;
 }
 
@@ -1224,6 +1227,8 @@ void SE::Gameplay::Room::RenderRoom(bool render)
 	}
 
 	beingRendered = render;
+
+	fog.Enable(render);
 }
 
 SE::Gameplay::Room::DirectionToAdjacentRoom SE::Gameplay::Room::CheckForTransition(float playerX, float playerY)
@@ -1561,6 +1566,7 @@ Room::Room(Utilz::GUID fileName)
 
 	roomEntity = CoreInit::managers.entityManager->Create();
 
+
 	StopProfile;
 }
 
@@ -1731,6 +1737,7 @@ void Room::loadfromFile(Utilz::GUID fileName)
 			}
 		}
 
+		fog.Instantiate(tileValues, &time);
 	
 		return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 	});
