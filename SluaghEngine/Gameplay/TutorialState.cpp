@@ -166,6 +166,7 @@ SE::Gameplay::TutorialState::TutorialState()
 	managers.audioManager->Create(sounds, { "Utmärkt.wav", SE::Audio::VoiceSound });
 	managers.audioManager->Create(sounds, { "UtmärktGeNu.wav", SE::Audio::VoiceSound });
 	managers.audioManager->Create(sounds, { "Välkommen.wav", SE::Audio::VoiceSound });
+	managers.audioManager->Create(sounds, { "Pech.wav", SE::Audio::VoiceSound });
 #pragma endregion
 
 	BehaviourPointers temp;
@@ -182,7 +183,7 @@ SE::Gameplay::TutorialState::TutorialState()
 	subSystems.window->UpdateTime();
 	scriptToRun = &TutorialState::GreetingScript;
 
-//scriptToRun = &TutorialState::SpawnaGlastigScript;
+	//scriptToRun = &TutorialState::GåTillSluaghSvartScript;
 
 }
 
@@ -827,7 +828,7 @@ void SE::Gameplay::TutorialState::SpawnaFiendeScript(float dt)
 	auto ent = managers.entityManager->Create();
 	Core::ITextManager::CreateInfo gti;
 	gti.font = "Knights.spritefont";
-	gti.info.text = L"DET FINNS FYRA OLIKA MONSTER I SLOTTET";
+	gti.info.text = L"DET FINNS FEM OLIKA MONSTER I SLOTTET";
 	gti.info.screenAnchor = { 0.5f,0.5f };
 	gti.info.anchor = { 0.5f,0.5f };
 	gti.info.scale = { 0.35f ,0.35f };
@@ -1054,9 +1055,9 @@ void SE::Gameplay::TutorialState::SpawnaPechScript(float dt)
 	managers.textManager->Create(nuck, gti);
 	managers.textManager->ToggleRenderableText(nuck, true);
 
-	/*managers.audioManager->StopSound(sounds, currentSound);
-	currentSound = "Nuklavie.wav";
-	managers.audioManager->PlaySound(sounds, currentSound);*/
+	managers.audioManager->StopSound(sounds, currentSound);
+	currentSound = "Pech.wav";
+	managers.audioManager->PlaySound(sounds, currentSound);
 
 	Utilz::GUID anims[] = { "BottomIdleAnim_MCModell.anim","TopIdleAnim_MCModell.anim" };
 	managers.animationManager->Start(nuck, anims, 2, 7, Core::AnimationFlags::LOOP | Core::AnimationFlags::BLENDTO);
@@ -1105,7 +1106,7 @@ void SE::Gameplay::TutorialState::SpawnAndScript(float dt)
 	currentSound = "Och.wav";
 	managers.audioManager->PlaySound(sounds, currentSound);
 
-	managers.eventManager->SetLifetime(ent, 7.0f);
+	managers.eventManager->SetLifetime(ent, 8.0f);
 	subSystems.window->MapActionButton(8731479874, Window::KeySpace);
 	managers.eventManager->RegisterTriggerEvent("OnDeath", [this](Core::Entity ent) {
 		if(subSystems.window->ButtonDown(8731479874))
