@@ -68,26 +68,34 @@ void SE::Gameplay::Room::UpdateHpBars(float playerX, float playerY)
 	
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
-		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, true);
-		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, true);
+		if (0.f < enemyUnits[i]->GetHealth())
+		{
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, true);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, true);
 
-		float xPos, yPos;
-		auto a = CoreInit::managers.cameraManager->GetActive();
+			float xPos, yPos;
+			auto a = CoreInit::managers.cameraManager->GetActive();
 
-		DirectX::XMFLOAT3 worldPos = CoreInit::managers.transformManager->GetPosition(enemyUnits[i]->GetEntity());
-		DirectX::XMVECTOR worldVec = DirectX::XMVectorSet(worldPos.x, worldPos.y, worldPos.z, 1.0f);
-		DirectX::XMMATRIX viewProj = DirectX::XMLoadFloat4x4(&CoreInit::managers.cameraManager->GetViewProjection(CoreInit::managers.cameraManager->GetActive()));
-		DirectX::XMVECTOR screenPos = DirectX::XMVector4Transform(worldVec, viewProj);
+			DirectX::XMFLOAT3 worldPos = CoreInit::managers.transformManager->GetPosition(enemyUnits[i]->GetEntity());
+			DirectX::XMVECTOR worldVec = DirectX::XMVectorSet(worldPos.x, worldPos.y, worldPos.z, 1.0f);
+			DirectX::XMMATRIX viewProj = DirectX::XMLoadFloat4x4(&CoreInit::managers.cameraManager->GetViewProjection(CoreInit::managers.cameraManager->GetActive()));
+			DirectX::XMVECTOR screenPos = DirectX::XMVector4Transform(worldVec, viewProj);
 
-		float w = DirectX::XMVectorGetW(screenPos);
+			float w = DirectX::XMVectorGetW(screenPos);
 
-		xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Width", 1280));
-		yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Height", 720));
+			xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Width", 1280));
+			yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Height", 720));
 
-		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].bar, xPos - 50, yPos - 50);
-		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].frame, xPos - 50, yPos - 50);
+			CoreInit::managers.guiManager->SetTexturePos(hpBars[i].bar, xPos - 50, yPos - 50);
+			CoreInit::managers.guiManager->SetTexturePos(hpBars[i].frame, xPos - 50, yPos - 50);
 
-		CoreInit::managers.guiManager->SetTextureDimensions(hpBars[i].bar, barWidth * (enemyUnits[i]->GetHealth() / enemyUnits[i]->GetMaxHealth()), barHeight);
+			CoreInit::managers.guiManager->SetTextureDimensions(hpBars[i].bar, barWidth * (enemyUnits[i]->GetHealth() / enemyUnits[i]->GetMaxHealth()), barHeight);
+		}
+		else
+		{
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, false);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, false);			
+		}
 	}
 
 	for (int i = enemyUnits.size(); i < hpBars.size(); i++)

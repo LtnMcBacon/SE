@@ -977,9 +977,17 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 	input.read((char*)&skills[0], sizeof(skills[0]));
 	memset(&skills[0].skillName, 0, sizeof(skills[0].skillName));
 	skills[0].skillName = std::string("");
+	memset(&skills[0].skillDesc, 0, sizeof(skills[0].skillDesc));
+	skills[0].skillDesc = std::string("");
+	skills[0].currentCooldown = 0.f;
+	
 	input.read((char*)&skills[1], sizeof(skills[1]));
 	memset(&skills[1].skillName, 0, sizeof(skills[1].skillName));
 	skills[1].skillName = std::string("");
+	memset(&skills[1].skillDesc, 0, sizeof(skills[1].skillDesc));
+	skills[1].skillDesc = std::string("");
+	skills[1].currentCooldown = 0.f;
+
 
 	char perkname[255];
 	int size;
