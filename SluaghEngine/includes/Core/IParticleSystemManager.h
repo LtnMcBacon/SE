@@ -33,6 +33,7 @@ namespace SE
 				ITransformManager* transformManager;
 				IRenderableManager* renderableManager;
 				IEventManager* eventManager;
+				Window::IWindow* window;
 			};
 
 			struct CreateInfo
