@@ -1,4 +1,4 @@
-static const float FOG_SIZE = 1;
+static const float FOG_SIZE = 5;
 
 
 Texture2D albedoTexture : register(t0);
@@ -29,5 +29,5 @@ float4 PS_main(PS_IN input) : SV_TARGET
     float diffuseFactor = dot(float3(0, 0, 1), normalColor);
 
 
-    return float4(diffuseFactor * albedoColor, input.opacity * albedoAlpha);
+    return float4(diffuseFactor * albedoColor, input.opacity);
 }

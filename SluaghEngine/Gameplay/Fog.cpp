@@ -815,17 +815,19 @@ void SE::Gameplay::Fog::CreatePlane(float *time)
 
 		bottomPlaneRj.pipeline.PSStage.textures[0] = "Fog_AlbedoTexture.png";
 		bottomPlaneRj.pipeline.PSStage.textures[1] = "Fog_NormalTexture.png";
-		bottomPlaneRj.pipeline.PSStage.textureCount = 2;
+		bottomPlaneRj.pipeline.PSStage.textures[2] = "backbufferdepth";
+		bottomPlaneRj.pipeline.PSStage.textureCount = 3;
 		bottomPlaneRj.pipeline.PSStage.textureBindings[0] = "albedoTexture";
 		bottomPlaneRj.pipeline.PSStage.textureBindings[1] = "normalTexture";
+		bottomPlaneRj.pipeline.PSStage.textureBindings[2] = "depthTexture";
 
 		bottomPlaneRj.pipeline.IAStage.inputLayout = "FogBottomVS.hlsl";
 		bottomPlaneRj.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_LIST;
 		bottomPlaneRj.pipeline.IAStage.vertexBuffer = bottomPlaneVbName;
 
 		bottomPlaneRj.pipeline.OMStage.blendState = "FogBs";
-		bottomPlaneRj.pipeline.OMStage.depthStencilState = "FogDss";
-		bottomPlaneRj.pipeline.OMStage.depthStencilView = "backbuffer";
+		//bottomPlaneRj.pipeline.OMStage.depthStencilState = "FogDss";
+		//bottomPlaneRj.pipeline.OMStage.depthStencilView = "backbuffer";
 
 		bottomPlaneRj.vertexCount = bottomPlaneVertexCount;
 		bottomPlaneRj.maxInstances = 1;
