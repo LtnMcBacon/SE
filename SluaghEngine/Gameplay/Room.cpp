@@ -68,26 +68,34 @@ void SE::Gameplay::Room::UpdateHpBars(float playerX, float playerY)
 	
 	for (int i = 0; i < enemyUnits.size(); i++)
 	{
-		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, true);
-		CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, true);
+		if (0.f < enemyUnits[i]->GetHealth())
+		{
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, true);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, true);
 
-		float xPos, yPos;
-		auto a = CoreInit::managers.cameraManager->GetActive();
+			float xPos, yPos;
+			auto a = CoreInit::managers.cameraManager->GetActive();
 
-		DirectX::XMFLOAT3 worldPos = CoreInit::managers.transformManager->GetPosition(enemyUnits[i]->GetEntity());
-		DirectX::XMVECTOR worldVec = DirectX::XMVectorSet(worldPos.x, worldPos.y, worldPos.z, 1.0f);
-		DirectX::XMMATRIX viewProj = DirectX::XMLoadFloat4x4(&CoreInit::managers.cameraManager->GetViewProjection(CoreInit::managers.cameraManager->GetActive()));
-		DirectX::XMVECTOR screenPos = DirectX::XMVector4Transform(worldVec, viewProj);
+			DirectX::XMFLOAT3 worldPos = CoreInit::managers.transformManager->GetPosition(enemyUnits[i]->GetEntity());
+			DirectX::XMVECTOR worldVec = DirectX::XMVectorSet(worldPos.x, worldPos.y, worldPos.z, 1.0f);
+			DirectX::XMMATRIX viewProj = DirectX::XMLoadFloat4x4(&CoreInit::managers.cameraManager->GetViewProjection(CoreInit::managers.cameraManager->GetActive()));
+			DirectX::XMVECTOR screenPos = DirectX::XMVector4Transform(worldVec, viewProj);
 
-		float w = DirectX::XMVectorGetW(screenPos);
+			float w = DirectX::XMVectorGetW(screenPos);
 
-		xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Width", 1280));
-		yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Height", 720));
+			xPos = (int)round(((DirectX::XMVectorGetX(screenPos) / w + 1) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Width", 1280));
+			yPos = (int)round(((1 - DirectX::XMVectorGetY(screenPos) / w) / 2.0f) * CoreInit::subSystems.optionsHandler->GetOptionUnsignedInt("Window", "Height", 720));
 
-		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].bar, xPos - 50, yPos - 50);
-		CoreInit::managers.guiManager->SetTexturePos(hpBars[i].frame, xPos - 50, yPos - 50);
+			CoreInit::managers.guiManager->SetTexturePos(hpBars[i].bar, xPos - 50, yPos - 50);
+			CoreInit::managers.guiManager->SetTexturePos(hpBars[i].frame, xPos - 50, yPos - 50);
 
-		CoreInit::managers.guiManager->SetTextureDimensions(hpBars[i].bar, barWidth * (enemyUnits[i]->GetHealth() / enemyUnits[i]->GetMaxHealth()), barHeight);
+			CoreInit::managers.guiManager->SetTextureDimensions(hpBars[i].bar, barWidth * (enemyUnits[i]->GetHealth() / enemyUnits[i]->GetMaxHealth()), barHeight);
+		}
+		else
+		{
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].bar, false);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(hpBars[i].frame, false);			
+		}
 	}
 
 	for (int i = enemyUnits.size(); i < hpBars.size(); i++)
@@ -226,20 +234,20 @@ bool Room::CheckCollisionInRoom(float xCenterPosition, float yCenterPosition, fl
 	const int yDownFloored = int(floor(yCenterPosition - yExtent));
 
 
-	if (tileValues[xLeftFloored][yDownFloored])
+	if (tileValues[xLeftFloored][yDownFloored] && tileValues[xLeftFloored][yDownFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
-	if (tileValues[xLeftFloored][yUpFloored])
+	if (tileValues[xLeftFloored][yUpFloored] && tileValues[xLeftFloored][yUpFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
 
-	if (tileValues[xRightFloored][yUpFloored])
+	if (tileValues[xRightFloored][yUpFloored] && tileValues[xRightFloored][yUpFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
-	if (tileValues[xRightFloored][yDownFloored])
+	if (tileValues[xRightFloored][yDownFloored] && tileValues[xRightFloored][yDownFloored] != id_Torch)
 	{
 		ProfileReturnConst(true);
 	}
@@ -1108,7 +1116,7 @@ void SE::Gameplay::Room::RandomizeWallAndFloorTexture(SE::Utilz::GUID & wallGuid
 		switch (randNr)
 		{
 		case 0:
-			wallGuid = Materials[Materials::WallStone];
+			wallGuid = Materials[Materials::julWall];
 			break;
 		case 1:
 			wallGuid = Materials[Materials::FanzyWall];
@@ -2082,6 +2090,7 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 	else
 	{
 		matInfo.materialFile = args.floorMat;
+		
 
 		const Utilz::GUID carpetTextures[] = { "CowWhite.png", "CowBlack.png", "CowBrown.png", "bear.png" };
 		const size_t carpetTexturesCount = sizeof(carpetTextures) / sizeof(*carpetTextures);
@@ -2153,13 +2162,23 @@ void SE::Gameplay::Room::CreateFloor(CreationArguments &args)
 					DirectX::XMStoreFloat4x4(&floorDecalTrans, (floorDecalScaling) * (floorDecalRotationX *floorDecalRotationY) * floorDecalTranslation);
 
 					CoreInit::managers.decalManager->SetLocalTransform(entFloor, (float*)&floorDecalTrans);
+
 			
 			}
 		}
 		
 	}
 
-	matInfo.shader = Norm;
+	
+	if (IsOutside == false)
+	{
+		matInfo.shader = Norm;
+	}
+	else
+	{
+		matInfo.shader = BushShader;
+	}
+
 	CoreInit::managers.materialManager->Create(entFloor, matInfo);
 	//CoreInit::managers.renderableManager->ToggleRenderableObject(entFloor, true);
 	roomEntities[args.x][args.y].push_back(entFloor);

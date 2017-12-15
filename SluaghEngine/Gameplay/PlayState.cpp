@@ -958,8 +958,8 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 					data.type = EnemyType(std::rand() % 3);
 			}
 			
-			data.startX = enemyPos.x;
-			data.startY = enemyPos.y;
+			data.startX = enemyPos.x+.5f;
+			data.startY = enemyPos.y+.5f;
 			data.useVariation = true;
 			//eStruct.information.push_back(data);
 		

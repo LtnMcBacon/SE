@@ -1044,6 +1044,20 @@ namespace SE
 			std::wstring text;
 			text.assign(button.buttonText.begin(), button.buttonText.end());
 
+
+			int width = button.Width;
+			int height = button.Height;
+			int posX = button.PositionX;
+			int posY = button.PositionY;
+			bool perhaps=false;
+			bool fullscreen = CoreInit::subSystems.optionsHandler->GetOptionBool("Window", "fullScreen", perhaps);
+			if (fullscreen)
+			{
+				
+				reverseScreenPositions(width, height, posX, posY, true);
+			}
+
+
 			Graphics::TextGUI guiText;
 			guiText.colour = DirectX::XMFLOAT4(1.0, 1.0, 1.0, 1.0);
 			guiText.effect = Graphics::Effect::NoEffect;
@@ -1052,10 +1066,10 @@ namespace SE
 			guiText.layerDepth = 0;
 			guiText.anchor = DirectX::XMFLOAT2(0, 0);
 			guiText.screenAnchor = DirectX::XMFLOAT2(0, 0);
-			guiText.posX = button.PositionX + 5;
-			guiText.posY = button.PositionY + 5;
-			guiText.width = button.Width - 5;
-			guiText.height = button.Height - 5;
+			guiText.posX = posX + 5;
+			guiText.posY = posY + 5;
+			guiText.width = width - 5;
+			guiText.height = height - 5;
 			guiText.rotation = 0;
 			guiText.scale = DirectX::XMFLOAT2(0.9, 0.9);
 
