@@ -170,7 +170,7 @@ namespace SE
 
 			void handlePerks(float deltaTime, PlayerUnit* player, std::vector<ProjectileData>& newProjectiles);
 
-			
+
 			inline float GetMaxHealth()
 			{
 				return newStat.health;
@@ -270,7 +270,7 @@ namespace SE
 			inline DamageType GetDamageType(int skillNumber) { return skills.at(skillNumber).damageType; };
 			inline Boons GetBoon(int skillNumber) { return skills.at(skillNumber).boon; };
 			inline Banes GetBanes(int skillNumber) { return skills.at(skillNumber).bane; };
-			inline unsigned short int GetAnimation(int skillNumber){ return (unsigned short int)skills.at(skillNumber).animation; };
+			inline unsigned short int GetAnimation(int skillNumber) { return (unsigned short int)skills.at(skillNumber).animation; };
 			inline unsigned short int GetParticle(int skillNumber) { return (unsigned short int)skills.at(skillNumber).particle; };
 
 			inline Utilz::GUID GetProjectileReference(int skillNumber) { return skills.at(skillNumber).projectileFileGUID; };
@@ -283,7 +283,7 @@ namespace SE
 			inline float GetBaneDuration(int skillNumber) { return skills.at(skillNumber).baneDuration; };
 			inline float GetCooldown(int skillNumber) { return skills.at(skillNumber).cooldown; };
 			inline float GetCurrentCooldown(int skillNumber) { return skills.at(skillNumber).currentCooldown; };
-			
+
 			//Skill Setters
 			inline void SetSkillName(int skillNumber, std::string skillName) { this->skills.at(skillNumber).skillName = skillName; };
 			inline void SetAttackType(int skillNumber, unsigned short int atkType) { this->skills.at(skillNumber).atkType = static_cast<DamageSources>(atkType); };
@@ -292,7 +292,7 @@ namespace SE
 			inline void SetBanes(int skillNumber, unsigned short int bane) { this->skills.at(skillNumber).bane = static_cast<Banes>(bane); };
 			inline void SetAnimation(int skillNumber, unsigned short int animation) { this->skills.at(skillNumber).animation = animation; };
 			inline void SetParticle(int skillNumber, unsigned short int particle) { this->skills.at(skillNumber).particle = particle; };
-			
+
 			inline void  SetProjectileReference(int skillNumber, std::string projectileName) { this->skills.at(skillNumber).projectileFileGUID = projectileName; };
 			inline void  SetSkillDamage(int skillNumber, float skillDamage) { this->skills.at(skillNumber).skillDamage = skillDamage; };
 			inline void  SetBoonEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).boonEffectValue = effectValue; };
@@ -303,7 +303,7 @@ namespace SE
 			inline void  SetBaneDuration(int skillNumber, float duration) { this->skills.at(skillNumber).baneDuration = duration; };
 			inline void  SetCooldown(int skillNumber, float cooldown) { this->skills.at(skillNumber).cooldown = cooldown; };
 			inline void  SetCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown = currentCooldown; };
-			
+
 			//Skill adders
 			inline void  AddSkillDamage(int skillNumber, float skillDamage) { this->skills.at(skillNumber).skillDamage += skillDamage; };
 			inline void  AddBoonEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).boonEffectValue += effectValue; };
@@ -314,7 +314,7 @@ namespace SE
 			inline void  AddBaneDuration(int skillNumber, float duration) { this->skills.at(skillNumber).baneDuration += duration; };
 			inline void  AddCooldown(int skillNumber, float cooldown) { this->skills.at(skillNumber).cooldown += cooldown; };
 			inline void  AddCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown += currentCooldown; };
-			
+
 			//Skillremovers
 			inline void  RemoveSkillDamage(int skillNumber, float skillDamage) { this->skills.at(skillNumber).skillDamage -= skillDamage; };
 			inline void  RemoveBoonEffectValue(int skillNumber, float effectValue) { this->skills.at(skillNumber).boonEffectValue -= effectValue; };
@@ -324,7 +324,7 @@ namespace SE
 			inline void  RemoveBaneDuration(int skillNumber, float duration) { this->skills.at(skillNumber).baneDuration -= duration; };
 			inline void  RemoveCooldown(int skillNumber, float cooldown) { this->skills.at(skillNumber).cooldown -= cooldown; };
 			inline void  RemoveCurrentCooldown(int skillNumber, float currentCooldown) { this->skills.at(skillNumber).currentCooldown -= currentCooldown; };
-			
+
 			inline std::vector<Skill> &GetAllSkills() { return skills; };
 
 			void ToggleAsSluagh(bool sluagh);
@@ -335,7 +335,7 @@ namespace SE
 		private:
 			std::vector<Skill> skills;
 			std::vector<Perk> perks;
-			
+
 			/**
 			* @brief		Removes all the skills from the list.
 			*
@@ -344,7 +344,7 @@ namespace SE
 			inline void flushSkills(std::vector<Skill> skills) { skills.clear(); };
 
 			SkillFactory SF;
-			
+
 
 			//void changeElementType(Gameplay::DamageTypes element);
 			float playerAttackCooldown = 0.0f;
@@ -353,7 +353,7 @@ namespace SE
 			bool attacking = false;
 			bool isSluagh = false;
 		public:
-			PlayerUnit(Skill* skills, Perk* importPerks ,PerkData* slaughPerks, float xPos, float yPos, char mapForRoom[25][25]);
+			PlayerUnit(Skill* skills, Perk* importPerks, PerkData* slaughPerks, float xPos, float yPos, char mapForRoom[25][25]);
 
 			PlayerUnit(std::ifstream &input, float xPos, float yPos, char mapForRoom[25][25]);
 
