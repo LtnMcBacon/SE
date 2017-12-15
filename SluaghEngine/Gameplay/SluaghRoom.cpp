@@ -60,6 +60,8 @@ void SE::Gameplay::SluaghRoom::Update(float dt, float playerX, float playerY)
 
 		projectileManagers->AddProjectiles(projectiles);
 	}
+	time += dt;
+	CoreInit::subSystems.renderer->GetPipelineHandler()->UpdateConstantBuffer("fog_timeBuffer", &time, sizeof(float));
 	StopProfile;
 }
 
