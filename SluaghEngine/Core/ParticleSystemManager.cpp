@@ -15,6 +15,7 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.renderableManager);
 	_ASSERT(initInfo.console);
+	_ASSERT(initInfo.window);
 	
 	initInfo.transformManager->RegisterSetDirty({this, &ParticleSystemManager::UpdateDirtyPos});
 	initInfo.eventManager->RegisterToToggleVisible({this, &ParticleSystemManager::ToggleVisible});
@@ -204,7 +205,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 				fileInfo.emitRange[1] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[1].x/*Max*/ - PSD.emitRange[1].y/*Min*/) + PSD.emitRange[1].y;
 				fileInfo.emitRange[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
 				
-				fileInfo.dt = time.GetDelta<std::ratio<1, 1>>();
+				fileInfo.dt = initInfo.window->GetDelta(); //time.GetDelta<std::ratio<1, 1>>();
 								
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("lockBuffer", &PSD.locked, sizeof(bool));
 				
@@ -354,7 +355,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 	StartProfile;
 	timer->Start(("ParticleSystemManager"));
 	GarbageCollection();
-	time.Tick();
+	//time.Tick();
 	//while (!toUpdate.wasEmpty())
 	//{
 	//	auto& top = toUpdate.top();
