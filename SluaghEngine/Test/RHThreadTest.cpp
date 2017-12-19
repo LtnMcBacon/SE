@@ -7,6 +7,7 @@
 #include <Graphics\FileHeaders.h>
 #include <atomic>
 #include <thread>
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 
 namespace SE::Test
 {
@@ -133,20 +134,26 @@ namespace SE::Test
 			return ResourceHandler::InvokeReturn::SUCCESS;
 		};
 
-		for (int i = 0; i < 20; i++)
+		auto wu = meshes.size() + materials.size() + textures.size();
+
+		auto start = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 30; i++)
 			 rh->LoadResource(meshes[i], meshCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 30; i++)
 			rh->LoadResource(materials[i], materialCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_RAM | ResourceHandler::LoadFlags::ASYNC);
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 30; i++)
 			rh->LoadResource(textures[i], textureCallbacks, ResourceHandler::LoadFlags::LOAD_FOR_VRAM | ResourceHandler::LoadFlags::ASYNC);
 
 
 		using namespace std::chrono_literals;
-		while (loaded.load() < 60)
+		while (loaded.load() < 90)
 			std::this_thread::sleep_for(1ms);
 
+		auto end = std::chrono::high_resolution_clock::now();
 
+		auto diff = std::chrono::duration<float, std::milli>(end - start).count();
 
+		console->Print("Time: %f", diff);
 
 		r->Shutdown();
 		w->Shutdown();

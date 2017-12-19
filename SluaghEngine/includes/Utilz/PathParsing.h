@@ -5,7 +5,8 @@
 #include <Windows.h>
 #include <vector>
 #include <codecvt>
-
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#define  SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 namespace SE
 {
 	namespace Utilz
