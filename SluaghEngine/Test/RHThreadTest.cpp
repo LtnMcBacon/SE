@@ -2,7 +2,7 @@
 #include <ResourceHandler\IResourceHandler.h>
 #include <Graphics\IRenderer.h>
 #include <Window\IWindow.h>
-#pragma comment(lib, "ResourceHandler.lib")
+#pragma comment(lib, "ResourceHandlerD.lib")
 #include <Graphics\VertexStructs.h>
 #include <Graphics\FileHeaders.h>
 #include <atomic>
@@ -135,6 +135,7 @@ namespace SE::Test
 		};
 
 		auto wu = meshes.size() + materials.size() + textures.size();
+
 
 		auto start = std::chrono::high_resolution_clock::now();
 		for (int i = 0; i < 30; i++)
