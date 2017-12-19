@@ -160,6 +160,7 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\ResourceHandler\RawLoader.cpp" />
     <ClCompile Include="AllocatorTest.cpp" />
     <ClCompile Include="AudioTest.cpp" />
     <ClCompile Include="BehavioursTest.cpp" />
@@ -195,7 +196,9 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClCompile Include="RecordingTest.cpp" />
     <ClCompile Include="RenderableManagerTest.cpp" />
     <ClCompile Include="ResourceHandlerTest.cpp" />
+    <ClCompile Include="RHThreadTest.cpp" />
     <ClCompile Include="RoomCreationTest.cpp" />
+    <ClCompile Include="SDDLockTest.cpp" />
     <ClCompile Include="ShadowTest.cpp" />
     <ClCompile Include="SkeletonAnimationTest.cpp" />
     <ClCompile Include="SluaghTest.cpp" />
@@ -225,6 +228,8 @@ copy /Y "$(SolutionDir)External Dependencies\lib\$(Platform)\*.dll" "$(ProjectDi
     <ClInclude Include="GarbageTest.h" />
     <ClInclude Include="GlaistigTest.h" />
     <ClInclude Include="HUDTest.h" />
+    <ClInclude Include="RHThreadTest.h" />
+    <ClInclude Include="SDDLockTest.h" />
     <ClInclude Include="SkillTest.h" />
     <ClInclude Include="ImageLoadTest.h" />
     <ClInclude Include="INITest.h" />

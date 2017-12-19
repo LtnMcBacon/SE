@@ -48,7 +48,8 @@
 #include "HUDTest.h"
 #include "ThreadPoolTest.h"
 #include "ParticleTest.h"
-
+#include "SDDLockTest.h"
+#include "RHThreadTest.h"
 #ifdef _DEBUG
 #pragma comment(lib, "DevConsoleD.lib")
 #else
@@ -82,6 +83,7 @@ int main(int argc, char** argv)
 	AddTest(SkeletonAnimationTest);
 	//AddTest(INITest);
 	//AddTest(MaterialManagerTest);
+
 	AddTest(AudioTest);
 	//AddTest(RecordingProjectileTest);
 	AddTest(PlaybackProjectileTest);
@@ -105,10 +107,10 @@ int main(int argc, char** argv)
 	//AddTest(EnemyFactoryTest);
 	//AddTest(GlaistigTest);
 	//AddTest(SlaughTest);
-
+	AddTest(RHThreadTest);
 	//AddTest(PickingTest);
 	AddTest(ShadowTest);
-  
+	AddTest(SDDLockTest);
 	//AddTest(ProjectileTest);
 	//AddTest(GarbageTest);
 	//AddTest(ConsoleTest);
