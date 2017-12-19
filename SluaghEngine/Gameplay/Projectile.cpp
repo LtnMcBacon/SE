@@ -109,6 +109,8 @@ void SE::Gameplay::Projectile::UpdateBounding()
 
 	rect.lowerRightX += xPos;
 	rect.lowerRightY += yPos;
+
+	rect.radius = sqrt(extentX * extentX + extentY * extentY);
 	StopProfile;
 }
 
@@ -160,6 +162,8 @@ SE::Gameplay::Projectile::Projectile(SE::Gameplay::ProjectileCreationData& cData
 	eventDamage = pData.eventDamage;
 	eventHealing = pData.eventHealing;
 	eventCondition = pData.eventCondition;
+
+	projectileOwner = pData.ownerUnit;
 	
 	rect.radius = sqrt(extentX*extentX + extentY*extentY);
 
@@ -188,6 +192,7 @@ SE::Gameplay::Projectile::Projectile(const Projectile & other) : GameUnit(other)
 	this->target = other.target;
 	this->generation = other.generation;
 	this->targetsHit = other.targetsHit;
+	this->projectileOwner = other.projectileOwner;
 }
 
 SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile & other)
@@ -211,6 +216,7 @@ SE::Gameplay::Projectile & SE::Gameplay::Projectile::operator=(const Projectile 
 	this->target = other.target;
 	this->generation = other.generation;
 	this->targetsHit = other.targetsHit;
+	this->projectileOwner = other.projectileOwner;
 
 	return *this;
 }
@@ -235,13 +241,12 @@ SE::Gameplay::Projectile::Projectile(Projectile && other) : GameUnit(other)
 	this->target = other.target;
 	this->generation = other.generation;
 	this->targetsHit = other.targetsHit;
+	this->projectileOwner = other.projectileOwner;
 }
 
 SE::Gameplay::Projectile::~Projectile()
 {
-	StartProfile;
-	
-	ProfileReturnVoid;
+
 }
 
 void SE::Gameplay::Projectile::AddBehaviourFunction(const std::function<bool(Projectile*projectile, float dt)>& func)

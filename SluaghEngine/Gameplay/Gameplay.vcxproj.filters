@@ -420,11 +420,26 @@
     <ClCompile Include="HUD_Parsing.cpp">
       <Filter>Source Files\Button_class</Filter>
     </ClCompile>
+    <ClCompile Include="PauseState.cpp">
+      <Filter>Source Files\IGameState\PausState</Filter>
+    </ClCompile>
     <ClCompile Include="HUD_Functionality.cpp">
       <Filter>Source Files\Button_class</Filter>
     </ClCompile>
     <ClCompile Include="PauseState.cpp">
       <Filter>Source Files\IGameState\PausState</Filter>
+    </ClCompile>
+    <ClCompile Include="RootedCondition.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="SlowedConditioncpp.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="PoisonCloudLeaf.cpp">
+      <Filter>Source Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClCompile>
+    <ClCompile Include="Fog.cpp">
+      <Filter>Source Files\Rooms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -730,6 +745,18 @@
     </ClInclude>
     <ClInclude Include="..\includes\Gameplay\StopAnimationsLeaf.h">
       <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\RootedCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\SlowedCondition.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\PoisonCloudLeaf.h">
+      <Filter>Header Files\AI\BehaviouralTree\Behaviours\Leaves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\Gameplay\Fog.h">
+      <Filter>Header Files\Rooms</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

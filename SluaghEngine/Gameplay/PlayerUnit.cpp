@@ -8,6 +8,7 @@
 #include <Gameplay\PerkFactory.h>
 #include <Gameplay\perkConditionEnum.h>
 
+
 void SE::Gameplay::PlayerUnit::InitializeAnimationInfo()
 {
 	StartProfile;
@@ -105,8 +106,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				newStat.meleeMultiplier += baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
 				break;
 			case Boons::CONDITIONAL_BOONS_STUN:
+				this->isStunned = true;
 				break;
 			case Boons::CONDITIONAL_BOONS_ROOT:
+				this->isRooted = true;
+				this->newStat.movementSpeed = 0;
 				break;
 			case Boons::CONDITIONAL_BOONS_PROTECTION:
 				this->newStat.physicalResistance += this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
@@ -129,9 +133,17 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 			case Boons::CONDITIONAL_BOONS_CASTSPEED:
 				break;
 			case Boons::CONDITIONAL_BOONS_SWIFTNESS:
-				this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				if (!isRooted == false)
+				{
+					this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			case Boons::CONDITIONAL_BOONS_SLOW:
+				if (!isRooted || !isStunned)
+				{
+					this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 				break;
@@ -150,6 +162,7 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				this->isStunned = true;
 				break;
 			case Banes::CONDITIONAL_BANES_ROOT:
+				this->isRooted = true;
 				this->newStat.movementSpeed = 0;
 				break;
 			case Banes::CONDITIONAL_BANES_BLOODLETTING:
@@ -173,8 +186,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 				this->newStat.natureResistance -= this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
 				break;
 			case Banes::CONDITIONAL_BANES_SLOW:
-				this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
-				this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				if (!isRooted || !isStunned)
+				{
+					this->newStat.movementSpeed -= this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					this->newStat.attackSpeed -= this->baseStat.attackSpeed * ConditionEventVector[i].effectValue;
+				}
 				break;
 			}
 		}
@@ -188,6 +204,11 @@ void SE::Gameplay::PlayerUnit::ResolveEvents(float dt)
 	{
 		health += healing.amount;
 	}
+
+	if (this->health > this->GetMaxHealth())
+		this->health = this->GetMaxHealth();
+	else if (this->health < 0)
+		this->health = 0;
 	
 	ProfileReturnVoid;
 
@@ -294,9 +315,12 @@ void SE::Gameplay::PlayerUnit::SetCurrentWeaponStats()
 	weaponStats.damage = std::get<int32_t>(dm->GetValue(cwe, "Damage", 0));
 	weaponStats.health = std::get<int32_t>(dm->GetValue(cwe, "Health", 0));
 
-	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
-	weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
-
+	weaponStats.damageType = DamageType(std::get<int32_t>(dm->GetValue(cwe, "DamageType", 0)));
+	auto type = Item::Weapon::Type(std::get<int32_t>(dm->GetValue(cwe, "Type", 0)));
+	if (type == Item::Weapon::Type::SWORD)
+		weaponStats.weapon = DamageSources::DAMAGE_SOURCE_MELEE;
+	else
+		weaponStats.weapon = DamageSources::DAMAGE_SOURCE_RANGED;
 	auto an = std::get<uint32_t>(CoreInit::managers.dataManager->GetValue(cwe, "AttAnim", false));
 	animationPlayInfos[PLAYER_ATTACK_ANIMATION][0] = Utilz::GUID(an);
 }
@@ -308,7 +332,7 @@ void SE::Gameplay::PlayerUnit::SetGodMode(bool on)
 
 void SE::Gameplay::PlayerUnit::SetSpeed(float speed)
 {
-	this->newStat.movementSpeed = speed;
+	this->baseStat.movementSpeed = speed;
 }
 
 void SE::Gameplay::PlayerUnit::Suicide()
@@ -402,40 +426,53 @@ void SE::Gameplay::PlayerUnit::UpdateMovement(float dt, const MovementInput & in
 void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileData>& newProjectiles, const ActionInput& input)
 {
 	StartProfile;
-	auto w = CoreInit::subSystems.window;
-	bool ci = false;
-	auto newItem = 0;
-	if (input.one)
+
+	// Can only switch weapon if the player is not attacking
+	if(playerAttackCooldown <= 0.0f){
+
+		auto w = CoreInit::subSystems.window;
+		bool ci = false;
+		auto newItem = 0;
+		if (!isSluagh)
 	{
-		newItem = 0;
-		ci = true;
+		if (CoreInit::subSystems.window->ButtonUp(GameInput::SHOWINFO))
+			showingItem = currentItem;
 	}
-	else if (input.two)
-	{
-		newItem = 1;
-		ci = true;
-	}
-	else if (input.three)
-	{
-		newItem = 2;
-		ci = true;
-	}
-	else if (input.four)
+		if (input.one)
+		{
+			newItem = 0;
+			ci = true;
+		}
+		else if (input.two)
+		{
+			newItem = 1;
+			ci = true;
+		}
+		else if (input.three)
+		{
+			newItem = 2;
+			ci = true;
+		}
+		else if (input.four)
 	{
 		newItem = 3;
 		ci = true;
 	}
-	else if (input.five)
+		else if (input.five)
 	{
 		newItem = 4;
 		ci = true;
 	}
-	if (ci && input.showInfo)
-	{
-		showingItem = newItem;
-		CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);
-	}
-	if (ci && attacking == false)
+		if (ci && input.showInfo)
+		{
+			if (auto item = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[newItem], "Item", -1)); item != -1)
+		{
+
+				showingItem = newItem;
+				CoreInit::managers.eventManager->TriggerEvent("StopRenderItemInfo", true);	
+		}
+		}
+		if (ci)
 	{
 		if (!input.showInfo)
 		{
@@ -478,6 +515,8 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		}
 	}
 
+	}
+
 	this->newStat.str += weaponStats.str;
 	this->newStat.agi += weaponStats.agi;
 	this->newStat.whi += weaponStats.whi;
@@ -488,9 +527,12 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 	this->newStat.damageType = weaponStats.damageType;
 	this->newStat.weapon = weaponStats.weapon;
 
-	this->calcNewStrChanges();
 	this->calcNewAgiChanges();
+	this->calcNewStrChanges();
 	this->calcNewWhiChanges();
+
+	this->calcNewConsecutiveAttackSpeed();
+	this->calcNewAttackSpeed();
 
 	int nrOfSKills = skills.size();
 
@@ -501,10 +543,14 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		temp.startRotation = CoreInit::managers.transformManager->GetRotation(unitEntity).y;
 		temp.startPosX = this->xPos;
 		temp.startPosY = this->yPos;
-		temp.target = ValidTarget::ENEMIES;
+
+		if (skills[0].atkType == DamageSources::DAMAGE_SOURCE_SELFCAST)
+			temp.target = ValidTarget::PLAYER;
+		else
+			temp.target = ValidTarget::ENEMIES;
+
 		temp.eventDamage = DamageEvent(skills[0].atkType, skills[0].damageType, skills[0].skillDamage);
 		//temp.healingEvent = skills[0]->GetHealingEvent();
-		//temp.conditionEvent = skills[0]->GetConditionEvent();
 		if (skills[0].boon != Boons(1 << 0))
 		{
 			ConditionEvent::ConditionType condition;
@@ -517,7 +563,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			ConditionEvent::ConditionType condition;
 			condition.unionType = 1;
 			condition.condition.bane = skills[0].bane;
-			ConditionEventVector.push_back(ConditionEvent(condition, skills[0].boonEffectValue, skills[0].baneDuration));
+			temp.eventCondition = ConditionEvent(condition, skills[0].baneEffectValue, skills[0].baneDuration);
 		}
 		if (!isSluagh)
 		{
@@ -572,7 +618,7 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 			ConditionEvent::ConditionType condition;
 			condition.unionType = 1;
 			condition.condition.bane = skills[1].bane;
-			ConditionEventVector.push_back(ConditionEvent(condition, skills[1].boonEffectValue, skills[1].baneDuration));
+			temp.eventCondition = ConditionEvent(condition, skills[1].baneEffectValue, skills[1].baneDuration);
 		}
 		if (!isSluagh)
 		{
@@ -614,14 +660,13 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 		skills[1].currentCooldown -= dt;
 	}
 	
-	if (input.actionButton && this->newStat.attackCooldown <= 0.0f)
+	if (input.actionButton && playerAttackCooldown <= 0.0f)
 	{
 		if (auto equipped = std::get<bool>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Equipped", false)); equipped)
 		{
 				// Only allow attacking if attack animation is not already playing and attacking is false
-				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/ this->newStat.attackSpeed) && attacking == false)
+				if (AnimationUpdate(PLAYER_ATTACK_ANIMATION, Core::AnimationFlags::BLENDTOANDBACK, 1.0f/ this->newStat.attackSpeed))
 				{
-					attacking = true;
 
 					ProjectileData temp;
 
@@ -638,24 +683,28 @@ void SE::Gameplay::PlayerUnit::UpdateActions(float dt, std::vector<ProjectileDat
 					temp.fileNameGuid = Utilz::GUID(p);
 					newProjectiles.push_back(temp);
 
-					this->newStat.attackCooldown = 1.0f / this->newStat.attackSpeed;
+					this->playerAttackCooldown = 1.0f / this->newStat.attackSpeed;
 				}
 			
 		}
 		
 	}
+	
+	//std::string cooldownDebug = std::to_string(this->playerAttackCooldown);
+	//CoreInit::subSystems.devConsole->Print(cooldownDebug.c_str());
 
-	if (this->newStat.attackCooldown > 0.f)
+	if (this->playerAttackCooldown > 0.0f)
 	{
-		this->newStat.attackCooldown -= dt;
+		this->playerAttackCooldown -= dt;
 	}
-	else if (this->newStat.attackCooldown <= 0.f){
-		attacking = false;
-		this->newStat.attackCooldown = 0.f;
+	else if (this->playerAttackCooldown <= 0.0f){
+		
+		this->playerAttackCooldown = 0.0f;
 	}
 
 
 
+	this->setBaseAttackMult(0);
 	handlePerks(dt, this, newProjectiles);
 
 	ResolveEvents(dt);
@@ -682,12 +731,11 @@ void SE::Gameplay::PlayerUnit::UpdateMap(char** mapForRoom)
 void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, std::vector<ProjectileData>& newProjectiles, const ActionInput & aInput)
 {
 	StartProfile;
-	if (godMode)
-		health = GetMaxHealth();
 	if (health > 0.f)
 	{
 		ClearNewStats();
 		isStunned = false;
+		isRooted = false;
 		UpdateActions(dt, newProjectiles, aInput);
 		UpdateMovement(dt, mInputs);
 
@@ -695,6 +743,8 @@ void SE::Gameplay::PlayerUnit::Update(float dt, const MovementInput & mInputs, s
 		ClearDamageEvents();
 		ClearHealingEvents();
 	}
+	if (godMode)
+		health = GetMaxHealth();
 	StopProfile;
 }
 
@@ -713,206 +763,61 @@ void SE::Gameplay::PlayerUnit::handlePerks(float deltaTime,PlayerUnit* player , 
 
 
 }
-void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot)
+
+void SE::Gameplay::PlayerUnit::AddItem(Core::Entity item, uint8_t slot, bool equip)
 {
 	StartProfile;
 	_ASSERT(slot < MAX_ITEMS);
 	
-	if (!isSluagh)
+	auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
+
+	auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
+	if (isitem != -1)
 	{
-		auto itype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(item, "Item", -1)));
-
-		auto isitem = std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[slot], "Item", -1));
-		if (isitem != -1)
+		auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
+		p.y = 0;
+		if (currentItem == slot)
 		{
-			auto p = CoreInit::managers.transformManager->GetPosition(unitEntity);
-			p.y = 0;
-			if (currentItem == slot)
-			{
-				auto ctype = (ItemType)(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
-				if (ctype == ItemType::WEAPON)
-					Item::Unequip(items[currentItem], unitEntity);
-			}
-
-			Item::Drop(items[slot], p);
+			auto pit = ItemType(std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1)));
+			if (pit == ItemType::WEAPON)
+				Item::Unequip(items[currentItem], unitEntity);
 
 		}
+
+		Item::Drop(items[slot], p);
+
+	}
+		
+	if (!isSluagh)
+	{
 		CoreInit::managers.guiManager->SetTexturePos(item, 45 + slot * 60, -55);
 		Item::Pickup(item);
 	}
+	else
+	{
+		Item::GodPickup(item);
+	}
 
+	if(equip)
+	if (itype == ItemType::WEAPON)
+	{
+		
+		if (auto isitem = ItemType( std::get<int32_t>(CoreInit::managers.dataManager->GetValue(items[currentItem], "Item", -1))); isitem == ItemType::WEAPON)
+		{
+			Item::Unequip(items[currentItem], unitEntity);
+		}
+
+		currentItem = slot;
+		items[slot] = item;
+		Item::Equip(items[currentItem], unitEntity);
+		SetCurrentWeaponStats();
+	}
 	items[slot] = item;
-	
-
 	StopProfile;
 }
 
 
-void SE::Gameplay::PlayerUnit::calcBaseStrChanges()
-{
-	StartProfile;
-	if (newStat.str > 5)
-	{
-		int increment = newStat.str - 5;
-		newStat.health = newStat.health * (1.f + (0.05f * increment));
-		newStat.damage = newStat.damage * (1.f + (0.05f * increment));
-	}
-	else if (baseStat.str < 5)
-	{
-		newStat.health = baseStat.health * (1.f - (0.1f * baseStat.str));
-		newStat.damage = baseStat.damage * (1.f - (0.1f * baseStat.str));
 
-		if (baseStat.str <= 3)
-		{
-			newStat.armorCap = 2;
-		}
-		else if (baseStat.str == 1)
-		{
-			newStat.armorCap = 1;
-		}
-	}
-	else
-	{
-		newStat.health = baseStat.health;
-		newStat.damage = baseStat.damage;
-	}
-	StopProfile;
-}
-void SE::Gameplay::PlayerUnit::calcBaseAgiChanges()
-{
-	StartProfile;
-	if (baseStat.agi > 5)
-	{
-		int increment = baseStat.agi - 5;
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f + (0.05f * increment));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f + (0.05f * increment));
-	}
-	else if (baseStat.agi < 5)
-	{
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f - (0.05f * baseStat.agi));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f - (0.05f * baseStat.agi));
-	}
-	else
-	{
-		newStat.rangedDamage = baseStat.rangedDamage;
-		newStat.movementSpeed = baseStat.movementSpeed;
-	}
-	StopProfile;
-}
-void SE::Gameplay::PlayerUnit::calcBaseWhiChanges()
-{
-	StartProfile;
-	if (baseStat.whi > 5)
-	{
-		int increment = baseStat.whi - 5;
-		newStat.magicDamage = baseStat.magicDamage * (1.f + (0.05f * increment));
-		newStat.magicResistance = baseStat.magicResistance * (1.f + (0.025f * increment));
-		newStat.natureResistance = baseStat.natureResistance * (1.f + (0.025f * increment));
-		newStat.fireResistance = baseStat.fireResistance * (1.f + (0.025f * increment));
-		newStat.waterResistance = baseStat.waterResistance * (1.f + (0.025f * increment));
-	}
-	else if (baseStat.whi < 5)
-	{
-		newStat.magicDamage = baseStat.magicDamage * (1.f - (0.05f * baseStat.whi));
-		newStat.magicResistance = baseStat.magicResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.natureResistance = baseStat.natureResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.fireResistance = baseStat.fireResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.waterResistance = baseStat.waterResistance * (1.f - (0.05f * baseStat.whi));
-	}
-	else
-	{
-		newStat.magicDamage = baseStat.magicDamage;
-		newStat.magicResistance = baseStat.magicResistance;
-		newStat.natureResistance = baseStat.natureResistance;
-		newStat.fireResistance = baseStat.fireResistance;
-		newStat.waterResistance = baseStat.waterResistance;
-	}
-	StopProfile;
-}
-
-void SE::Gameplay::PlayerUnit::calcNewStrChanges()
-{
-	StartProfile;
-	if (newStat.str > 5)
-	{
-		int increment = newStat.str - 5;
-		newStat.health = baseStat.health * (1.f + (0.05f * increment));
-		newStat.damage = baseStat.damage * (1.f + (0.05f * increment));
-	}
-	else if (newStat.str < 5)
-	{
-		newStat.health = baseStat.health * (1.f - (0.1f * baseStat.str));
-		newStat.damage = baseStat.damage * (1.f - (0.1f * baseStat.str));
-
-		if (newStat.str <= 3)
-		{
-			newStat.armorCap = 2;
-		}
-		else if (newStat.str == 1)
-		{
-			newStat.armorCap = 1;
-		}
-	}
-	else
-	{
-		newStat.health = baseStat.health;
-		newStat.damage = baseStat.damage;
-	}
-	StopProfile;
-}
-
-void SE::Gameplay::PlayerUnit::calcNewAgiChanges()
-{
-	StartProfile;
-	if (newStat.agi > 5)
-	{
-		int increment = newStat.agi - 5;
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f + (0.05f * increment));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f + (0.05f * increment));
-	}
-	else if (newStat.agi < 5)
-	{
-		newStat.rangedDamage = baseStat.rangedDamage * (1.f - (0.05f * baseStat.agi));
-		newStat.movementSpeed = baseStat.movementSpeed * (1.f - (0.05f * baseStat.agi));
-	}
-	else
-	{
-		newStat.rangedDamage = baseStat.rangedDamage;
-		newStat.movementSpeed = baseStat.movementSpeed;
-	}
-	StopProfile;
-}
-
-void SE::Gameplay::PlayerUnit::calcNewWhiChanges()
-{
-	StartProfile;
-	if (newStat.whi > 5)
-	{
-		int increment = newStat.whi - 5;
-		newStat.magicDamage = baseStat.magicDamage * (1.f + (0.05f * increment));
-		newStat.magicResistance = baseStat.magicResistance * (1.f + (0.025f * increment));
-		newStat.natureResistance = baseStat.natureResistance * (1.f + (0.025f * increment));
-		newStat.fireResistance = baseStat.fireResistance * (1.f + (0.025f * increment));
-		newStat.waterResistance = baseStat.waterResistance * (1.f + (0.025f * increment));
-	}
-	else if (newStat.whi < 5)
-	{
-		newStat.magicDamage = baseStat.magicDamage * (1.f - (0.05f * baseStat.whi));
-		newStat.magicResistance = baseStat.magicResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.natureResistance = baseStat.natureResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.fireResistance = baseStat.fireResistance * (1.f - (0.05f * baseStat.whi));
-		newStat.waterResistance = baseStat.waterResistance * (1.f - (0.05f * baseStat.whi));
-	}
-	else
-	{
-		newStat.magicDamage = baseStat.magicDamage;
-		newStat.magicResistance = baseStat.magicResistance;
-		newStat.natureResistance = baseStat.natureResistance;
-		newStat.fireResistance = baseStat.fireResistance;
-		newStat.waterResistance = baseStat.waterResistance;
-	}
-	StopProfile;
-}
 
 void SE::Gameplay::PlayerUnit::changeArmorType(ArmourType armour)
 {
@@ -992,7 +897,7 @@ void SE::Gameplay::PlayerUnit::PlayerSounds()
 
 }
 
-SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPos, float yPos, char mapForRoom[25][25]) :
+SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, PerkData* slaughPerks,float xPos, float yPos, char mapForRoom[25][25]) :
 	GameUnit(xPos, yPos, 100)
 {
 	StartProfile;
@@ -1017,6 +922,9 @@ SE::Gameplay::PlayerUnit::PlayerUnit(Skill* skills, Perk* importPerks, float xPo
 
 		this->perks[0].myCondition = myCond;
 		this->perks[1].myCondition = secondCond;
+		this->perks[0].slaughPerk = slaughPerks[0];
+		this->perks[1].slaughPerk = slaughPerks[1];
+
 	}
 
 	Core::IAnimationManager::CreateInfo sai;
@@ -1059,16 +967,46 @@ SE::Gameplay::PlayerUnit::PlayerUnit(std::ifstream &input, float xPos, float yPo
 {
 
 	StartProfile;
+	PerkFaktory perkFactory;
 	memcpy(this->map, mapForRoom, 25 * 25 * sizeof(char));
 	extents = 0.25f; /*Should not be hardcoded! Obviously*/
 
 	input.read((char*)&baseStat, sizeof(baseStat));
 	skills.resize(2);
+	/*Memset to avoid undefined behaviour*/
 	input.read((char*)&skills[0], sizeof(skills[0]));
+	memset(&skills[0].skillName, 0, sizeof(skills[0].skillName));
+	skills[0].skillName = std::string("");
+	memset(&skills[0].skillDesc, 0, sizeof(skills[0].skillDesc));
+	skills[0].skillDesc = std::string("");
+	skills[0].currentCooldown = 0.f;
+	
 	input.read((char*)&skills[1], sizeof(skills[1]));
+	memset(&skills[1].skillName, 0, sizeof(skills[1].skillName));
+	skills[1].skillName = std::string("");
+	memset(&skills[1].skillDesc, 0, sizeof(skills[1].skillDesc));
+	skills[1].skillDesc = std::string("");
+	skills[1].currentCooldown = 0.f;
+
+
+	char perkname[255];
+	int size;
+	input.read((char*)&size, sizeof(int));
+	input.read(perkname, size);
+	std::string perkString(perkname, size);
+	perks.push_back(perkFactory.ReadPerksForSlaugh(perkString));
+	input.read((char*)&size, sizeof(int));
+	input.read(perkname, size);
+	perkString = std::string(perkname, size);
+	perks.push_back(perkFactory.ReadPerksForSlaugh(perkString));
+	
+	
 
 	for (int i = 0; i < MAX_ITEMS; i++)
+	{
 		items[i] = Item::Create(input);
+
+	}
 
 	Core::IAnimationManager::CreateInfo sai;
 	sai.mesh = "MCModell.mesh";
@@ -1116,7 +1054,14 @@ void SE::Gameplay::PlayerUnit::SavePlayerToFile(std::ofstream &toSave)
 		toSave.write((char*)&skills[i], sizeof(skills[i]));
 
 	/*Save Perks*/
-	
+	int size = perks[0].slaughPerk.name.size();
+	perks[0].slaughPerk.name.resize(size);
+	toSave.write((char*)&size, sizeof(int));
+	toSave.write(perks[0].slaughPerk.name.c_str(), perks[0].slaughPerk.name.size());
+	size = perks[1].slaughPerk.name.size();
+	perks[1].slaughPerk.name.resize(size);
+	toSave.write((char*)&size, sizeof(int));
+	toSave.write(perks[1].slaughPerk.name.c_str(), perks[1].slaughPerk.name.size());
 
 	/*Save Weapons*/
 	for (int i = 0; i < MAX_ITEMS; i++)

@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include <Profiler.h>
 #include <Utilz\Memory.h>
+#include <sstream>
 #include "ImGuiConsole.h"
 using namespace SE::Utilz::Memory;
 
@@ -115,6 +116,16 @@ int SE::Core::Engine::EndFrame()
 		subSystems.devConsole->PrintChannel("ResourceHandler", "%s", r.c_str());
 
 	timeClus.Stop(("Frame"));
+	Utilz::TimeMap map;
+	timeClus.GetMap(map);
+	float frameTime = map["Frame"];
+	const auto rhi = subSystems.resourceHandler->GetInfo();
+	const float vramUsage = ((float)rhi.VRAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
+	const float ramUsage = ((float)rhi.RAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
+
+	std::stringstream ss;
+	ss << "Frame: " << std::fixed << std::setprecision(0) << frameTime << "ms, RAM: " << std::fixed << std::setprecision(2) << ramUsage << "MB, VRAM: "  << vramUsage << "MB";
+	subSystems.window->SetWindowTitle(ss.str());
 	perFrameStackAllocator->ClearStackAlloc();
 	frameBegun = false;
 	ProfileReturnConst(0);
@@ -187,11 +198,12 @@ void SE::Core::Engine::InitSubSystems()
 		subSystems.resourceHandler = ResourceHandler::CreateResourceHandler();
 		ResourceHandler::InitializationInfo info;
 		info.RAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
-		info.RAM.tryUnloadWhenOver = 0.5;
-		info.RAM.nloadingStrategy = ResourceHandler::EvictPolicy::RANDOM;
-		info.RAM.getCurrentMemoryUsage = [this]() { return Utilz::Memory::GetVirtualProcessMemory() - subSystems.renderer->GetVRam(); };
-		info.VRAM.max = 128_mb;// subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 45_mb);
-		info.VRAM.tryUnloadWhenOver = 0.7;
+		info.RAM.tryUnloadWhenOver = 0.8;
+		info.RAM.nloadingStrategy = ResourceHandler::EvictPolicy::FIFO;
+		info.RAM.getCurrentMemoryUsage = [this]() { return Utilz::Memory::GetPhysicalProcessMemory(); };
+		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 256_mb);
+		info.VRAM.tryUnloadWhenOver = 0.8;
+		info.VRAM.nloadingStrategy = ResourceHandler::EvictPolicy::FIFO;
 		info.VRAM.getCurrentMemoryUsage = [this]() {return subSystems.renderer->GetVRam(); };
 		auto res = subSystems.resourceHandler->Initialize(info);
 		if (res < 0)
@@ -302,6 +314,7 @@ void SE::Core::Engine::InitParticleSystemManager()
 		info.transformManager = managers.transformManager;
 		info.console = subSystems.devConsole;
 		info.eventManager = managers.eventManager;
+		info.window = subSystems.window;
 		managers.particleSystemManager = CreateParticleSystemManager(info);
 	}
 	managersVec.push_back(managers.particleSystemManager);
@@ -487,7 +500,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::EndMenuBar();
 		}
 
-		if(plot_memory_usage)
+		if(true)//plot_memory_usage)
 		{
 		using namespace Utilz::Memory;
 		static const int samples = 256;
@@ -499,22 +512,26 @@ void SE::Core::Engine::SetupDebugConsole()
 		
 		vram_usage[offset] = ((float)rhi.VRAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
 		ram_usage[offset] = ((float)rhi.RAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
+		const float tempram = ram_usage[offset];
+		const float tempvram = vram_usage[offset];
 		offset = (offset + 1) % samples;
 		ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.VRAM.max), { 0, 80 });
-		if (rhi.VRAM.getCurrentMemoryUsage() >= subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", toMB(rhi.VRAM.max)))
+		if (rhi.VRAM.getCurrentMemoryUsage() >= rhi.VRAM.max)
 		{
 
 			ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
-			ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", toMB(rhi.VRAM.max)))) + "mb").c_str());
+			ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(rhi.RAM.max)) + "mb").c_str());
 			ImGui::PopStyleColor();
 		}
 		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.RAM.max), { 0, 80 });
-		if (!Utilz::Memory::IsUnderLimit(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max))))
+		if (rhi.RAM.getCurrentMemoryUsage() >= rhi.RAM.max)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
-			ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", toMB(rhi.RAM.max)))) + "mb").c_str());
+			ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(rhi.RAM.max)) + "mb").c_str());
 			ImGui::PopStyleColor();
 		}
+		ImGui::TextUnformatted("RAM Usage:"); ImGui::SameLine(0,10.0f); ImGui::TextUnformatted(std::to_string(tempram).c_str());
+		ImGui::TextUnformatted("VRAM Usage:"); ImGui::SameLine(0,10.0f); ImGui::TextUnformatted(std::to_string(tempvram).c_str());
 		ImGui::Separator();
 		}
 
@@ -546,9 +563,21 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::TextUnformatted("Avg frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(avg100Frames).c_str());
 			ImGui::TextUnformatted("Min frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(minFrameTime).c_str());
 			ImGui::TextUnformatted("Max frame time:"); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(maxFrameTime).c_str());
+			struct MapEntry
+			{
+				std::string name;
+				float value;
+				bool operator<(const MapEntry& other) const { return name < other.name; };
+			};
+			std::vector<MapEntry> sortedEntries;
 			for (auto& m : map)
 			{
-				ImGui::TextUnformatted(m.first); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(m.second).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
+				sortedEntries.push_back({ m.first.c_str(), m.second });
+			}
+			std::sort(sortedEntries.begin(), sortedEntries.end());
+			for (auto& e : sortedEntries)
+			{
+				ImGui::TextUnformatted(e.name.c_str()); ImGui::SameLine(0, 10); ImGui::TextUnformatted(std::to_string(e.value).c_str()); ImGui::SameLine(); ImGui::TextUnformatted("ms");
 			}
 
 

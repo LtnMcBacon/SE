@@ -15,6 +15,7 @@ SE::Core::ParticleSystemManager::ParticleSystemManager(const InitializationInfo&
 	_ASSERT(initInfo.transformManager);
 	_ASSERT(initInfo.renderableManager);
 	_ASSERT(initInfo.console);
+	_ASSERT(initInfo.window);
 	
 	initInfo.transformManager->RegisterSetDirty({this, &ParticleSystemManager::UpdateDirtyPos});
 	initInfo.eventManager->RegisterToToggleVisible({this, &ParticleSystemManager::ToggleVisible});
@@ -204,7 +205,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 				fileInfo.emitRange[1] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[1].x/*Max*/ - PSD.emitRange[1].y/*Min*/) + PSD.emitRange[1].y;
 				fileInfo.emitRange[2] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * (PSD.emitRange[2].x/*Max*/ - PSD.emitRange[2].y/*Min*/) + PSD.emitRange[2].y;
 				
-				fileInfo.dt = time.GetDelta<std::ratio<1, 1>>();
+				fileInfo.dt = initInfo.window->GetDelta(); //time.GetDelta<std::ratio<1, 1>>();
 								
 				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("lockBuffer", &PSD.locked, sizeof(bool));
 				
@@ -244,7 +245,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 		p.opacity = 1.0f;
 
 		auto res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer1_" + std::to_string(entity.id),
-																		 nullptr, 0, sizeof(Particle), 10000,
+																		 nullptr, 0, sizeof(Particle), 500,
 																		 Graphics::BufferFlags::BIND_VERTEX | Graphics::
 																		 BufferFlags::BIND_STREAMOUT);
 		if (res < 0)
@@ -252,7 +253,7 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 			throw std::exception("Failed to create OutStreamBuffer1");
 		}
 		res = initInfo.renderer->GetPipelineHandler()->CreateBuffer("OutStreamBuffer2_" + std::to_string(entity.id), &p, 1,
-																	sizeof(Particle), 10000,
+																	sizeof(Particle), 500,
 																	Graphics::BufferFlags::BIND_VERTEX | Graphics::BufferFlags
 																	::BIND_STREAMOUT);
 		if (res < 0)
@@ -282,6 +283,14 @@ void SE::Core::ParticleSystemManager::CreateSystem(const Entity& entity, const C
 		}
 
 		particleSystemData[newEntry].renderJob.pipeline = RPP;
+		particleSystemData[newEntry].renderJob.mappingFunc.push_back([entity, this](int a, int b) {
+			auto const entityIndex = entityToIndex.find(entity);
+			if (entityIndex != entityToIndex.end())
+			{
+				auto& fileInfo = particleSystemData[entityIndex->second].particleFileInfo;
+				initInfo.renderer->GetPipelineHandler()->UpdateConstantBuffer("bloomCBuffer", &fileInfo.bloomCheck, sizeof(fileInfo.bloomCheck));
+			}
+		});
 	}
 
 	StopProfile;
@@ -346,7 +355,7 @@ void SE::Core::ParticleSystemManager::Frame(Utilz::TimeCluster* timer)
 	StartProfile;
 	timer->Start(("ParticleSystemManager"));
 	GarbageCollection();
-	time.Tick();
+	//time.Tick();
 	//while (!toUpdate.wasEmpty())
 	//{
 	//	auto& top = toUpdate.top();

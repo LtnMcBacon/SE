@@ -49,6 +49,7 @@ namespace SE::Gameplay
 		void SpawnaGlastigScript(float dt);
 		void SpawnaBodachScript(float dt);
 		void SpawnaNuckelaveeScript(float dt);
+		void SpawnaPechScript(float dt);
 		void SpawnAndScript(float dt);
 
 		void GÂTillSluaghSvartScript(float dt);
@@ -66,6 +67,8 @@ namespace SE::Gameplay
 
 		void(TutorialState::*scriptToRun)(float);
 
+		Core::Entity sounds;
+		Utilz::GUID currentSound = "";
 
 		Room* room;
 		PlayerUnit* player;

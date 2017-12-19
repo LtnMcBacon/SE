@@ -16,6 +16,7 @@
 using namespace SE;
 using namespace Gameplay;
 using namespace DirectX;
+static int timeWon = 0;
 PlayState::PlayState()
 {
 
@@ -26,11 +27,18 @@ bool firstFrame = true;
 PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* passedInfo)
 {
 	StartProfile;
+	
 	firstFrame = true;
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
 	{
 		currentRoom->RemoveEnemyFromRoom(nullptr);
 	}, "kill","Kill all enemies");
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+		static bool render = true;
+		render = !render;
+		currentRoom->ToggleRenderingOfWallsAndFloor(render);
+	}, "twf", "Stop rendering walls and floor for room.");
 
 
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
@@ -124,6 +132,48 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 			con->PrintChannel("drop", "\tHp - 0");
 		}
 	}, "drop", "Drop item at players feet");
+
+	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* con, int argc, char** argv)
+	{
+				//EnemySpawnerCommand
+		if (argc >= 3)
+		{
+
+			auto type = EnemyType(std::stoi(argv[1]));
+			auto enemy = eFactory.CreateEnemyDataForEnemyType(type,false);
+			DamageType damageType = static_cast<DamageType>(std::stoi(argv[2]));
+			
+
+			float xPos = player->GetXPosition();
+			float yPos = player->GetYPosition();
+
+			
+			enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(type, damageType));
+			enemy->PositionEntity(xPos, yPos);
+			
+			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(type, &blackBoard, enemy->GetEnemyBlackboard()));
+			currentRoom->AddEnemyToRoom(enemy);
+			
+		}
+		else
+		{
+			con->PrintChannel("spawn", "Usage:");
+			con->PrintChannel("spawn", "spawn Enemytype Damagetype");
+			con->PrintChannel("spawn", "EnemyTypes:");
+			con->PrintChannel("spawn", "\tBodach - 0:");
+			con->PrintChannel("spawn", "\tGlaistig - 1");
+			con->PrintChannel("spawn", "\tNucklavee - 2");
+			con->PrintChannel("spawn", "");
+			con->PrintChannel("spawn", "DamageTypes:");
+			con->PrintChannel("spawn", "\tPhysical - 0");
+			con->PrintChannel("spawn", "\tFire - 1");
+			con->PrintChannel("spawn", "\tWater - 2");
+			con->PrintChannel("spawn", "\tNature - 3");
+			con->PrintChannel("spawn", "\tRanged - 4");
+			con->PrintChannel("spawn", "\tMagic - 5");
+		}
+	}, "spawn", "spawn enemies in current room");
+
 	this->input = Input;
 	this->engine = engine;
 
@@ -201,15 +251,15 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	{
 		for (int y = 0; y < worldHeight; y++)
 		{
-			auto room = GetRoom(x, y).value();
+			auto room = GetRoom(x, y)->get();
 			if (auto leftRoom = GetRoom(x - 1, y); leftRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (*leftRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_WEST, (leftRoom->get().room));
 			if (auto rightRoom = GetRoom(x + 1, y); rightRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (*rightRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_EAST, (rightRoom->get().room));
 			if (auto upRoom = GetRoom(x, y + 1); upRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (*upRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_NORTH, (upRoom->get().room));
 			if (auto downRoom = GetRoom(x, y - 1); downRoom.has_value())
-				room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (*downRoom));
+				room.room->AddAdjacentRoomByDirection(Room::DirectionToAdjacentRoom::DIRECTION_ADJACENT_ROOM_SOUTH, (downRoom->get().room));
 		}
 	}
 
@@ -224,8 +274,15 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 	currentRoom->Load();
 	auto enemiesInRoom = currentRoom->GetEnemiesInRoom();
 	for (auto enemy : enemiesInRoom)
-		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+	{
+		float xPos = enemy->GetXPosition();
+		float yPos = enemy->GetYPosition();
+		enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
+		enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
+		enemy->PositionEntity(xPos, yPos);
+	}
 
+	CreateMiniMap();
 	LoadAdjacentRooms(currentRoomX, currentRoomY, currentRoomX, currentRoomY);
 	blackBoard.currentRoom = currentRoom;
 	blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
@@ -234,13 +291,61 @@ PlayState::PlayState(Window::IWindow* Input, SE::Core::IEngine* engine, void* pa
 
 	CoreInit::subSystems.window->MapActionButton(Window::KeyReturn, Window::KeyReturn);
 
+	struct
+	{
+		float x, y, z;
+	} vertices[4];
+	
+	vertices[0].x = -100.0f; vertices[0].y = -0.01f; vertices[0].z = -100.0f;
+	vertices[1].x = -100.0f; vertices[1].y = -0.01f; vertices[1].z = 100.0f;
+	vertices[2].x = 100.0f; vertices[2].y = -0.01f; vertices[2].z = -100.0f;
+	vertices[3].x = 100.0f; vertices[3].y = -0.01f; vertices[3].z = 100.0f;
+
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexBuffer("DummyPlane", vertices, 4, sizeof(float) * 3, false);
+	const std::string dummyShader = "cbuffer OncePerFrame : register(b1)\
+	{\
+		float4x4 View;\
+		float4x4 ViewProj;\
+	};\
+	\
+	struct VS_IN\
+	{\
+		float3 Pos : POSITION;\
+	};\
+	\
+	struct VS_OUT\
+	{\
+		float4 Pos : SV_Position;\
+	};\
+	\
+	VS_OUT VS_main(VS_IN input)\
+	{\
+		VS_OUT output = (VS_OUT)0;\
+		output.Pos = mul(float4(input.Pos, 1.0f), ViewProj);\
+		return output;\
+	}";
+	CoreInit::subSystems.renderer->GetPipelineHandler()->CreateVertexShaderFromSource("DummyPlaneVS.hlsl", dummyShader, "VS_main", "vs_5_0");
+	Graphics::RenderJob dummyJob;
+	dummyJob.pipeline.IAStage.topology = Graphics::PrimitiveTopology::TRIANGLE_STRIP;
+	dummyJob.pipeline.IAStage.inputLayout = "DummyPlaneVS.hlsl";
+	dummyJob.pipeline.IAStage.vertexBuffer = "DummyPlane";
+	dummyJob.pipeline.VSStage.shader = "DummyPlaneVS.hlsl";
+	dummyJob.pipeline.OMStage.renderTargetCount = 1;
+	dummyJob.pipeline.OMStage.renderTargets[0] = "backbuffer";
+	dummyJob.pipeline.OMStage.depthStencilView = "backbuffer";
+	dummyJob.vertexCount = 4;
+	dummyBoxJobID = CoreInit::subSystems.renderer->AddRenderJob(dummyJob, Graphics::RenderGroup::RENDER_PASS_5);
+
 	ProfileReturnVoid;
 }
 
 PlayState::~PlayState()
 {
 	StartProfile;
-
+//	timeWon = -1;
+	//Show the cursor again if we exit the playstate
+	CoreInit::subSystems.window->ToggleCursor(true);
+	CoreInit::subSystems.renderer->RemoveRenderJob(dummyBoxJobID);
 	if (streamTimings.is_open())
 		streamTimings.close();
 	CoreInit::subSystems.devConsole->RemoveCommand("tgm");
@@ -257,7 +362,7 @@ PlayState::~PlayState()
 	for (int x = 0; x < worldWidth; x++)
 		for (int y = 0; y < worldHeight; y++)
 			if (auto room = GetRoom(x, y); room.has_value())
-				delete *room;
+				delete room->get().room;
 	CoreInit::managers.entityManager->DestroyNow(dummy);
 	CoreInit::managers.entityManager->DestroyNow(cameraDummy);
 	CoreInit::managers.entityManager->DestroyNow(deathText);
@@ -417,6 +522,15 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 			if (auto newRoom = GetRoom(x, y); newRoom.has_value())
 			{
+				// Set new room symbol to green
+				CoreInit::managers.guiManager->SetTexture(newRoom->get().symbol, "InRoom.jpg");
+				CoreInit::managers.guiManager->ToggleRenderableTexture(newRoom->get().symbol, true);
+
+				// Grey out the symbol of the old room and set it to visitéd
+				auto& oldRoom = GetRoom(currentRoomX, currentRoomY)->get();
+				CoreInit::managers.guiManager->SetTexture(oldRoom.symbol, "VisitedRoom.jpg");
+				oldRoom.visited = true;
+
 				streamingTimes.Start("Unload");
 				UnloadAdjacentRooms(currentRoomX, currentRoomY, x, y);
 				streamingTimes.Stop("Unload");
@@ -430,7 +544,7 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 				streamingTimes.Start("Other");
 				currentRoomX = x;
 				currentRoomY = y;
-				blackBoard.currentRoom = currentRoom = *newRoom;
+				blackBoard.currentRoom = currentRoom = newRoom->get().room;
 				blackBoard.roomFlowField = currentRoom->GetFlowFieldMap();
 				projectileManager->RemoveAllProjectiles();
 
@@ -453,12 +567,9 @@ void SE::Gameplay::PlayState::CheckForRoomTransition()
 
 				streamingTimes.Stop("Other");
 
-
 				streamingTimes.Start("StartRender");
 				currentRoom->RenderRoom(true);
 				streamingTimes.Stop("StartRender");
-
-				
 
 				float xToSet, yToSet;
 				currentRoom->GetPositionOfActiveDoor(Room::ReverseDirection(dir), xToSet, yToSet);
@@ -574,6 +685,7 @@ std::wstring SE::Gameplay::PlayState::GenerateDeathMessage() {
 
 void SE::Gameplay::PlayState::InitializeDeathSequence() {
 
+	timeWon = 0;
 	deathText = CoreInit::managers.entityManager->Create();
 	returnPrompt = CoreInit::managers.entityManager->Create();
 
@@ -585,6 +697,7 @@ void SE::Gameplay::PlayState::InitializeDeathSequence() {
 	deathInfo.info.anchor = { 0.5f, 0.5f };
 	deathInfo.info.screenAnchor = { 0.5f, 0.25f };
 	deathInfo.font = "Knights.spritefont";
+	deathInfo.info.layerDepth = 0.01f;
 
 	CoreInit::managers.textManager->Create(deathText, deathInfo);
 
@@ -656,10 +769,23 @@ void SE::Gameplay::PlayState::LoadAdjacentRooms(int x, int y, int sx, int sy)
 		{
 			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 			{
-				(*adjRoom)->Load();
-				auto enemiesInRoom = (*adjRoom)->GetEnemiesInRoom();
+				(adjRoom)->get().room->Load();
+				auto enemiesInRoom = (adjRoom)->get().room->GetEnemiesInRoom();
 				for (auto enemy : enemiesInRoom)
-					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType()));
+				{
+					float xPos = enemy->GetXPosition();
+					float yPos = enemy->GetYPosition();
+					enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(enemy->GetType(), enemy->GetDamageType()));
+					enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
+					enemy->PositionEntity(xPos, yPos);
+				}
+
+				if (adjRoom->get().visited == false && !(ax == sluaghRoomX && ay == sluaghRoomY)) {
+
+					CoreInit::managers.guiManager->SetTexture(adjRoom->get().symbol, "EmptyRoom.jpg");
+					CoreInit::managers.guiManager->ToggleRenderableTexture(adjRoom->get().symbol, true);
+				}
+
 			}
 		}
 	}
@@ -676,7 +802,7 @@ void SE::Gameplay::PlayState::UnloadAdjacentRooms(int x, int y, int sx, int sy)
 		{
 			if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 			{
-				(*adjRoom)->Unload();
+				(adjRoom)->get().room->Unload();
 			}
 
 		}
@@ -692,7 +818,7 @@ void SE::Gameplay::PlayState::CloseDoorsToRoom(int x, int y)
 		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
 		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 		{
-			adjRoom.value()->CloseDoor(Room::ReverseDirection(dir));
+			adjRoom->get().room->CloseDoor(Room::ReverseDirection(dir));
 		}
 	}
 }
@@ -706,11 +832,11 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 		Room::DirectionToAdjacentRoom dir = std::get<2>(a);
 		if (auto adjRoom = GetRoom(ax, ay); adjRoom.has_value())
 		{
-			adjRoom.value()->OpenDoor(Room::ReverseDirection(dir));
+			adjRoom->get().room->OpenDoor(Room::ReverseDirection(dir));
 		}
 	}
 }
-
+#undef min
 void PlayState::InitializeRooms()
 {
 	StartProfile;
@@ -726,15 +852,13 @@ void PlayState::InitializeRooms()
 	if (!roomGuids.size())
 		throw std::exception("No rooms found");
 
-	
-	rooms = new Room*[worldWidth * worldHeight];
-	rooms[0] = new Room("PropRoom.room");
-	for (int i = 1; i < worldWidth*worldHeight-1; i++)
-		rooms[i] = new Gameplay::Room("EmptyRoom.room");
-	rooms[worldWidth*worldHeight - 1] = new Room("PropRoom.room");
+	rooms = new RoomContainer[worldWidth * worldHeight];
+	for (int i = 0; i < worldWidth*worldHeight; i++)
+		rooms[i].room = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+
 	currentRoomX = 0;
 	currentRoomY = 0;
-	currentRoom = GetRoom(currentRoomX, currentRoomY).value();
+	currentRoom = GetRoom(currentRoomX, currentRoomY)->get().room;
 
 	auto e = std::chrono::high_resolution_clock::now();
 
@@ -742,6 +866,7 @@ void PlayState::InitializeRooms()
 	CoreInit::subSystems.devConsole->Print("Room Load Time: %f", diff);
 	ProfileReturnVoid;
 }
+
 void SE::Gameplay::PlayState::InitializeEnemies()
 {
 	StartProfile;
@@ -749,12 +874,13 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 
 	EnemyCreationStruct eStruct;
 	int counter = 0;
-	for(size_t r = 0; r < worldWidth*worldHeight; r++)
+	
+	for(size_t r = 0; r < worldWidth*worldHeight; r++)	
 	{
-		auto& room = rooms[r];
+	auto& room = rooms[r].room;
 		room->GetMap(map);
 		eStruct.information.clear();
-	//	enemiesInEachRoom = 2;
+		enemiesInEachRoom = 1 + std::min(timeWon, 3);
 		EnemyUnit** enemies = new EnemyUnit*[enemiesInEachRoom];
 		Room::DirectionToAdjacentRoom throwAway;
 		for (int i = 0; i < enemiesInEachRoom; i++)
@@ -790,27 +916,50 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			{
 				xOffset = -1;
 			}
-			enemyPos.x = x + 0.5f;
-			enemyPos.y = y -0.5f;
+			enemyPos.x = x;// +0.5f;
+			enemyPos.y = y;// -0.5f;
 	
 			EnemyCreationData data;
-			if (counter < 1)
+			if (counter < 1 && timeWon < 2)
 			{
-				data.type = ENEMY_TYPE_BODACH;
+				if (CoreInit::subSystems.window->GetRand() % 2)
+					data.type = ENEMY_TYPE_PECH_MELEE;
+				else
+					data.type = ENEMY_TYPE_PECH_RANGED;
 			}
-			else if(counter < 4)
+			else if(counter < 3)
 			{
 				if (CoreInit::subSystems.window->GetRand() % 2)
 					data.type = ENEMY_TYPE_BODACH;
 				else
 					data.type = ENEMY_TYPE_GLAISTIG;
 			}
-			else 
+			else if(counter < 6)
+			{
+				switch (CoreInit::subSystems.window->GetRand() % 4)
+				{
+				case 1:
+					data.type = ENEMY_TYPE_PECH_MELEE;
+					break;
+				case 2:
+					data.type = ENEMY_TYPE_PECH_RANGED;
+					break;
+				case 3:
+					data.type = ENEMY_TYPE_BODACH;
+					break;
+				case 4:
+					data.type = ENEMY_TYPE_GLAISTIG;
+					break;
+				default: break;
+				}
+			}
+			else
 			{
 					data.type = EnemyType(std::rand() % 3);
 			}
-			data.startX = enemyPos.x;
-			data.startY = enemyPos.y;
+			
+			data.startX = enemyPos.x+.5f;
+			data.startY = enemyPos.y+.5f;
 			data.useVariation = true;
 			//eStruct.information.push_back(data);
 		
@@ -818,6 +967,7 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 			enemy->SetBehaviouralTree(eFactory.CreateBehaviouralTreeForEnemyType(data.type, &blackBoard, enemy->GetEnemyBlackboard()));
 			//enemy->SetEntity(eFactory.CreateEntityDataForEnemyType(data.type));
 			enemy->PositionEntity(data.startX, data.startY);
+			enemy->SetZPosition(CoreInit::managers.transformManager->GetPosition(enemy->GetEntity()).y);
 			room->AddEnemyToRoom(enemy);
 		}
 
@@ -827,10 +977,12 @@ void SE::Gameplay::PlayState::InitializeEnemies()
 		{
 			room->AddEnemyToRoom(enemies[i]);
 		}*/
-		if (!(++counter % 3))
+		if (counter == 0)
 			enemiesInEachRoom++;
+		if (!(++counter % 4))
+			enemiesInEachRoom++;
+		enemiesInEachRoom = std::min(enemiesInEachRoom, 6);
 		delete[] enemies;
-
 
 	}
 	ProfileReturnVoid;
@@ -857,7 +1009,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 	indicatorInfo.textureInfo.posY = 600;
 	indicatorInfo.textureInfo.height = 100;
 	indicatorInfo.textureInfo.width = 100;
-	indicatorInfo.textureInfo.layerDepth = 0.001;
+	indicatorInfo.textureInfo.layerDepth = 0.1;
 	indicatorInfo.textureInfo.anchor = {0.0f, 0.0f};
 
 	SE::Core::ITextManager::CreateInfo textInfo;
@@ -913,7 +1065,7 @@ void PlayState::InitializePlayer(void* playerInfo)
 				{
 					xOffset = -1;
 				}
-				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
+				player = new Gameplay::PlayerUnit(tempPtr->skills, tempPtr->perks, tempPtr->perksForSlaughSave, x + (0.5f + xOffset), y + (0.5f + yOffset), map);
 				
 				player->SetZPosition(0.9f);
 				player->PositionEntity(x + (0.5f + xOffset), y + (0.5f + yOffset));
@@ -997,7 +1149,15 @@ void SE::Gameplay::PlayState::InitializeOther()
 	promptCreateInfo.info.text = L"f LÄMNA RUMMET";
 	promptCreateInfo.info.scale = { 0.3f, 0.3f };
 	promptCreateInfo.font = "Knights.spritefont";
+	promptCreateInfo.info.layerDepth = 0.011f;
 	CoreInit::managers.textManager->Create(usePrompt, promptCreateInfo);
+
+	aimDecal = CoreInit::managers.entityManager->Create();
+	DirectX::XMFLOAT4X4 dectrans;
+	DirectX::XMStoreFloat4x4(&dectrans,DirectX::XMMatrixScaling(0.5f, 0.5f, 0.05f) * DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	CoreInit::managers.decalManager->Create(aimDecal, { "AimDecal.png", 0.5f, 1.0f});
+	CoreInit::managers.decalManager->SetLocalTransform(aimDecal, (float*)&dectrans);
+	CoreInit::managers.decalManager->ToggleVisible(aimDecal, true);
 	
 	CoreInit::subSystems.devConsole->AddCommand([this](DevConsole::IConsole* back, int argc, char** argv) {
 		bool god = true;
@@ -1098,7 +1258,7 @@ void SE::Gameplay::PlayState::InitWeaponPickups()
 		if (!CoreInit::subSystems.window->ButtonDown(GameInput::SHOWINFO))
 			return false;
 
-		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible)
+		if (auto visible = std::get<bool>(CoreInit::managers.dataManager->GetValue(pe, "InfoVisible", false)); visible || CoreInit::subSystems.window->ButtonPressed(GameInput::PICKUP))
 			return false;
 
 		return CoreInit::managers.collisionManager->CheckCollision(ent, pe);
@@ -1235,11 +1395,126 @@ void PlayState::UpdateFlowFieldRendering()
 	StopProfile;
 }
 
+void PlayState::CreateMiniMap() {
+
+	// Set minimap width and height in pixels
+	long width = 200;
+	long height = 170;
+
+	// Equal offset in both x and y from the top-right corner of the screen
+	long offset = 10;
+
+	// Get the number of rooms to offset with
+	long offsetX = 9 - worldWidth;
+	long offsetY = 9 - worldHeight;
+
+	// Create the entity for the mini map frame
+	miniMap.map = CoreInit::managers.entityManager->Create();
+	miniMap.frame = CoreInit::managers.entityManager->Create();
+
+	// Create the information for the minimap
+	Core::IGUIManager::CreateInfo miniMapInfo;
+	miniMapInfo.texture = "MiniMap.jpg";
+	miniMapInfo.textureInfo.colour = XMFLOAT4{ 0.0f, 0.0f, 0.0f, 0.5f };
+	miniMapInfo.textureInfo.posX = -20.0f - offset;
+	miniMapInfo.textureInfo.posY = 20.0f + offset;
+	miniMapInfo.textureInfo.height = height;
+	miniMapInfo.textureInfo.width = width;
+	miniMapInfo.textureInfo.anchor = { 1.0f, 0.0f };
+	miniMapInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
+	miniMapInfo.textureInfo.layerDepth = 0.011f;
+
+	Core::IGUIManager::CreateInfo frameInfo;
+	frameInfo.texture = "MapFrame.png";
+	frameInfo.textureInfo.colour = XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f };
+	frameInfo.textureInfo.posX = -5.0f - offset;
+	frameInfo.textureInfo.posY = 1.0f + offset;
+	frameInfo.textureInfo.height = height + 36;
+	frameInfo.textureInfo.width = width + 36;
+	frameInfo.textureInfo.anchor = { 1.0f, 0.0f };
+	frameInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
+	frameInfo.textureInfo.layerDepth = 0.010f;
+	frameInfo.textureInfo.scale = XMFLOAT2(1.2f, 1.2f);
+
+	// Create the GUI element for the map
+	CoreInit::managers.guiManager->Create(miniMap.map, miniMapInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(miniMap.map, true);
+
+	// Create the GUI element for the map frame
+	CoreInit::managers.guiManager->Create(miniMap.frame, frameInfo);
+	CoreInit::managers.guiManager->ToggleRenderableTexture(miniMap.frame, true);
+
+	// Loop through the rooms
+	for (int x = 0; x < worldWidth; x++) {
+
+		for (int y = 0; y < worldHeight; y++) {
+
+			// Get the room for the given coordinates
+			auto& room = GetRoom(x, y)->get();
+
+			// Only display the symbol if the room is active
+			if (room.room != nullptr) {
+
+				// Create the symbol entity
+				room.symbol = CoreInit::managers.entityManager->Create();
+
+				// Create the information for the minimap symbols
+				Core::IGUIManager::CreateInfo roomSymbolInfo;
+				roomSymbolInfo.texture = "EmptyRoom.jpg";
+				roomSymbolInfo.textureInfo.colour = XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f };
+				roomSymbolInfo.textureInfo.height = height / 16;
+				roomSymbolInfo.textureInfo.width = width / 16;
+				roomSymbolInfo.textureInfo.anchor = { 1.0f, 0.0f };
+				roomSymbolInfo.textureInfo.screenAnchor = { 1.0f, 0.0f };
+				roomSymbolInfo.textureInfo.layerDepth = 0.010f;
+
+				// Offset to right corner
+				roomSymbolInfo.textureInfo.posX = (-y * width / 12) - 50 - offset;
+				roomSymbolInfo.textureInfo.posY = (-x * height / 12) + 157.5 + offset;
+
+				// Center symbols according to the number of rooms
+				roomSymbolInfo.textureInfo.posX -= (offsetX * 16) / 2;
+				roomSymbolInfo.textureInfo.posY -= (offsetY * 14) / 2;
+
+				if (currentRoomX == x && currentRoomY == y) {
+
+					roomSymbolInfo.texture = "InRoom.jpg";
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, true);
+				}
+
+				else if (sluaghRoomX == x && sluaghRoomY == y) {
+
+					roomSymbolInfo.texture = "SlaughRoom.jpg";
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, false);
+				}
+
+				else {
+
+					// Create the GUI element
+					CoreInit::managers.guiManager->Create(room.symbol, roomSymbolInfo);
+					CoreInit::managers.guiManager->ToggleRenderableTexture(room.symbol, false);
+				}
+
+				
+			}
+			
+		}
+	}
+
+}
+
 IGameState::State PlayState::Update(void*& passableInfo)
 {
 	StartProfile;
 	IGameState::State returnValue = State::PLAY_STATE;
-
+	//Only show cursor if the devConsole is on
+	CoreInit::subSystems.window->ToggleCursor(CoreInit::subSystems.devConsole->IsVisible());
 	if(numberOfFreeFrames < 0)
 	{
 		numberOfFreeFrames--;
@@ -1264,15 +1539,17 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	}
 	/*if (!sluaghDoorsOpen)
 	{
+
 		int totalEnemiesLeft = 0;
 		for (int x = 0; x < worldWidth; x++)
 			for (int y = 0; y < worldHeight; y++)
-				totalEnemiesLeft += GetRoom(x, y).value()->NumberOfEnemiesInRoom();
+				totalEnemiesLeft += GetRoom(x, y)->get().room->NumberOfEnemiesInRoom();
 
-		if (totalEnemiesLeft <= 2) {
+		if (!totalEnemiesLeft) {
 			OpenDoorsToRoom(worldWidth - 1, worldHeight - 1);
 			sluaghDoorsOpen = true;
-			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
+			auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY)->get().room);
+			CoreInit::managers.guiManager->ToggleRenderableTexture(GetRoom(sluaghRoomX, sluaghRoomY)->get().symbol, true);
 			sluaghRoom->InitSluagh();
 			Core::ITextManager::CreateInfo ti;
 			ti.font = "Ancient.spritefont";
@@ -1295,8 +1572,11 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	std::vector<ProjectileData> newProjectiles;
 
 	UpdateInput(movementInput, actionInput);
+	UpdateAimDecal();
 
-	float dt = min(1 / 30.f, input->GetDelta());
+	float dt = std::min(1 / 30.f, input->GetDelta());
+
+	
 
 	projectileManager->CheckCollisionBetweenUnitAndProjectiles(player, Gameplay::ValidTarget::PLAYER);
 	player->Update(dt, movementInput, newProjectiles, actionInput);
@@ -1312,6 +1592,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 	projectileManager->AddProjectiles(blackBoard.enemyProjectiles);
 	blackBoard.enemyProjectiles.clear();
 
+
 	//-----sound update
 	soundTime += dt;
 	if (soundTime > 60.0f)
@@ -1326,17 +1607,21 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		soundTime = 0.0f;
 	}
 	//-----end sound update
-	CheckForRoomTransition();
+
+	if(deathSequence == false)
+		CheckForRoomTransition();
+
 	UpdateHUD(dt);
 
 	
 	/*if(sluaghDoorsOpen)
 	{
-		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY).value());
-		if(sluaghRoom)
+		auto sluaghRoom = dynamic_cast<SluaghRoom*>(GetRoom(sluaghRoomX, sluaghRoomY)->get().room);
+		if(sluaghRoom && player->GetHealth() > 0.f)
 		{
 			if (sluaghRoom->GetSluagh()->GetSluagh()->GetHealth() <= 0.0f)
 			{
+				timeWon++;
 				returnValue = State::WIN_STATE;
 
 				char* appdataBuffer;
@@ -1350,6 +1635,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 				player->SavePlayerToFile(out);
 				out.close();
 			}
+			projectileManager->CheckCollisionBetweenUnitAndProjectiles(sluaghRoom->GetSluagh()->GetSluagh(), Gameplay::ValidTarget::ENEMIES);
 		}
 	}*/
 	if (!player->IsAlive() && deathSequence == false) {
@@ -1362,7 +1648,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 
 		if (CoreInit::subSystems.window->ButtonPressed(Window::KeyReturn)) {
 
-			returnValue = State::CHARACTER_CREATION_STATE;
+			returnValue = State::MAIN_MENU_STATE;
 		}
 
 		deathTimer += dt;
@@ -1371,7 +1657,7 @@ IGameState::State PlayState::Update(void*& passableInfo)
 		
 		if (deathTimer > 15){
 			deathTimer = 0.0f;
-			returnValue = State::CHARACTER_CREATION_STATE;
+			returnValue = State::MAIN_MENU_STATE;
 		}
 	}
 
@@ -1401,3 +1687,28 @@ void PlayState::ToggleFlowField(bool showFlowField)
 	StopProfile;
 }
 
+void PlayState::UpdateAimDecal()
+{
+	int mX, mY;
+	input->GetMousePos(mX, mY);
+
+	DirectX::XMVECTOR rayO = { 0.0f, 0.0f, 0.0f, 1.0f };
+	DirectX::XMVECTOR rayD;
+
+
+	auto width = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "width", 1280);
+	auto height = CoreInit::subSystems.optionsHandler->GetOptionInt("Window", "height", 720);
+	CoreInit::managers.cameraManager->WorldSpaceRayFromScreenPos(mX, mY, width, height, rayO, rayD);
+
+	float distance = DirectX::XMVectorGetY(rayO) / -XMVectorGetY(rayD);
+
+	auto clickPos = rayO + rayD * distance;
+
+	DirectX::XMFLOAT3 decalPos;
+	DirectX::XMStoreFloat3(&decalPos, clickPos);
+	if (currentRoom->IsWall(decalPos.x, decalPos.z))
+		decalPos.y = 3.0f;
+	
+	CoreInit::managers.transformManager->SetPosition(aimDecal, decalPos);
+
+}

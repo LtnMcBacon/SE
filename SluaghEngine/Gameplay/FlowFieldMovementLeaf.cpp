@@ -152,19 +152,21 @@ Status FlowFieldMovementLeaf::Update()
 			flowField->SampleFromMap(myPos, xMovement, yMovement);
 			if(xMovement != 0.f || yMovement != 0.f)
 			{
-				xMovement = -2*xMovement;
-				yMovement = -2*yMovement;
+				xMovement = xPos - myPos.x;
+				yMovement = yPos - myPos.y;
 				break;
 			}
 		}
 	}
-	xMovementTot += xMovement;
-	yMovementTot += yMovement;
+	xMovementTot = xMovement;
+	yMovementTot = yMovement;
+
 
 	if (!sample)
 		SampleFromMap(yMovementTot, xMovementTot);
 
 	sample = (sample + 1) % sampleRate;
+
 	/*Check if we would collide in a wall
 	* See CorrectCollision for information
 	*/
@@ -179,10 +181,35 @@ Status FlowFieldMovementLeaf::Update()
 		myStatus = Status::BEHAVIOUR_SUCCESS;
 	}
 	else
-		myStatus = Status::BEHAVIOUR_FAILURE;
+	{
+		for (int i = 0; i < 9; i++)
+		{
+			if (i % 3 == 0)
+			{
+				myPos.x = xPos - 1.f;
+				if (i == 0)
+					myPos.y -= 1.f;
+				else
+					myPos.y += 1.f;
+			}
+			else
+			{
+				myPos.x++;
+			}
+			flowField->SampleFromMap(myPos, xMovement, yMovement);
+			if (xMovement != 0.f || yMovement != 0.f)
+			{
+				xMovement = xPos - myPos.x;
+				yMovement = yPos - myPos.y;
+				break;
+			}
+		}
+	}
+	myStatus = Status::BEHAVIOUR_SUCCESS;
 	/*Move the entity in the normalized direction*/
 
-	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime, yMovementTot*gameBlackboard->deltaTime);
+	enemyBlackboard->ownerPointer->MoveEntity(xMovementTot*gameBlackboard->deltaTime*enemyBlackboard->movementSpeedPercent, 
+		yMovementTot*gameBlackboard->deltaTime*enemyBlackboard->movementSpeedPercent);
 
 
 	/*Save the direction for next movement*/

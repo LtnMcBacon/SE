@@ -579,15 +579,16 @@ OptionState::OptionState()
 		}
 		else if (button.rectName == "BackBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, back, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX,button.PositionY,button.Width,button.Height,button.layerDepth,button.rectName, back,std::string("bak.png"),"bak1.png","bak.png");
 		}
 		else if (button.rectName == "DefaultBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, defaultOptions, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, defaultOptions, std::string("Reset.png"), "Reset1.png", "Reset.png");
+			
 		}
 		else if (button.rectName == "AcceptBtn")
 		{
-			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, newOptions, button.textName, button.hoverTex, button.PressTex);
+			fileParser.GUIButtons.CreateButton(button.PositionX, button.PositionY, button.Width, button.Height, button.layerDepth, button.rectName, newOptions, std::string("Acceptera.png"), "Acceptera1.png", "Acceptera.png");
 		}
 		else if (button.rectName == "voiceVolumeBtn")
 		{	

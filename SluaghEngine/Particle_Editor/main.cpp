@@ -53,7 +53,7 @@ float startPos[3] = { 0, 0, 0 };
 float endPos[3] = { 0, 0, 0 };
 bool RandVelocity = false;
 bool imported = false;
-
+int textureSlot = 0;
 Utilz::GUID importedTexture;
 struct ParticleDataStruct {
 	float vel[3];
@@ -258,8 +258,10 @@ int main()
 	RPP.GSStage.shader = "ParticleGS.hlsl";
 	RPP.PSStage.shader = "ParticlePS.hlsl";
 	RPP.PSStage.textures[0] = "galaxy_texture.sei";
+	RPP.PSStage.textures[1] = NULL;
 	RPP.PSStage.textureBindings[0] = "particleTex";
-	RPP.PSStage.textureCount = 1;
+	RPP.PSStage.textureBindings[1] = "particleTex2";
+	RPP.PSStage.textureCount = 2;
 	RPP.PSStage.samplers[0] = "ParticleSampler";
 	RPP.PSStage.samplerCount = 1;
 	RPP.OMStage.blendState = "ParticleBlend";
@@ -269,7 +271,9 @@ int main()
 	RPP.OMStage.renderTargetCount = 1;
 	RenderJob renderParticleJob;
 	renderParticleJob.pipeline = RPP;
-
+	renderParticleJob.mappingFunc.push_back([&movBuffer, subSystem](int a, int b) {
+		subSystem.renderer->GetPipelineHandler()->UpdateConstantBuffer("BloomCBuffer", &movBuffer.bloomCheck, sizeof(movBuffer.bloomCheck));
+	});
 
 
 	struct CameraMatrices {
@@ -336,7 +340,7 @@ int main()
 					pipelineHandler->CreateTexture(guid, data, texDesc.width, texDesc.height);
 					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
-				renderParticleJob.pipeline.PSStage.textures[0] = tempText;
+				renderParticleJob.pipeline.PSStage.textures[textureSlot] = tempText;
 				texName = tempText;
 
 			}
@@ -350,7 +354,7 @@ int main()
 					return ResourceHandler::InvokeReturn::SUCCESS | ResourceHandler::InvokeReturn::DEC_RAM;
 				});
 				texName = importedTexture;
-				renderParticleJob.pipeline.PSStage.textures[0] = importedTexture;
+				renderParticleJob.pipeline.PSStage.textures[textureSlot] = importedTexture;
 				imported = false;
 			}
 			//renderParticleJob.pipeline.PSStage.textures[0] = Utilz::GUID(21045996);
@@ -382,11 +386,11 @@ int main()
 		ImGui::SliderFloat2("Direction angle X", &velocityRangeX[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Y", &velocityRangeY[0], -1.0, 1.0f);
 		ImGui::SliderFloat2("Direction angle Z", &velocityRangeZ[0], -1.0, 1.0f);
-		ImGui::SliderFloat2("Emit range X", &emitRangeX[0], -1.0f, 1.0f);
-		ImGui::SliderFloat2("Emit range Y", &emitRangeY[0], -1.0f, 1.0f);
-		ImGui::SliderFloat2("Emit range Z", &emitRangeZ[0], -1.0f, 1.0f);
+		ImGui::InputFloat2("Emit range X", &emitRangeX[0]);
+		ImGui::InputFloat2("Emit range Y", &emitRangeY[0]);
+		ImGui::InputFloat2("Emit range Z", &emitRangeZ[0]);
 		ImGui::CheckboxFlags("Particle path", &movBuffer.particlePath, 1);
-		ImGui::SliderFloat("Emit X", &movBuffer.emitPos[0], -5.0, 5.0f);
+	//	ImGui::SliderFloat("Emit X", &movBuffer.emitPos[0], -5.0, 5.0f);
 	//	ImGui::InputFloat3("Startpos", startPos);
 		ImGui::InputFloat3("Endpos", endPos);
 		if (ImGui::Button("Reset Sliders"))
@@ -437,7 +441,7 @@ int main()
 		ImGui::SliderFloat("Gravity Scalar", &movBuffer.gravityValue, 0.0f, 10.0f);
 		ImGui::SliderFloat("Radial Acceleration", &movBuffer.radialValue, -10.0f, 10.0f);
 		ImGui::SliderFloat("Tangential Acceleration", &movBuffer.tangentValue, -10.0f, 10.0f);
-		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.1f, 1.0f);
+		ImGui::SliderFloat("Speed", &movBuffer.speed, 0.1f, 5.0f);
 		ImGui::InputFloat("Emit Rate", &movBuffer.emitRate);
 		if (movBuffer.emitRate < 0)
 			movBuffer.emitRate = 0;
@@ -456,6 +460,11 @@ int main()
 			int a = 0;
 		}
 		ImGui::InputText("Texture file", tempText, 100);
+		//ImGui::Value("Texture Slot: ", textureSlot);
+		//if (ImGui::Button("Change Texture Slot")) textureSlot ^= 1;
+		
+
+		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
 		if (ImGui::Button("Reset Sliders"))
 		{
 			movBuffer.radialValue = 0;
@@ -465,9 +474,6 @@ int main()
 				movBuffer.gravity[i] = 0.0f;
 			}
 		}
-		
-
-		if (ImGui::Button("Change Texture")) changedTexture ^= 1;
 		
 		if (ImGui::Button("Export/Import Settings")) exportWindow ^= 1;
 		ImGui::End();

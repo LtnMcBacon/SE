@@ -577,3 +577,17 @@ void SE::Window::WindowSDL::RecordToFile()
 		std::this_thread::sleep_for(10ms);
 	}
 }
+
+void SE::Window::WindowSDL::ToggleCursor(bool on)
+{
+	if (on)
+		while (ShowCursor(on) < 0){}
+	else
+		while (ShowCursor(on) >= 0){}
+	
+}
+
+void SE::Window::WindowSDL::SetWindowTitle(const std::string& title)
+{
+	SDL_SetWindowTitle(window, title.c_str());
+}

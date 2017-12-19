@@ -45,17 +45,12 @@ cbuffer CamBuffer : register(b3)
 };
 struct ParticleInfo {
 	float3 pos : POSITION;
-	float pad : PAD1;
-	float3 velocity : VELOCITY;
-	float pad2 : PAD2;
-	float3 startEmitPos : ORIGIN;
-	float pad5 : PAD5;
 	float size : SIZE;
-	float pad4 : PAD4;
+	float3 velocity : VELOCITY;
 	float opacity : OPACITY;
+	float3 startEmitPos : ORIGIN;
 	float age : AGE;
 	uint type : TYPE;
-	uint bloom : BLOOM;
 };
 bool equal(float3 start, float3 end)
 {
@@ -68,8 +63,7 @@ bool equal(float3 start, float3 end)
 [maxvertexcount(2)]
 void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStream)
 {
-	input[0].age += dt;
-	
+	input[0].age += dt;	
 	if	(input[0].type == P_EMITTER)
 	{
 		input[0].pos = emitPos;	
@@ -81,15 +75,10 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			particle.startEmitPos = input[0].pos;
 			particle.velocity = float3(velocityVec.x, velocityVec.y, velocityVec.z);
 			particle.size = pSize;
-			particle.opacity = 0.0f;
+			particle.opacity = 1.0f;
 			particle.age = 0.0f;
 			particle.type = 1;
-			particle.bloom = bloomCheck;
-			particle.pad = 0;
-			particle.pad2 = 0;
-			particle.pad4 = 0;
-			particle.pad5 = 0;
-		
+			//particle.bloom = bloomCheck;
 			ptStream.Append(particle);
 			ptStream.RestartStrip();
 			input[0].age = 0.0f;
@@ -107,14 +96,9 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			float3 lookAt = eyePos - input[0].startEmitPos;
 			lookAt = normalize(lookAt);
 			float3 tanVector = cross(radialVector, lookAt);
-			
-			if (input[0].age < 0.25)
-			{
-				input[0].opacity += dt;
-				
-			}
-			else
-				input[0].opacity = 1 - input[0].age/ lifeTime;
+			tanVector = normalize(tanVector);
+		
+			input[0].opacity = 1 - input[0].age/ lifeTime;
 			if(circular == 1)
 			{
 				if (!equal(input[0].pos, emitPos))
@@ -146,13 +130,8 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 				{
 					input[0].velocity = float3(0, 0, 0);
 				}
-				if (input[0].age < 0.25)
-				{
-					input[0].opacity += dt;
-				
-				}
-				else
-					input[0].opacity = 1 - input[0].age/ lifeTime;
+	
+				input[0].opacity = 1 - input[0].age/ lifeTime;
 	
 				input[0].pos += input[0].velocity * dt * speed;
 			
@@ -161,8 +140,5 @@ void GS_main(point ParticleInfo input[1], inout PointStream<ParticleInfo> ptStre
 			}
 
 		}
-		
-		
 	}
-	
 }

@@ -115,7 +115,7 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	subSystem.window->MapActionButton(ActionButton::Sink, Window::KeyCtrlL);
 
 	Core::IMaterialManager::CreateInfo info;
-	auto shader = Utilz::GUID("SimpleNormMapPS.hlsl");
+	auto shader = Utilz::GUID("SimpleLightPS.hlsl");
 	auto material = Utilz::GUID("MCModell.mat");
 	info.shader = shader;	
 	info.materialFile = material;
@@ -124,8 +124,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 	managers.materialManager->Create(mainC2, info);
 
 	Core::IAnimationManager::CreateInfo sai;
-	sai.mesh = "MCModell.mesh";
-	sai.skeleton = "MCModell.skel";
+	sai.mesh = "Pech.mesh";
+	sai.skeleton = "Pech.skel";
 	sai.animationCount = 4;
 	Utilz::GUID anims[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim", "DeathAnim_MCModell.anim", "TopSwordAttackAnim_MCModell.anim" };
 	sai.animations = anims;
@@ -137,8 +137,8 @@ bool SE::Test::SkeletonAnimationTest::Run(DevConsole::IConsole * console)
 
 	managers.animationManager->AttachToEntity(mainC, attachable, "LHand", 0);
 
-	managers.collisionManager->CreateBoundingHierarchy(mainC, "Bodach.mesh");
-	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Bodach.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC, "Pech.mesh");
+	managers.collisionManager->CreateBoundingHierarchy(mainC2, "Pech.mesh");
 
 	Utilz::GUID mainAnim[] = { "TopRunAnim_MCModell.anim", "BottomRunAnim_MCModell.anim" };
 	managers.animationManager->Start(mainC, mainAnim, 2, 2.0f, Core::AnimationFlags::IMMEDIATE | Core::AnimationFlags::LOOP);

@@ -28,6 +28,7 @@ namespace SE {
 		void AudioManager::Create(const Entity & entity, const CreateInfo & createInfo)
 		{
 			StartProfile;
+			//ProfileReturnVoid;
 			// Check if the entity is alive
 			if (!initInfo.entityManager->Alive(entity))
 				ProfileReturnVoid;
@@ -53,6 +54,7 @@ namespace SE {
 				if (res)
 				{
 					initInfo.console->PrintChannel("Resources", "Could not load sound. GUID: %u, Error: %d",  createInfo.soundFile, res);
+					guidToSound.erase(createInfo.soundFile);
 					ProfileReturnVoid;
 				}
 			}
@@ -115,19 +117,32 @@ namespace SE {
 				auto findS = findE->second.guidToStream.find(soundFile);
 				if (findS != findE->second.guidToStream.end())
 				{
-					findE->second.guidToStream.erase(soundFile);
-					guidToSound[soundFile].refCount--;
-					if (guidToSound[soundFile].refCount == 0)
-					{
-						auto res = audioHandler->RemoveSound(guidToSound[soundFile].handle);
-						if (res)
-						{
-							initInfo.console->PrintChannel("Warning", "Could not remove sound. GUID: %u, Error: %d",  soundFile, res);
-						}
-					}
-						
+					audioHandler->RemoveSound(findS->second.stream);
+					entToSounds[entity].guidToStream.erase(soundFile);
+					UnloadSound(soundFile);
 				}
 			}
+		}
+		void AudioManager::UnloadSound(const Utilz::GUID & soundFile)
+		{
+			auto findE = guidToSound.find(soundFile);
+			if (findE != guidToSound.end())
+			{
+				findE->second.refCount--;
+				if (findE->second.refCount == 0)
+				{
+					auto res = audioHandler->UnloadSound(guidToSound[soundFile].handle);
+					if (res)
+					{
+						initInfo.console->PrintChannel("Warning", "Could not remove sound. GUID: %u, Error: %d", soundFile, res);
+					}
+					else
+					{
+						guidToSound.erase(soundFile);
+					}
+				}
+			}
+
 		}
 		void AudioManager::SetSoundVol(const SE::Audio::SoundVolType & volType, size_t newVol)
 		{
@@ -176,6 +191,7 @@ namespace SE {
 			for (auto& s : entToSounds[soundEntity[index]].guidToStream)
 			{
 				audioHandler->RemoveSound(s.second.stream);
+				UnloadSound(s.first);
 			}
 			entToSounds.erase(soundEntity[index]);
 			soundEntity[index] = soundEntity[soundEntity.size() - 1];

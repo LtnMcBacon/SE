@@ -6,6 +6,7 @@
 #include <Utilz\GUID.h>
 #include <Core\IEngine.h>
 #include <Gameplay/PlayerUnit.h>
+#include "Fog.h"
 namespace SE
 {
 	namespace Gameplay
@@ -43,6 +44,10 @@ namespace SE
 			
 			std::vector<Core::Entity> itemsInRoom;
 			std::vector<HpBar> hpBars;
+			Fog fog;
+			const float fogCycleDuration = 12.f;
+			const float fogFadeDuration = 2.f;
+			float time = fogCycleDuration + fogFadeDuration;
 			bool IsOutside = false;
 			enum class PropTypes
 			{
@@ -86,7 +91,17 @@ namespace SE
 				Window_open,
 				Window_closed,
 				Tree,
-				Well
+				Well,
+				Fireplace_set1,
+				Fireplace_set2,
+				MiniTable_set1,
+				Potatobag_set1,
+				PotFloorTorch_set1,
+				BagPipeTable_set1,
+				DinnerTable_set1,
+				Smalltable_crossbowAndBat_set1,
+				Smalltable_weapons_set1,
+				statue
 			};
 			enum class Materials {
 				Stone,
@@ -113,7 +128,17 @@ namespace SE
 				PotatosackClosed,
 				Well,
 				julWall, 
-				DarkStoneWall
+				DarkStoneWall,
+				Fireplace_set1,
+				Fireplace_set2,
+				MiniTable_set1,
+				Potatobag_set1,
+				PotFloorTorch_set1,
+				BagPipeTable_set1,
+				DinnerTable_set1,
+				Smalltable_crossbowAndBat_set1,
+				Smalltable_weapons_set1,
+				statue
 			};
 
 			struct CreationArguments
@@ -169,7 +194,7 @@ namespace SE
 			};
 
 		public:
-
+			void ToggleRenderingOfWallsAndFloor(bool toggle);
 			enum class DirectionToAdjacentRoom
 			{
 
@@ -247,7 +272,7 @@ namespace SE
 			SE::Utilz::GUID wallTexture;
 			SE::Utilz::GUID floorTexture;
 
-			void UpdateHpBars(float playerX, float playerY);
+			virtual void UpdateHpBars(float playerX, float playerY);
 
 			/**
 			* @brief	Update the Flowfield of a room, given a point that should be used for attraction.
@@ -504,7 +529,7 @@ namespace SE
 			*/
 			bool AddEnemyToRoom(SE::Gameplay::EnemyUnit *enemyToAdd);
 			void RemoveEnemyFromRoom(SE::Gameplay::EnemyUnit *enemyToRemove);
-			
+
 			inline const FlowField *GetFlowFieldMap() const
 			{
 				return roomField;
@@ -628,7 +653,7 @@ namespace SE
 			/**
 			* @brief	finds the closest enemy to xPos and yPos nad sets xReturn and yReturn to that enemies position, if no enemies exist then false is returned
 			*/
-			bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
+			virtual bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
 			bool GetClosestEnemy(float xPos, float yPos, EnemyUnit* &closestUnit);
 
 			/**
@@ -672,6 +697,8 @@ namespace SE
 
 			void CreateFire(int x, int y);
 
+			bool TorchOnWall(int x, int y);
+
 			void CreateWindows(CreationArguments &args);
 			/**
 			* @brief set Room door pointer to values
@@ -687,6 +714,9 @@ namespace SE
 					}
 				}
 			}
+
+			bool IsWall(int x, int y) const;
+
 			bool beingRendered = false;
 			bool loaded = false;
 			inline int NumberOfEnemiesInRoom() { return enemyUnits.size(); };

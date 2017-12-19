@@ -108,7 +108,6 @@ namespace SE
 
 			/****************	Loading			*****************/
 			IAssetLoader* diskLoader;
-			std::mutex loadLock;
 			std::mutex loadCallbackLock;
 			//Utilz::ThreadPool* load_threadPool;
 

@@ -609,7 +609,12 @@ void ImGuiDX11SDL_NewFrame()
 	// Setup inputs
 	// (we already got mouse wheel, keyboard keys & characters from SDL_PollEvent())
 	int mx, my;
+	
 	Uint32 mouseMask = SDL_GetMouseState(&mx, &my);
+	int width, height;
+	SDL_GetWindowSize(g_SDLWindow, &width, &height);
+	mx /= (width / 1280.0f);
+	my /= (height / 720.0f);
 	if (SDL_GetWindowFlags(g_SDLWindow) & SDL_WINDOW_MOUSE_FOCUS)
 		io.MousePos = ImVec2((float)mx, (float)my);   // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
 	else

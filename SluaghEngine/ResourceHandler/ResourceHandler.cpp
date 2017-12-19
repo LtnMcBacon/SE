@@ -29,7 +29,7 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 
 	//load_threadPool = new Utilz::ThreadPool(2);
 
-	for (size_t i = 0; i < 1; ++i)
+	for (size_t i = 0; i < 4; ++i)
 		workers.emplace_back(
 			[this]
 	{
@@ -387,7 +387,6 @@ int SE::ResourceHandler::ResourceHandler::Load(entryMap& map, const EvictInfo& e
 		errors.Push_Back("Resource does not exist, GUID: " + std::to_string(job.guid.id));
 		return -1;
 	}
-	loadLock.lock();
 
 	auto mem = evictInfo.getCurrentMemoryUsage();
 	auto limit = evictInfo.max * evictInfo.tryUnloadWhenOver;
@@ -418,18 +417,16 @@ int SE::ResourceHandler::ResourceHandler::Load(entryMap& map, const EvictInfo& e
 	auto result = diskLoader->LoadResource(job.guid, &rawData.data);
 	if (result < 0)
 	{
-		loadLock.unlock();
 		Utilz::OperateSingle(map, job.guid, setFail);
 		errors.Push_Back("Could not load resource, GUID: " + std::to_string(job.guid.id) + ", Error: " + std::to_string(result));
 		return -1;
 	}
 
-	loadLock.unlock();
 	if (job.callbacks.loadCallback)
 	{
-		loadCallbackLock.lock();
+		//loadCallbackLock.lock();
 		auto lresult = job.callbacks.loadCallback(job.guid, rawData.data, rawData.size, &data.data, &data.size);
-		loadCallbackLock.unlock();
+		//loadCallbackLock.unlock();
 
 		bool error = false;
 		Utilz::OperateSingle(map, job.guid, [lresult, &error, &rawData](auto& resource)

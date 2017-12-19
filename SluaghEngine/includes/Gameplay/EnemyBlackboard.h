@@ -53,6 +53,8 @@ namespace SE
 			Banes activeBane = Banes::CONDITIONAL_BANES_NONE;
 			float attackCooldown = 0.f;
 			float secondaryAttackCooldown = 0.f;
+			float movementSpeedPercent = 1.f;
+			float conditionAmmount = 0.f;
 
 			float timeToRoomTransisition = 0.f;
 

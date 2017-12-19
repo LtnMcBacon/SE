@@ -4,6 +4,7 @@
 #include "GameBlackboard.h"
 #include "EnemyUnit.h"
 #include "ProjectileData.h"
+#include "CoreInit.h"
 
 const SE::Utilz::GUID SE::Gameplay::PechRangedAttackLeaf::PechMeleeAttackFileGUID = Utilz::GUID("PechRangedProjectile.SEP");
 SE::Gameplay::PechRangedAttackLeaf::PechRangedAttackLeaf(EnemyBlackboard* enemyBlackboard,
@@ -25,8 +26,9 @@ SE::Gameplay::Status SE::Gameplay::PechRangedAttackLeaf::Update()
 	newProjectile.target = ValidTarget::PLAYER;
 	newProjectile.startPosX = enemyBlackboard->ownerPointer->GetXPosition();
 	newProjectile.startPosY = enemyBlackboard->ownerPointer->GetYPosition();
+	newProjectile.startRotation = CoreInit::managers.transformManager->GetRotation(enemyBlackboard->ownerPointer->GetEntity()).y;
 	newProjectile.eventDamage = DamageEvent(DamageSources::DAMAGE_SOURCE_RANGED,
-		DamageType::NATURE, 10);
+		enemyBlackboard->ownerPointer->GetDamageType(), enemyBlackboard->ownerPointer->GetNewDamage());
 
 	gameBlackboard->enemyProjectiles.push_back(newProjectile);
 

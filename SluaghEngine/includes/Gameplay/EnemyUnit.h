@@ -13,8 +13,8 @@ namespace SE
 			ENEMY_TYPE_BODACH,
 			ENEMY_TYPE_GLAISTIG,
 			ENEMY_TYPE_NUCKELAVEE,
-			/*ENEMY_TYPE_PECH_MELEE,
-			ENEMY_TYPE_PECH_RANGED,*/
+			ENEMY_TYPE_PECH_MELEE,
+			ENEMY_TYPE_PECH_RANGED,
 			ENEMY_TYPE_RANDOM
 		};
 
@@ -175,6 +175,16 @@ namespace SE
 				return myType;
 			}
 
+			inline DamageType GetDamageType() const
+			{
+				return myDamageType;
+			}
+
+			inline void SetDamageType(DamageType type)
+			{
+				myDamageType = type;
+			}
+
 		private:
 			EnemyUnit() = delete;
 			EnemyUnit(const EnemyUnit& other) = delete;
@@ -193,6 +203,7 @@ namespace SE
 			float previousMovement[2] = {};
 			int sample = 0;
 			EnemyType myType;
+			DamageType myDamageType;
 			bool deathAnimationPlaying = false;
 			Utilz::GUID deathAnimation;
 

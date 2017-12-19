@@ -80,7 +80,7 @@ namespace SE {
 			*/
 			int StopSound(int streamID) override;
 			/**
-			* @brief Removes the given sound
+			* @brief Removes the given stream
 			*
 			* @param[in] streamID The stream ID
 			*
@@ -89,6 +89,16 @@ namespace SE {
 			*
 			*/
 			int RemoveSound(int streamID) override;
+			/**
+			* @brief Unloads the given sound
+			*
+			* @param[in] streamID The stream ID
+			*
+			* @retval 0 Tells that removestream was sucessful
+			* @retval -1 Tells that removestream was unsucessful
+			*
+			*/
+			int UnloadSound(int soundHandle);
 			/**
 			* @brief Updates Pos of head and sound
 			*

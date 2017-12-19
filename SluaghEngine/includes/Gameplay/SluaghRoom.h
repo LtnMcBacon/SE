@@ -16,8 +16,10 @@ namespace SE
 			void Update(float dt, float playerX, float playerY) override;
 			void InitSluagh();
 			Sluagh* GetSluagh() const { return theSluagh; };
+			bool GetClosestEnemy(float xPos, float yPos, float& xReturn, float& yReturn);
 		private:
 			bool ProjectileAgainstEnemies(Projectile& projectile) override;
+			void UpdateHpBars(float playerX, float playerY) override;
 			ProjectileManager* projectileManagers;
 			Sluagh* theSluagh;
 		};

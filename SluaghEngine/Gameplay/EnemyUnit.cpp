@@ -11,12 +11,24 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 	// only basic at the moment
 	myBlackboard->activeBane = Banes::CONDITIONAL_BANES_NONE;
 	myBlackboard->activeCondition = Boons::CONDITIONAL_BOONS_NONE;
+	myBlackboard->conditionAmmount = 0.f;
 	if (!myBlackboard->invurnerable)
 	{
 		auto ph = health;
 		for (int i = 0; i < DamageEventVector.size(); i++)
 		{
-			this->health -= DamageEventVector[i].amount;
+			float damageAmount = DamageEventVector[i].amount;
+			switch(DamageEventVector[i].type)
+			{
+			case DamageType::PHYSICAL: damageAmount*=(1 - newStat.physicalResistance); break;
+			case DamageType::FIRE: damageAmount*=(1 - newStat.fireResistance); break;
+			case DamageType::WATER: damageAmount*=(1 - newStat.waterResistance); break;
+			case DamageType::NATURE: damageAmount*=(1 - newStat.natureResistance); break;
+			case DamageType::RANGED: damageAmount*=(1 - newStat.physicalResistance); break;
+			case DamageType::MAGIC: damageAmount*=(1 - newStat.magicResistance); break;
+			default: ;
+			}
+			this->health -= damageAmount;
 		}
 
 
@@ -38,10 +50,6 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			CoreInit::managers.eventManager->SetLifetime(bs, 20);
 			CoreInit::managers.eventManager->ToggleVisible(bs, true);
 
-
-		//	CoreInit::managers.particleSystemManager->CreateSystem(ent, { "voidParticle.pts" });
-			//CoreInit::managers.eventManager->SetLifetime(ent, 0.5f);
-			//CoreInit::managers.particleSystemManager->ToggleVisible(ent, true);
 		}
 
 		for (int i = 0; i < ConditionEventVector.size(); i++)
@@ -97,6 +105,8 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 					break;
 				case Boons::CONDITIONAL_BOONS_SLOW:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_SLOW;
+					if (myBlackboard->conditionAmmount < ConditionEventVector[i].effectValue)
+						myBlackboard->conditionAmmount = ConditionEventVector[i].effectValue;
 					break;
 				case Boons::CONDITIONAL_BOONS_INVULNERABILITY:
 					myBlackboard->activeCondition |= Boons::CONDITIONAL_BOONS_INVULNERABILITY;
@@ -111,38 +121,45 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NONE;
 				break;
 				case Banes::CONDITIONAL_BANES_DAMAGE:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_DAMAGE;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_DAMAGE;
+					this->newStat.meleeMultiplier -= baseStat.meleeMultiplier * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_STUN:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_STUN;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_STUN;
+					break;
 				case Banes::CONDITIONAL_BANES_ROOT:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_ROOT;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_ROOT;
+					break;
 				case Banes::CONDITIONAL_BANES_BLOODLETTING:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_BLOODLETTING;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_BLOODLETTING;
+					break;
 				case Banes::CONDITIONAL_BANES_UNCOVER:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_UNCOVER;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_UNCOVER;
+					break;
 				case Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_PHYSICAL_WEAKNESS;
+					this->newStat.physicalResistance -= this->baseStat.physicalResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_MAGICAL_WEAKNESS;
+					this->newStat.magicResistance -= this->baseStat.magicResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_FIRE_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_FIRE_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_FIRE_WEAKNESS;
+					this->newStat.fireResistance -= this->baseStat.fireResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_WATER_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_WATER_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_WATER_WEAKNESS;
+					this->newStat.waterResistance -= this->baseStat.waterResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_NATURE_WEAKNESS:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NATURE_WEAKNESS;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_NATURE_WEAKNESS;
+					this->newStat.natureResistance += this->baseStat.natureResistance * ConditionEventVector[i].effectValue;
+					break;
 				case Banes::CONDITIONAL_BANES_SLOW:
-				myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
-				break;
+					myBlackboard->activeBane |= Banes::CONDITIONAL_BANES_SLOW;
+					this->newStat.movementSpeed += this->baseStat.movementSpeed * ConditionEventVector[i].effectValue;
+					break;
 				}
 			}
 			if (ConditionEventVector[i].duration > 0.f)
@@ -151,10 +168,19 @@ void SE::Gameplay::EnemyUnit::ResolveEvents(float dt)
 			}
 		}
 	}
+
+	for (int i = 0; i < HealingEventVector.size(); i++)
+	{
+		this->health += HealingEventVector[i].amount;
+	}
+
+	if (this->health > this->maxHealth)
+		this->health = this->maxHealth;
+
 	DamageEventVector.clear();
 	ConditionEventVector.clear();
+	HealingEventVector.clear();
 
-	this->newStat.damage = 1000.f;
 
 	ProfileReturnVoid;
 
@@ -176,7 +202,7 @@ void SE::Gameplay::EnemyUnit::DecideAction(float dt)
 		
 		myBehaviouralTree->Tick();
 	}
-
+	
 	ProfileReturnVoid;
 }
 
@@ -197,7 +223,11 @@ void SE::Gameplay::EnemyUnit::Update(float dt)
 		/*
 		* Code body
 		*/
+
 		ClearNewStats();
+		calcBaseStrChanges();
+		calcBaseAgiChanges();
+		calcBaseWhiChanges();
 		ResolveEvents(dt);
 		DecideAction(dt);
 		PerformAction(dt);

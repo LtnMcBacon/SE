@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <unordered_map>
 #include <unordered_set>
+#include <Utilz/ThreadSafeMap.h>
 
 namespace SE
 {
@@ -24,6 +25,7 @@ namespace SE
 
 			int MergeHandlers(IPipelineHandler* other) override;
 
+			int CreateVertexShaderFromSource(const Utilz::GUID& id, const std::string& sourceCode, const std::string& entrypoint, const std::string& shaderModel) override;
 			int CreateVertexBuffer(const Utilz::GUID& id, void* data, size_t vertexCount, size_t stride, bool dynamic = false) override;
 			int UpdateDynamicVertexBuffer(const Utilz::GUID& id, void* data, size_t size) override;
 			int CreateIndexBuffer(const Utilz::GUID& id, void* data, size_t indexCount, size_t indexSize) override;
@@ -31,7 +33,7 @@ namespace SE
 			int DestroyIndexBuffer(const Utilz::GUID& id) override;
 			int DestroyVertexBuffer(const Utilz::GUID& id) override;
 
-			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport);
+			int CreateViewport(const Utilz::GUID& id, const Viewport& viewport) override;
 
 			int CreateVertexShader(const Utilz::GUID& id, void* data, size_t size) override;
 			int CreateGeometryShader(const Utilz::GUID& id, void* data, size_t size) override;
@@ -141,27 +143,28 @@ namespace SE
 				ID3D11ComputeShader* shader;
 				std::vector<Utilz::GUID> constantBuffers;
 			};
+			
 			std::unordered_set<Utilz::GUID, Utilz::GUID::Hasher> manuallyAddedResources;
-			std::unordered_map<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
-			std::unordered_map<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
-			std::unordered_map<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
-			std::unordered_map<Utilz::GUID, VertexShaderInfo, Utilz::GUID::Hasher> vertexShaders;
-			std::unordered_map<Utilz::GUID, GeomtryShaderInfo, Utilz::GUID::Hasher> geometryShaders;
-			std::unordered_map<Utilz::GUID, PixelShaderInfo, Utilz::GUID::Hasher> pixelShaders;
-			std::unordered_map<Utilz::GUID, ComputeShaderInfo, Utilz::GUID::Hasher> computeShaders;
-			std::unordered_map<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Hasher> constantBuffers;
-			std::unordered_map<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Hasher> shaderResourceViews;
-			std::unordered_map<Utilz::GUID, RenderTargetInfo, Utilz::GUID::Hasher> renderTargetViews;
-			std::unordered_map<Utilz::GUID, ID3D11DepthStencilView*, Utilz::GUID::Hasher> depthStencilViews;
-			std::unordered_map<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Hasher> samplerStates;
-			std::unordered_map<Utilz::GUID, ID3D11BlendState*, Utilz::GUID::Hasher> blendStates;
-			std::unordered_map<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Hasher> rasterizerStates;
-			std::unordered_map<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Hasher> viewports;
-			std::unordered_map<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Hasher> depthStencilStates;
-			std::unordered_map<Utilz::GUID, UnorderedAccessViewInfo, Utilz::GUID::Hasher> unorderedAccessViews;
+			Utilz::ThreadSafeMap<Utilz::GUID, VertexBuffer, Utilz::GUID::Hasher> vertexBuffers;
+			Utilz::ThreadSafeMap<Utilz::GUID, IndexBuffer, Utilz::GUID::Hasher> indexBuffers;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11InputLayout*, Utilz::GUID::Hasher> inputLayouts;
+			Utilz::ThreadSafeMap<Utilz::GUID, VertexShaderInfo, Utilz::GUID::Hasher> vertexShaders;
+			Utilz::ThreadSafeMap<Utilz::GUID, GeomtryShaderInfo, Utilz::GUID::Hasher> geometryShaders;
+			Utilz::ThreadSafeMap<Utilz::GUID, PixelShaderInfo, Utilz::GUID::Hasher> pixelShaders;
+			Utilz::ThreadSafeMap<Utilz::GUID, ComputeShaderInfo, Utilz::GUID::Hasher> computeShaders;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11Buffer*, Utilz::GUID::Hasher> constantBuffers;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11ShaderResourceView*, Utilz::GUID::Hasher> shaderResourceViews;
+			Utilz::ThreadSafeMap<Utilz::GUID, RenderTargetInfo, Utilz::GUID::Hasher> renderTargetViews;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11DepthStencilView*, Utilz::GUID::Hasher> depthStencilViews;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11SamplerState*, Utilz::GUID::Hasher> samplerStates;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11BlendState*, Utilz::GUID::Hasher> blendStates;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11RasterizerState*, Utilz::GUID::Hasher> rasterizerStates;
+			Utilz::ThreadSafeMap<Utilz::GUID, D3D11_VIEWPORT, Utilz::GUID::Hasher> viewports;
+			Utilz::ThreadSafeMap<Utilz::GUID, ID3D11DepthStencilState*, Utilz::GUID::Hasher> depthStencilStates;
+			Utilz::ThreadSafeMap<Utilz::GUID, UnorderedAccessViewInfo, Utilz::GUID::Hasher> unorderedAccessViews;
 
 			/**<Key is evaluated by (GUID(shader) + GUID(resourceBindingName))*/
-			std::unordered_map<Utilz::GUID, int, Utilz::GUID::Hasher> shaderAndResourceNameToBindSlot;
+			Utilz::ThreadSafeMap<Utilz::GUID, int, Utilz::GUID::Hasher> shaderAndResourceNameToBindSlot;
 
 			//std::mutex mapLock;
 		};

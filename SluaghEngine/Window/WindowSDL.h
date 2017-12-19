@@ -62,6 +62,14 @@ namespace SE
 			*/
 			bool RegisterOnEventCallback(const OnEventCallback& callback) override;
 
+			/**
+			* @brief Toggles the cursor on/off
+			*/
+			void ToggleCursor(bool on) override;
+			/*
+			* @brief Sets the title of the window
+			*/
+			void SetWindowTitle(const std::string& title) override;
 
 			/*
 			* @brief Returns the width of the window.
