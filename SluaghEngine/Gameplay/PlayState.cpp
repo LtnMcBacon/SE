@@ -840,8 +840,8 @@ void SE::Gameplay::PlayState::OpenDoorsToRoom(int x, int y)
 void PlayState::InitializeRooms()
 {
 	StartProfile;
-	worldWidth = 10;
-	worldHeight = 1;
+	worldWidth = 9;
+	worldHeight = 3;
 	auto subSystem = engine->GetSubsystems();
 
 	auto s = std::chrono::high_resolution_clock::now();
@@ -853,11 +853,15 @@ void PlayState::InitializeRooms()
 		throw std::exception("No rooms found");
 
 	rooms = new RoomContainer[worldWidth * worldHeight];
-	for (int i = 0; i < worldWidth*worldHeight; i++)
-		rooms[i].room = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
 
-	currentRoomX = 0;
-	currentRoomY = 0;
+	for (int i = 0; i < worldWidth*worldHeight; i++)
+		if(i % 4 == 0)
+			rooms[i].room = new Gameplay::Room("PropRoom.room");
+		else
+			rooms[i].room = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+
+	currentRoomX = 8;
+	currentRoomY = 1;
 	currentRoom = GetRoom(currentRoomX, currentRoomY)->get().room;
 
 	auto e = std::chrono::high_resolution_clock::now();

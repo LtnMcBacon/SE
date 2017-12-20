@@ -29,7 +29,7 @@ int SE::ResourceHandler::ResourceHandler::Initialize(const InitializationInfo& i
 
 	//load_threadPool = new Utilz::ThreadPool(2);
 
-	for (size_t i = 0; i < 1; ++i)
+	for (size_t i = 0; i < 4; ++i)
 		workers.emplace_back(
 			[this]
 	{

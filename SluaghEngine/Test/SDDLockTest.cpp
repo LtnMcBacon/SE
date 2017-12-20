@@ -34,7 +34,7 @@ namespace SE::Test
 		
 			console->Print("Suc");
 		double avgDiff = 0.0;
-		for(int t = 0; t < 100000; t++)
+		for(int t = 0; t < 1000; t++)
 		{
 			std::promise<void> startP;
 			std::shared_future<void> sf(startP.get_future());
@@ -94,13 +94,13 @@ namespace SE::Test
 		}
 
 
-		console->Print("Avg Locked: %f", avgDiff / 100000.0);
+		console->Print("Avg Locked: %f", avgDiff / 1000.0);
 
 
 
 
 		avgDiff = 0.0;
-		for (int t = 0; t < 100000; t++)
+		for (int t = 0; t < 1000; t++)
 		{
 			std::promise<void> startP;
 			std::shared_future<void> sf(startP.get_future());
@@ -154,7 +154,7 @@ namespace SE::Test
 			//console->Print("%d - %f", t, diff);
 			avgDiff += diff;
 		}
-		console->Print("Avg no lock: %f", avgDiff / 100000.0);
+		console->Print("Avg no lock: %f", avgDiff / 1000.0);
 
 
 		return false;
