@@ -853,14 +853,21 @@ void PlayState::InitializeRooms()
 		throw std::exception("No rooms found");
 
 	rooms = new RoomContainer[worldWidth * worldHeight];
+	auto asd = { 0,4,8 };
+	for (auto x : asd)
+	{
+		for (int y = 0; y < 3; y++)
+			rooms[x*worldHeight + y].room = new Gameplay::Room("PropRoom.room");
+	}
 
-	for (int i = 0; i < worldWidth*worldHeight; i++)
-		if(i % 4 == 0)
-			rooms[i].room = new Gameplay::Room("PropRoom.room");
-		else
-			rooms[i].room = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+	auto asd2 = { 1,2,3,5,6,7 };
+	for (auto x : asd2)
+	{
+		for (int y = 0; y < 3; y++)
+			rooms[x*worldHeight + y].room = new Gameplay::Room(roomGuids[std::rand() % roomGuids.size()]);
+	}
 
-	currentRoomX = 8;
+	currentRoomX = 0;
 	currentRoomY = 1;
 	currentRoom = GetRoom(currentRoomX, currentRoomY)->get().room;
 
