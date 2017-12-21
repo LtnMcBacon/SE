@@ -463,10 +463,11 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (res < 0)
 		throw std::exception("Could not initiate optionsHandler. Something went wrong with the Config.ini file");
 
+
 	Window::InitializationInfo initInfo;
 	initInfo.winState = Window::WindowState::Record;
-	//initInfo.winState = Window::WindowState::Playback;
-	initInfo.file = "Recordings/RecordingThursday Thu Dec 14 164108 2017.bin";
+	initInfo.winState = Window::WindowState::Playback;
+	initInfo.file = "Recordings/RecordingThursday Thu Dec 21 101919 2017.bin";
 	engineInit.subSystems.window = Window::CreateNewWindow();
 	engineInit.subSystems.window->Initialize(initInfo);
 	auto result= engine->Init(engineInit);

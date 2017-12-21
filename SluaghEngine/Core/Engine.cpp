@@ -197,11 +197,11 @@ void SE::Core::Engine::InitSubSystems()
 	{
 		subSystems.resourceHandler = ResourceHandler::CreateResourceHandler();
 		ResourceHandler::InitializationInfo info;
-		info.RAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxRAMUsage", 256_mb);
+		info.RAM.max = 128_mb;
 		info.RAM.tryUnloadWhenOver = 0.8;
 		info.RAM.nloadingStrategy = ResourceHandler::EvictPolicy::FIFO;
 		info.RAM.getCurrentMemoryUsage = [this]() { return Utilz::Memory::GetPhysicalProcessMemory(); };
-		info.VRAM.max = subSystems.optionsHandler->GetOptionUnsignedInt("Memory", "MaxVRAMUsage", 256_mb);
+		info.VRAM.max = 128_mb;
 		info.VRAM.tryUnloadWhenOver = 0.8;
 		info.VRAM.nloadingStrategy = ResourceHandler::EvictPolicy::FIFO;
 		info.VRAM.getCurrentMemoryUsage = [this]() {return subSystems.renderer->GetVRam(); };
@@ -508,6 +508,7 @@ void SE::Core::Engine::SetupDebugConsole()
 		static float ram_usage[samples];
 		static int offset = 0;
 
+
 		auto rhi = subSystems.resourceHandler->GetInfo();
 		
 		vram_usage[offset] = ((float)rhi.VRAM.getCurrentMemoryUsage()) / (1024.0f * 1024.0f);
@@ -516,6 +517,7 @@ void SE::Core::Engine::SetupDebugConsole()
 		const float tempvram = vram_usage[offset];
 		offset = (offset + 1) % samples;
 		ImGui::PlotLines("VRAM", vram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.VRAM.max), { 0, 80 });
+		ImGui::TextUnformatted((std::string("To much VRAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(rhi.RAM.max)) + "mb").c_str());
 		if (rhi.VRAM.getCurrentMemoryUsage() >= rhi.VRAM.max)
 		{
 
@@ -524,6 +526,7 @@ void SE::Core::Engine::SetupDebugConsole()
 			ImGui::PopStyleColor();
 		}
 		ImGui::PlotLines("RAM", ram_usage, samples, offset, nullptr, 0.0f, toMB(rhi.RAM.max), { 0, 80 });
+		ImGui::TextUnformatted((std::string("To much RAM USAGE!!!!!!!!!!!!! Max usage is ") + std::to_string(toMB(rhi.RAM.max)) + "mb").c_str());
 		if (rhi.RAM.getCurrentMemoryUsage() >= rhi.RAM.max)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, { 0.8f, 0.0f, 0.0f , 1.0f });
